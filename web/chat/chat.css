@@ -1,0 +1,202 @@
+.header {
+    background-color: #9A1A1E;
+    color: #FFFFFF;
+    position: fixed;
+    top: 0
+}
+
+.message-list {
+    position:absolute;
+    top:0px;
+    bottom:0px;
+    overflow:scroll
+}
+
+.message-list-contents {
+    width:100%;
+    /*height:100%;*/
+    /*justify-content: flex-end;*/
+    flex-direction:column
+}
+
+.direct-user-list {
+    background-color: #EAF0F6;
+    border-radius: 5px;
+    padding: 2%;
+}
+
+.chat-list-current-user-name {
+    font-size: x-large;
+    font-weight: 700;
+}
+
+.user-with-presence {
+    position: relative;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.chat-list-avatar {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 3em;
+    height: 3em;
+    border-radius: 50%
+}
+
+.chat-list-name {
+    font-size: larger;
+    padding-left: 0.5em;
+}
+
+.presence-dot-none {
+    position: absolute;
+    top: 35px;
+    left: 35px;
+    width: 1em;
+    height: 1em;
+}
+
+.presence-dot-green {
+    position: absolute;
+    top: 35px;
+    left: 35px;
+    width: 1em;
+    height: 1em;
+    background-color: #10FF00;
+    border: 1px solid black;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.presence-dot-gray {
+    position: absolute;
+    top: 35px;
+    left: 35px;
+    width: 1em;
+    height: 1em;
+    background-color: #B9B9B9;
+    border: 1px solid black;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.unread-message-indicator {
+    color: #FFFFFF;
+    border-radius: 50%;
+    text-align: center;
+    height: 1.5em;
+    width: 1.5em;
+    margin-top: 0.75em;
+    line-height: 1.5em;
+    background: #9A1A1E;
+    float: right;
+}
+
+.hidden {
+    visibility:hidden;
+}
+
+.message-input {
+    padding: 6px 15px 6px 15px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    font-size: medium;
+    caret-color: auto;
+}
+
+.message-input-icon {
+    font-size:xx-large;
+    cursor: pointer;
+}
+
+.message-them {
+    width: 90%;
+    padding: 6px 20px 6px 10px;
+    margin: 8px;
+    background-color: #FFFFFF;
+    border-style: solid;
+    border-color: black;
+    border-width: 2px;
+    box-sizing: border-box;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+
+.message-you {
+    width: 90%;
+    padding: 6px 10px 6px 20px;
+    margin: 8px;
+    background-color: #EAF0F6;
+    border-style: solid;
+    border-color: black;
+    border-width: 2px;
+    box-sizing: border-box;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+
+.message-you-avatar {
+    display:block;
+    width:fit-content;
+    float:right
+}
+
+.message-you-avatar-contents {
+    display:block;
+    width:fit-content;
+    float:right
+}
+
+.message-contextmenu-you {
+    display:inline;
+    font-size:x-large;
+    cursor: pointer;
+    background-color: #FFFFFF;
+    border-radius:50px;
+    padding-left: 15px;
+    padding-right: 15px;
+    width:fit-content;
+}
+
+.message-contextmenu-them {
+    display:block;
+    font-size:x-large;
+    cursor: pointer;
+    background-color: #EAF0F6;
+    border-radius:50px;
+    padding-left: 15px;
+    padding-right: 15px;
+    width:fit-content;
+}
+
+.message-reacted {
+    font-size:medium;
+}
+
+.youText {
+    float: right;
+}
+
+.message-time {
+    font-size: x-small;
+    /*float: right;*/
+}
+
+.message-sender {
+    font-size: small;
+    /*float: right;*/
+}
+
+.messageCheck {
+    font-size: x-large;
+    /*float: right;*/
+}
+
+.typingIndicator {
+    font-size: small;
+}

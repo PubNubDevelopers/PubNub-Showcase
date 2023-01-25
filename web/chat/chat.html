@@ -1,0 +1,232 @@
+<HTML>
+
+<HEAD>
+    <TITLE>PubNub Showcase Demo</TITLE>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--  Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="./chat.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="../favicon.ico" />
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
+    <script src="../keys.js"></script>
+    <script src="../pubnub_setup.js"></script>
+    <script src="./chat_constants.js"></script>
+    <script src="./chat.js"></script>
+</HEAD>
+
+<BODY onload="loadChat()">
+
+    <div id="header" class="container-fluid p-2 header">
+        <i class="bi bi-list display-4 mt-1" style="float:left" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#chatLeftSide" aria-controls="chatLeftSide"></i>
+        <i class="bi bi-info-circle display-4 mt-1" style="float:right" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#chatRightSide" aria-controls="chatRightSide"></i>
+        <h1 id='heading' class="display-4 fw-bold text-center">Chat</h1>
+        <H3 id='header-subheading' class="text-center"> </H3>
+    </div>
+
+    <div id='messageList' class="container-fluid message-list px-0">
+
+        <div id='messageListContents' class="d-flex px-3 message-list-contents">
+
+
+            <div id='message-002' class='message-them align-self-start'>
+                <div class="user-with-presence float-start mx-2">
+                    <img src="../img/avatar/002.png" class="chat-list-avatar">
+                    <span class="presence-dot-green"></span>
+                </div>
+                <span class='messageCheck'><i class="bi bi-check-all"></i></span>
+                TEST MESSAGE - PLEASE IGNORE
+
+
+                <div class='float-end' style="text-align:right">
+                    <div id='message-001-contextmenu' class="message-contextmenu-them py-2" style="display:block;">
+                        <button type="button" class="btn btn-danger">Delete</button>
+                        <i class="bi bi-emoji-smile"></i>
+                        <i class="bi bi-emoji-frown"></i>
+                        <i class="bi bi-heart-fill"></i>
+                        <i class="bi bi-lightning"></i>
+                    </div>
+
+                </div>
+
+                <i class="bi bi-lightning message-reacted"></i>
+                <i class="bi bi-emoji-smile message-reacted"></i>
+                <div class='message-sender' style="display:block">Jason Jones</div>
+                <div class='message-time' style="display:inline">20th January 2023 14:08pm</div>
+            </div>
+
+
+
+            <div id='message-003' class='message-you align-self-end'>
+                TEST MESSAGE - PLEASE IGNORE
+
+
+                <div class="message-you-avatar">
+                    <div class="user-with-presence mx-2 message-you-avatar-contents">
+                        <img src="../img/avatar/003.png" class="chat-list-avatar">
+                        <span id='pres-message-003' class="presence-dot-gray"></span>
+                    </div>
+
+                    <div class='float-end' style="display:inline;width:fit-content">
+                        <div class='' style="text-align:right"><span id='message-reactions-003'><i
+                                    class="bi bi-heart-fill message-reacted"></i></span>
+                            <span class='messageCheck'><i id='check-message-003' class="bi bi-check"></i></span>
+                            <div class='message-sender'>(You)</div>
+                            <div class='message-time'>20th January 2023 14:08pm</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id='message-001-contextmenu' class="message-contextmenu-you py-2" style="display:none;">
+                    <button type="button" class="btn btn-danger">Delete</button>
+                    <i class="bi bi-emoji-smile"></i>
+                    <i class="bi bi-emoji-frown"></i>
+                    <i class="bi bi-heart-fill"></i>
+                    <i class="bi bi-lightning"></i>
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Not Implemented</strong>
+                <small></small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div id='toast-body' class="toast-body">
+                This feature has not yet been implemented.
+            </div>
+        </div>
+    </div>
+
+    <nav id="bottomNav" class="navbar fixed-bottom p-0">
+        <div class="d-flex py-1 mx-2 typingIndicator justify-content-end" style="width:100%;">
+            <i class="bi bi-chat-right-dots align-self-center small mx-2"></i>
+            <span>Jason Jones is typing... (NOT YET IMPLEMENTED)</span>
+        </div>
+
+
+        <div class="d-flex flex-row py-2" style="background-color: #FFFFFF;width:100%">
+
+            <i class="bi bi-emoji-smile align-self-center message-input-icon mx-2" data-bs-toggle="popover"
+                data-bs-trigger="focus" data-bs-title="Dismissible popover"
+                data-bs-content="And here's some amazing content. It's very engaging. Right?"
+                onclick="messageInputEmoji()"></i>
+            <input id="input-message" class="message-input" style="width:100%" placeholder="Message" />
+            <i class="bi bi-paperclip align-self-center message-input-icon mx-2" data-bs-toggle="popover"
+                data-bs-placement="right" data-bs-custom-class="custom-popover" data-bs-title="Not Implemented"
+                data-bs-content="This feature is not yet implemented." onclick="messageInputAttachment()"></i>
+            <i class="bi bi-send align-self-center message-input-icon mx-2" onclick="messageInputSend()"></i>
+
+        </div>
+
+
+
+        <div class="container-fluid p-0">
+            <a class="nav-link flex-grow-1 bottom-nav-item message-input-icon p-1"
+                href="javascript:launchApp('../chat');"><i class="bi bi-chat-left"
+                    style="font-size: 2rem; color: white; padding:5px"></i><br>Chat</a>
+            <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="../discover.html"><i class="bi bi-search-heart"
+                    style="font-size: 2rem; color: white; padding:5px"></i><br>Discover</a>
+            <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="../admin/admin.html"><i
+                    class="bi bi-person-circle" style="font-size: 2rem; color: white; padding:5px"></i><br>Me</a>
+        </div>
+    </nav>
+
+
+
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="chatLeftSide"
+        aria-labelledby="chatLeftSide">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="chatLeftSide">Select a group or person to chat</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="chat-list-current-user mb-3">
+                <img id="avatar" src="../img/avatar/placeholder.png" class="chat-list-avatar">
+                <span id="currentUser" class="chat-list-current-user-name mx-2"></span>
+            </div>
+            <H2>Direct 1:1 Chats</H2>
+            <div id="oneOneUserList" class="direct-user-list mb-3">
+
+                <div class="user-with-presence mb-2" onclick="launchDirectChat('user_001')">
+                    <img src="../img/avatar/001.png" class="chat-list-avatar">
+                    <span class="presence-dot-green"></span>
+                    <span style="font-size: larger;padding-left: 0.5em;">IGNORE THIS USER</span>
+                    <span class="unread-message-indicator">5</span>
+                </div>
+                <div class="user-with-presence mb-2" onclick="launchDirectChat('user_002')">
+                    <img src="../img/avatar/002.png" class="chat-list-avatar">
+                    <span class="presence-dot-gray"></span>
+                    <span style="font-size: larger;padding-left: 0.5em;">IGNORE THIS USER</span>
+                    <span class="unread-message-indicator">1</span>
+                </div>
+                <div class="user-with-presence mb-2" onclick="launchDirectChat('user_003')">
+                    <img src="../img/avatar/003.png" class="chat-list-avatar">
+                    <span class="presence-dot-green"></span>
+                    <span style="font-size: larger;padding-left: 0.5em;">IGNORE THIS USER</span>
+                    <span class="unread-message-indicator" style="display:none"></span>
+                </div>
+
+
+            </div>
+
+
+            <H2>Groups <i class="bi bi-plus-circle" onclick="addGroupClick();"></i></H2>
+            <div id="groupList" class="group-list mb-3">
+                    <!--div class="user-with-presence mb-2" onclick="launchGroupChat('test')">
+                    <img src="../img/avatar/003.png" class="chat-list-avatar">
+                    <span style="font-size: larger;padding-left: 0.5em;">Test Group</span>
+                    <span class="unread-message-indicator">Test</span>
+                </div>
+                <div class="user-with-presence mb-2" onclick="launchGroupChat('global')">
+                    <img src="../img/avatar/003.png" class="chat-list-avatar">
+                    <span style="font-size: larger;padding-left: 0.5em;">Global</span>
+                    <span class="unread-message-indicator" style="display:none"></span>
+                </div-->
+        </div>
+
+    </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="chatRightSide" aria-labelledby="chatRightSideLabel">
+        <div class="offcanvas-header">
+            <h5 id="chatRightSideLabel">Chat Information</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            Not yet implemented
+            <br>
+            <div id="infoPaneTemp"></div>
+        </div>
+
+
+
+
+
+    </div>
+
+
+
+</BODY>
+
+</HTML>

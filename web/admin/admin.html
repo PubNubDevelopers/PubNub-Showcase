@@ -1,0 +1,159 @@
+<HTML>
+
+<HEAD>
+    <TITLE>PubNub Showcase Demo</TITLE>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--  Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="../favicon.ico" />
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
+    <script src="../keys.js"></script>
+    <script src="../pubnub_setup.js"></script>
+    <script src="../app.js"></script>
+    <script src="./admin.js"></script>
+</HEAD>
+
+<BODY onload="loadAdmin()">
+
+
+    <div class="container-fluid p-0">
+        <div class="mb-3 p-2" style="background-color:#9A1A1E; color:#FFFFFF">
+            <h1 class="display-4 fw-bold text-center">User Data</h1>
+
+        </div>
+
+
+        <div class="px-3">
+
+            <div class="card">
+                <h3 class="card-header">Nickname: <span id="lblName"></span> <a href="javascript:changeName()" class="btn btn-pn-small">Edit</a></h3>
+                <div class="card-body">
+                    
+                    <li class="list-group-item">
+                        <div class="d-flex">
+                            <div style="flex:1">
+                                <H4>User ID: </H4>
+                            </div>
+                            <div id="lblUserId" style="flex:1">
+                            </div>
+                        </div>
+
+                    </li>
+                    <li class="list-group-item">
+                        <div class="d-flex">
+                            <div style="flex:1">
+                                <H4>Last Modified:</H4>
+                            </div>
+                            <div style="flex:1">
+                                24th January 2024 at 10:04am
+                            </div>
+                        </div>
+
+                    </li>
+
+                    <li class="list-group-item">
+                        <div class="d-flex">
+                            <div style="flex:1">
+                                <H4>Avatar:</H4>
+                            </div>
+                            <div style="flex:1">
+                                <img id="avatar" src="../img/avatar/placeholder.png" class="avatar" style="margin-bottom:3px" alt="User Avatar">
+                            </div>
+                        </div>
+
+                    </li>
+
+                    <li class="list-group-item">
+                        <div class="d-flex">
+                            <div style="flex:1">
+                                <H4>Active Chats (SIMULATED):</H4>
+                            </div>
+                            <div style="flex:1">
+                                Total channels: 2<br>
+                                <ul>
+                                    <li>SIMULATED DATA</li>
+                                    <li>1:1 chat with Jason Jones</li>
+                                    <li>Group chat with Bert and Jason Jones</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </li>
+
+                    <li class="list-group-item">
+                        <div class="d-flex">
+                            <div style="flex:1">
+                                <H4>Email:</H4>
+                            </div>
+                            <div style="flex:1">
+                                Not provided
+                            </div>
+                        </div>
+
+                    </li>
+
+                    <li class="list-group-item">
+                        <div class="d-flex">
+                            <div style="flex:1">
+                                <H4>Custom Data:</H4>
+                            </div>
+                            <div style="flex:1">
+                                No custom data specified
+                            </div>
+                        </div>
+
+                    </li>
+
+
+                </div>
+                <div class="card-footer text-muted">
+                    <a href="javascript:logout()" class="btn btn-danger btn-lg" style="background-color:#9A1A1E;border:#9A1A1E">Log out</a>
+                </div>
+            </div>
+
+            <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">Not Implemented</strong>
+                        <small></small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div id='toast-body' class="toast-body">
+                        This feature has not yet been implemented.
+                    </div>
+                </div>
+            </div>
+    
+
+            <br><br><br><br><br>
+
+
+        </div>
+
+        <nav class="navbar fixed-bottom p-0">
+            <div class="container-fluid p-0">
+                <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="javascript:launchApp('../chat');"><i
+                        class="bi bi-chat-left" style="font-size: 2rem; color: white; padding:5px"></i><br>Chat</a>
+                <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="../discover.html"><i class="bi bi-search-heart"
+                        style="font-size: 2rem; color: white; padding:5px"></i><br>Discover</a>
+                <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="./admin.html"><i class="bi bi-person-circle"
+                        style="font-size: 2rem; color: white; padding:5px"></i><br>Me</a>
+            </div>
+        </nav>
+
+
+    </div>
+
+
+</BODY>
+
+</HTML>

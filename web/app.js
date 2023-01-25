@@ -109,6 +109,15 @@ function launchApp (app) {
   }
 }
 
+function uploadCustomAvatar()
+{
+  const toastLiveExample = document.getElementById('liveToast')
+  const toastBody = document.getElementById('toast-body')
+  toastBody.innerHTML =
+    'This feature (' + "Uploading a custom avatar" + ') has not yet been implemented'
+  const toast = new bootstrap.Toast(toastLiveExample)
+  toast.show()
+}
 
 function test()
 {

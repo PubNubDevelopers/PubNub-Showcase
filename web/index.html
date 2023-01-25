@@ -56,17 +56,17 @@
 
                     <img src="" class="avatar" onclick="selectedAvatar(0, src);" id="avatar-0">
 
-                    <img src="" class="avatar" onclick="javascript:selectedAvatar(1, src);" id="avatar-1">
+                    <img src="" class="avatar" onclick="selectedAvatar(1, src);" id="avatar-1">
 
-                    <img src="" class="avatar" onclick="javascript:selectedAvatar(2, src);" id="avatar-2">
+                    <img src="" class="avatar" onclick="selectedAvatar(2, src);" id="avatar-2">
 
-                    <img src="" class="avatar" onclick="javascript:selectedAvatar(3, src);" id="avatar-3">
+                    <img src="" class="avatar" onclick="selectedAvatar(3, src);" id="avatar-3">
 
-                    <img src="" class="avatar" onclick="javascript:selectedAvatar(4, src);" id="avatar-4">
+                    <img src="" class="avatar" onclick="selectedAvatar(4, src);" id="avatar-4">
 
                     <br><br>
 
-                    <a href="#" class="btn btn-pn" style="line-height:12px;font-size:16px;">Upload custom avatar</a>
+                    <a href="#" class="btn btn-pn" style="line-height:12px;font-size:16px;" onclick="uploadCustomAvatar();">Upload custom avatar</a>
 
                 </div>
                 <input type="submit" class="btn btn-pn disabled" id="btnLogin" value="Login" style="float:right"/>
@@ -74,6 +74,20 @@
             </div>
         </div>
     </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Not Implemented</strong>
+                <small></small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div id='toast-body' class="toast-body">
+                This feature has not yet been implemented.
+            </div>
+        </div>
+    </div>
+
 
 
 

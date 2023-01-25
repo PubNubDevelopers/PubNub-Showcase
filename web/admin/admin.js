@@ -22,7 +22,7 @@ async function getUserMetadata () {
     })
     document.getElementById('lblName').innerHTML = result.data.name
     document.getElementById('avatar').src = result.data.profileUrl
-    } catch (e) {
+  } catch (e) {
     console.log(e)
   }
 }
@@ -36,30 +36,31 @@ async function logout () {
     uuid: pubnub.getUUID()
   })
   console.log(channels)
-  var channelArray = [];
-  for (var i = 0; i < channels.data.length; i++)
-  {
+  var channelArray = []
+  for (var i = 0; i < channels.data.length; i++) {
     channelArray.push(channels.data[i].channel.id)
   }
   console.log(channels)
-  await pubnub.objects.removeMemberships({
-    uuid: pubnub.getUUID(),
-    channels: channelArray
-  })
+  if (channelArray.length > 0) {
+    await pubnub.objects.removeMemberships({
+      uuid: pubnub.getUUID(),
+      channels: channelArray
+    })
+  }
 
   location.href = '../index.html'
 }
 
 function changeName () {
   console.log('Changing Nickname')
-  notImplemented('Changing nickname');
+  notImplemented('Changing nickname')
 }
 
 function notImplemented (feature) {
-    const toastLiveExample = document.getElementById('liveToast')
-    const toastBody = document.getElementById('toast-body')
-    toastBody.innerHTML =
-      'This feature (' + feature + ') has not yet been implemented'
-    const toast = new bootstrap.Toast(toastLiveExample)
-    toast.show()
-  }
+  const toastLiveExample = document.getElementById('liveToast')
+  const toastBody = document.getElementById('toast-body')
+  toastBody.innerHTML =
+    'This feature (' + feature + ') has not yet been implemented'
+  const toast = new bootstrap.Toast(toastLiveExample)
+  toast.show()
+}

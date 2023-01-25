@@ -68,8 +68,11 @@ async function loadChat () {
       console.log('OBJECT EVENT')
       console.log(objectEvent)
       //  log out if our object was deleted, e.g. a duplicate tab logged out
-      if (objectEvent.message.type == "uuid" && objectEvent.message.event == "delete" && objectEvent.message.data.id == pubnub.getUUID())
-      {
+      if (
+        objectEvent.message.type == 'uuid' &&
+        objectEvent.message.event == 'delete' &&
+        objectEvent.message.data.id == pubnub.getUUID()
+      ) {
         location.href = '../index.html'
       }
       //  todo update list of people present in the chat
@@ -105,7 +108,6 @@ async function getUserMetadataSelf () {
     console.log(e)
     //  Some error retrieving our own meta data - probably the objects were deleted, therefore log off (possible duplicate tab)
     location.href = '../index.html'
-
   }
 }
 
@@ -155,7 +157,7 @@ async function getUserMetaDataOthers () {
       })
       pubnub.objects.setMemberships({
         channels: [tempChannel],
-        uuid: pubnub.getUUID(),
+        uuid: pubnub.getUUID()
       })
     }
     //  Subscribe to the channel for the 1:1 user
@@ -270,29 +272,7 @@ async function populateChatWindow (channelName) {
   }
   console.log(channelMembers)
 
-  //  Update page header
-  //  todo take care here - the channelMembers won't be up to date if this user is newly created - update when Object event occurs
-  //  todo only include 'present' members who were created in the past hour
-
-  //  todo this logic belongs in the info pane
-  var withMembers = 'Pending... (you)'
-  if (channelMembers[pubnub.getUUID()] != null) {
-    withMembers =
-      'Active in last 24 hours: ' +
-      channelMembers[pubnub.getUUID()].name +
-      '(you)'
-  }
-
-  for (var userId in channelMembers) {
-    if (userId != pubnub.getUUID()) {
-      if (channelMembers[userId] != null) {
-        withMembers += ', ' + channelMembers[userId].name
-      } else {
-        withMembers += ', pending' //  todo - new idea: if the user isn't present in channelMembers then don't include it here (only add users to channelMembers if they were recently active)
-      }
-    }
-  }
-  document.getElementById('infoPaneTemp').innerHTML = withMembers
+  updateInfoPane()
 
   //document.getElementById('header-subheading').innerHTML =
   //  'Members recently active: ' + Object.keys(channelMembers).length
@@ -312,29 +292,6 @@ async function populateChatWindow (channelName) {
       //    history.channels[channelName].forEach(msg => {
       historicalMsg.publisher = historicalMsg.uuid
 
-      //  If we don't have the information about the message sender cached, retrieve that from objects
-      if (channelMembers[historicalMsg.uuid] == null) {
-        console.log('MISSING USER INFO')
-        try {
-          const result = await pubnub.objects.getUUIDMetadata({
-            uuid: historicalMsg.uuid
-          })
-          if (result != null) {
-            console.log('POPULATING MISSING INFO')
-            console.log(result)
-            channelMembers[historicalMsg.uuid] = {
-              name: result.data.name,
-              profileUrl: result.data.profileUrl
-            }
-          }
-        } catch (e) {
-          console.log(
-            'Lookup of unknown uuid failed - they probably logged out and cleared objects: ' +
-              e
-          )
-        }
-      }
-
       if (channelMembers[historicalMsg.uuid] != null) {
         //  Only show past messages from users who didn't log out
         messageReceived(historicalMsg)
@@ -347,10 +304,34 @@ async function populateChatWindow (channelName) {
   //}
 }
 
-function messageReceived (messageObj) {
+async function messageReceived (messageObj) {
   try {
     console.log(messageObj)
     if (messageObj.channel != channel) return
+
+      //  If we don't have the information about the message sender cached, retrieve that from objects
+      if (channelMembers[messageObj.publisher] == null) {
+        console.log('MISSING USER INFO')
+        try {
+          const result = await pubnub.objects.getUUIDMetadata({
+            uuid: messageObj.publisher
+          })
+          if (result != null) {
+            console.log('POPULATING MISSING INFO')
+            console.log(result)
+            channelMembers[messageObj.publisher] = {
+              name: result.data.name,
+              profileUrl: result.data.profileUrl
+            }
+          }
+        } catch (e) {
+          console.log(
+            'Lookup of unknown uuid failed - they probably logged out and cleared objects: ' +
+              e
+          )
+        }
+      }
+
     var messageDiv = ''
     if (messageObj.publisher == pubnub.getUUID()) {
       messageDiv = createMessageSent(messageObj)
@@ -458,6 +439,28 @@ function createMessageReceived (messageObj) {
   return newMsg
 }
 
+function updateInfoPane () {
+  //  todo this is just a bare bones example
+  var withMembers = 'Pending... (you)'
+  if (channelMembers[pubnub.getUUID()] != null) {
+    withMembers =
+      'Active in last 24 hours: ' +
+      channelMembers[pubnub.getUUID()].name +
+      '(you)'
+  }
+
+  for (var userId in channelMembers) {
+    if (userId != pubnub.getUUID()) {
+      if (channelMembers[userId] != null) {
+        withMembers += ', ' + channelMembers[userId].name
+      } else {
+        withMembers += ', pending' //  todo - new idea: if the user isn't present in channelMembers then don't include it here (only add users to channelMembers if they were recently active)
+      }
+    }
+  }
+  document.getElementById('infoPaneTemp').innerHTML = withMembers
+}
+
 function clearMessageList () {
   var messageListContents = document.getElementById('messageListContents')
   messageListContents.innerHTML = ''
@@ -548,4 +551,3 @@ function notImplemented (feature) {
   const toast = new bootstrap.Toast(toastLiveExample)
   toast.show()
 }
-

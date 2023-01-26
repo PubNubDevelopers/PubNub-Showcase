@@ -1,10 +1,13 @@
 var pubnub = null
 var channel = null
 var channelMembers = null
+var userData = null
 var me = null
+const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 
 async function loadChat () {
   channelMembers = {}
+  userData = {}
   repositionMessageList()
 
   //  Long press handler for each chat message
@@ -30,23 +33,20 @@ async function loadChat () {
   pubnub = createPubNubObject()
   getUserMetadataSelf() //  Populate own data for left hand pane
   getUserMetaDataOthers() //  Populate list of direct chats for left hand pane
-  //  todo - check the name gets updated eventually if it is not available on first load.  (Channel Members array is updated - or just rerun populateChatWindow when an object is updated?)
   getGroupList() //  Populate list of group chats for left hand pane
-  //  todo reinstate this
-  //try {
-  channel = sessionStorage.getItem('activeChatChannel')
-  if (channel == null) {
-    //  There is no active chat channel, load the default channel
-    console.log('channel is null, defaulting to group chat')
-    channel = predefined_groups.groups[0].channel
-    await populateChatWindow(channel)
-  } else {
-    console.log('channel: ' + channel)
-
-    await populateChatWindow(channel)
+  try {
+    channel = sessionStorage.getItem('activeChatChannel')
+    if (channel == null) {
+      //  There is no active chat channel, load the default channel
+      //console.log('channel is null, defaulting to group chat')
+      channel = predefined_groups.groups[0].channel
+      await populateChatWindow(channel)
+    } else {
+      await populateChatWindow(channel)
+    }
+  } catch (err) {
+    console.log(err)
   }
-  //} catch (err) {
-  //}
 
   //  Add an event listener for the channel
   pnListener = pubnub.addListener({
@@ -64,19 +64,91 @@ async function loadChat () {
     presence: presenceEvent => {
       console.log(presenceEvent)
     },
-    objects: objectEvent => {
-      console.log('OBJECT EVENT')
-      console.log(objectEvent)
-      //  log out if our object was deleted, e.g. a duplicate tab logged out
+    objects: async objectEvent => {
+      //console.log('OBJECT EVENT')
+      //console.log(objectEvent)
       if (
         objectEvent.message.type == 'uuid' &&
         objectEvent.message.event == 'delete' &&
         objectEvent.message.data.id == pubnub.getUUID()
       ) {
+        //  The Object associated with OUR UUID was deleted.
+        //  log out.  This could have been caused e.g. by a duplicate tab logging out
         location.href = '../index.html'
+      } else if (
+        objectEvent.message.type == 'uuid' &&
+        objectEvent.message.event == 'delete' &&
+        objectEvent.message.data.id != pubnub.getUUID()
+      ) {
+        var userId = objectEvent.message.data.id
+        //  The Object associated with some other UUID was deleted.
+        if (userData[userId] != null) {
+          removeUser(userId)
+        }
+        //  Consider 2 scenarios:
+        //  Firstly, the current channel is a group chat
+        if (channel.startsWith('group.')) {
+          //  If the removed user is part of the active group, remove them
+          if (channelMembers[userId] != null) {
+            console.log('removing user from current channel')
+            removeUserFromCurrentChannel(userId)
+            updateInfoPane()
+          }
+        } else if (channel.startsWith('direct')) {
+          //  If the active group is a 1:1 conversation, if it is with the deleted user, quit the chat
+          if (createDirectChannelName(userId, pubnub.getUUID()) == channel) {
+            channel = predefined_groups.groups[0].channel
+            await populateChatWindow(channel)
+          }
+        }
+      } else if (
+        objectEvent.message.type == 'membership' &&
+        objectEvent.message.event == 'set' &&
+        objectEvent.message.data.uuid.id == pubnub.getUUID()
+      ) {
+        //  We have joined a channel, logic for this is handled elsewhere.
+        //  No action required
+      } else if (
+        objectEvent.message.type == 'membership' &&
+        objectEvent.message.event == 'set' &&
+        objectEvent.message.data.uuid.id != pubnub.getUUID()
+      ) {
+        //  Somebody else has joined a channel
+        //  Regardless of our active channel, add this person to our list of direct chats if they aren't there already (this is our indication a new user is added)
+        var userId = objectEvent.message.data.uuid.id
+        if (userData[userId] == null) {
+          userData[userId] = {}
+          //  Find out the information about this user
+          const userInfo = await getUUIDMetaData(userId)
+          addNewUser(userId, userInfo.data.name, userInfo.data.profileUrl)
+        }
+        if (objectEvent.message.data.channel.id == channel) {
+          if (channelMembers[userId] == null) {
+            //  if the user has joined the active channel, add them to the list of channel members
+            const userInfo = await getUUIDMetaData(userId)
+            addUserToCurrentChannel(
+              userId,
+              userInfo.data.name,
+              userInfo.data.profileUrl
+            )
+          }
+        }
+      } else if (
+        objectEvent.message.type == 'membership' &&
+        objectEvent.message.event == 'delete' &&
+        objectEvent.message.data.uuid == pubnub.getUUID()
+      ) {
+        //  This will only ever be called by this app if we log out, the logic of which is handled elsewhere.  Specifically, if we log out in a duplicate tab, we handle this in [uuid][delete]
+        //  No action required
+      } else if (
+        objectEvent.message.type == 'membership' &&
+        objectEvent.message.event == 'delete' &&
+        objectEvent.message.data.uuid != pubnub.getUUID()
+      ) {
+        //  Somebody else has removed themselves from a channel
+        //  In this application, this can only happen if the user has logged out (which clears their data), a scenario caught by the [uuid][delete] handler
+        //  No action required
       }
-      //  todo update list of people present in the chat
-      //  todo update any messages in the chat affected by this change
     }
   })
 }
@@ -112,56 +184,24 @@ async function getUserMetadataSelf () {
 }
 
 async function getUserMetaDataOthers () {
-  var MAX_CHATS_TO_SHOW = 7
   // Get all UUIDs
-  //  todo Might want to only get users who were active in the past 24 hours to match the logic in the group chat
-  console.log('get user meta data others')
+  userData = {}
   try {
     const users = await pubnub.objects.getAllUUIDMetadata({
-      sort: { updated: 'desc' }
+      sort: { updated: 'asc' },
+      limit: 50
     })
     //  Populate the Direct 1:1 Chat list with people you can chat with
-    if (users.data.length < MAX_CHATS_TO_SHOW)
-      MAX_CHATS_TO_SHOW = users.data.length
-    for (var i = 0; i < MAX_CHATS_TO_SHOW; i++) {
+    for (var i = 0; i < users.data.length; i++) {
       if (users.data[i].id == pubnub.getUUID()) continue
-      var oneOneUser =
-        " <div class='user-with-presence mb-2' onclick='launchDirectChat(\"" +
-        users.data[i].id +
-        "\")'><img src='" +
-        users.data[i].profileUrl +
-        "' class='chat-list-avatar'><span id='pres-" +
-        users.data[i].id +
-        "' class='presence-dot-none'></span><span class='chat-list-name'>" +
-        users.data[i].name +
-        "</span><span id='unread_" +
-        users.data[i].id +
-        "' class='unread-message-indicator hidden'></span></div>"
-      document.getElementById('oneOneUserList').innerHTML += oneOneUser
-
-      //  Channel name of direct chats is just "direct.[userId1]-[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
-      var userId1 = pubnub.getUUID()
-      var userId2 = users.data[i].id
-      if (users.data[i].id < pubnub.getUUID()) {
-        userId1 = users.data[i].id
-        userId2 = pubnub.getUUID()
-      }
-      var tempChannel = 'direct.' + userId1 + '-' + userId2
-
-      //  Add myself and the recipient to the direct chat channel
-      //  In production this would probably be done from a central server with access control but for
-      //  simplicity, we'll do this on every client
-      pubnub.objects.setChannelMembers({
-        channel: tempChannel,
-        uuids: [userId1, userId2]
-      })
-      pubnub.objects.setMemberships({
-        channels: [tempChannel],
-        uuid: pubnub.getUUID()
-      })
+      var lastUpdated = new Date(users.data[i].updated)
+      var cutoff = new Date()
+      cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
+      if (lastUpdated < cutoff) continue
+      //  Only add new users recently created
+      addNewUser(users.data[i].id, users.data[i].name, users.data[i].profileUrl)
     }
-    //  Subscribe to the channel for the 1:1 user
-    console.log('calling subscribe')
+    //  Subscribing to all possible channels we will want to know about.  Need to know about all channels so we can track the unread message counter
     pubnub.subscribe({
       channels: ['direct.*', 'group.*'],
       withPresence: true
@@ -169,6 +209,78 @@ async function getUserMetaDataOthers () {
   } catch (status) {
     console.log('Failed to retrieve user meta data for other users: ', status)
   }
+}
+
+function addNewUser (userId, name, profileUrl) {
+  //  A new user is present in the chat system.
+  //  Add this user's details to our local cache of user details
+  userData[userId] = { name: name, profileUrl: profileUrl }
+
+  //  Add this user to the left hand pane of direct chats
+  var oneOneUser =
+    " <div id='user-" +
+    userId +
+    "' class='user-with-presence mb-2' onclick='launchDirectChat(\"" +
+    userId +
+    "\")'><img src='" +
+    profileUrl +
+    "' class='chat-list-avatar'><span id='pres-" +
+    userId +
+    "' class='presence-dot-none'></span><span class='chat-list-name'>" +
+    name +
+    "</span><span id='unread-" +
+    userId +
+    "' class='unread-message-indicator hidden'></span></div>"
+  document.getElementById('oneOneUserList').innerHTML =
+    oneOneUser + document.getElementById('oneOneUserList').innerHTML
+
+  var tempChannel = createDirectChannelName(pubnub.getUUID(), userId)
+
+  //  Add myself and the recipient to the direct chat channel
+  //  In production this would probably be done from a central server with access control but for
+  //  simplicity, we'll do this on every client
+  //      pubnub.objects.setChannelMembers({
+  //        channel: tempChannel,
+  //        uuids: [pubnub.getUUID()]
+  //        //uuids: [userId1, userId2]
+  //      })
+  pubnub.objects.setMemberships({
+    channels: [tempChannel],
+    uuid: pubnub.getUUID()
+  })
+}
+
+function createDirectChannelName (userId1, userId2) {
+  //  Create a channel for us to talk 1:1 with another user
+  //  Channel name of direct chats is just "direct.[userId1]-[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
+  if (userId1 <= userId2) return 'direct.' + userId1 + '-' + userId2
+  else return 'direct.' + userId2 + '-' + userId1
+}
+
+function removeUser (userId) {
+  delete userData[userId]
+
+  var leftPaneUser = document.getElementById('user-' + userId)
+  leftPaneUser.parentNode.removeChild(leftPaneUser)
+
+  var tempChannel = createDirectChannelName(pubnub.getUUID(), userId)
+  pubnub.objects.removeMemberships({
+    uuid: pubnub.getUUID(),
+    channels: [tempChannel]
+  })
+}
+
+function removeUserFromCurrentChannel (userId) {
+  delete channelMembers[userId]
+}
+
+function addUserToCurrentChannel (userId, name, profileUrl) {
+  channelMembers[userId] = {
+    name: name,
+    profileUrl: profileUrl
+  }
+
+  updateInfoPane()
 }
 
 async function getGroupList () {
@@ -185,19 +297,20 @@ async function getGroupList () {
       "</span> <span class='unread-message-indicator' style='display:none'></span></div>"
     groupList += groupHtml
 
-    console.log('setting membership')
-    await pubnub.objects.setChannelMembers({
-      channel: group.channel,
-      uuids: [pubnub.getUUID()]
+    //await pubnub.objects.setChannelMembers({
+    //  channel: group.channel,
+    //  uuids: [pubnub.getUUID()]
+    //})
+    await pubnub.objects.setMemberships({
+      channels: [group.channel],
+      uuid: pubnub.getUUID()
     })
-    console.log('set membership')
+
   }
   document.getElementById('groupList').innerHTML = groupList
 }
 
 async function launchDirectChat (withUserId) {
-  console.log('clicked user to launch direct chat with ' + withUserId)
-  document.getElementById('heading').innerHTML = '1:1 Chat'
 
   //  Channel name of direct chats is just "direct-[userId1]-[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
   var userId1 = pubnub.getUUID()
@@ -208,8 +321,6 @@ async function launchDirectChat (withUserId) {
   }
 
   channel = 'direct.' + userId1 + '-' + userId2
-  console.log('setting session storage: ' + channel)
-  sessionStorage.setItem('activeChatChannel', channel)
   await populateChatWindow(channel)
 
   let myOffCanvas = document.getElementById('chatLeftSide')
@@ -218,11 +329,8 @@ async function launchDirectChat (withUserId) {
 }
 
 async function launchGroupChat (channelName) {
-  console.log('Launch Group Chat for channel: ' + channelName)
 
   channel = channelName
-  console.log('setting session storage: ' + channel)
-  sessionStorage.setItem('activeChatChannel', channel)
   await populateChatWindow(channel)
 
   let myOffCanvas = document.getElementById('chatLeftSide')
@@ -231,106 +339,117 @@ async function launchGroupChat (channelName) {
 }
 
 async function populateChatWindow (channelName) {
-  console.log('populating chat window for ' + channelName)
+  sessionStorage.setItem('activeChatChannel', channelName)
   if (channelName.startsWith('group')) {
     //  todo put the name of the group here
     document.getElementById('heading').innerHTML =
       'Group: ' + lookupGroupName(channelName)
   } else if (channelName.startsWith('direct')) {
-    document.getElementById('heading').innerHTML = '1:1 Chat'
+    var recipientName = await lookupRemoteOneOneUser(channelName)
+    document.getElementById('heading').innerHTML = 'Chat with ' + recipientName
   }
   clearMessageList()
   //  Get the meta data for users in this chat
-  //  todo reinstate this
-  //try {
-  const result = await pubnub.objects.getChannelMembers({
-    channel: channel,
-    sort: { updated: 'desc' },
-    include: {
-      UUIDFields: true
-    },
-    limit: 50,
-    totalCount: true
-  })
-  console.log('got channel members of ' + channelName)
-  console.log(result)
-  channelMembers = {}
-  for (var i = 0; i < result.data.length; i++) {
-    //  Since this is a shared system with essentially ephemeral users, only display users who were created in the last 24 hours
-    //  The 'updated' field, for our purposes, will be when the user was created (or changed their name), but either way, this
-    //  allows the list of 'users' to be kept manageable.
-    //  There is logic to load the names / avatars on historical messages separately, so they are not blank.
-    var lastUpdated = new Date(result.data[i].updated)
-    var cutoff = new Date()
-    cutoff.setHours(cutoff.getHours() - 24)
-    if (lastUpdated > cutoff) {
-      channelMembers[result.data[i].uuid.id] = {
-        name: result.data[i].uuid.name,
-        profileUrl: result.data[i].uuid.profileUrl
+  try {
+    const result = await pubnub.objects.getChannelMembers({
+      channel: channel,
+      sort: { updated: 'desc' },
+      include: {
+        UUIDFields: true
+      },
+      limit: 50,
+      totalCount: true
+    })
+    channelMembers = {}
+    for (var i = 0; i < result.data.length; i++) {
+      //  Since this is a shared system with essentially ephemeral users, only display users who were created in the last 24 hours
+      //  The 'updated' field, for our purposes, will be when the user was created (or changed their name), but either way, this
+      //  allows the list of 'users' to be kept manageable.
+      //  There is logic to load the names / avatars on historical messages separately, so they are not blank.
+      var lastUpdated = new Date(result.data[i].updated)
+      var cutoff = new Date()
+      cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
+      if (lastUpdated > cutoff) {
+        addUserToCurrentChannel(
+          result.data[i].uuid.id,
+          result.data[i].uuid.name,
+          result.data[i].uuid.profileUrl
+        )
       }
     }
-  }
-  console.log(channelMembers)
 
-  updateInfoPane()
+    updateInfoPane()
 
-  //document.getElementById('header-subheading').innerHTML =
-  //  'Members recently active: ' + Object.keys(channelMembers).length
+    repositionMessageList()
 
-  repositionMessageList()
+    //  Load channel history
+    const history = await pubnub.fetchMessages({
+      channels: [channelName],
+      count: 10,
+      includeUUID: true
+    })
+    //console.log('HISTORY HISTORY for ' + channelName)
+    //console.log(history)
+    if (history.channels[channelName] != null) {
+      for (const historicalMsg of history.channels[channelName]) {
+        //    history.channels[channelName].forEach(msg => {
+        historicalMsg.publisher = historicalMsg.uuid
 
-  //  Load channel history
-  const history = await pubnub.fetchMessages({
-    channels: [channelName],
-    count: 10,
-    includeUUID: true
-  })
-  console.log('HISTORY HISTORY for ' + channelName)
-  console.log(history)
-  if (history.channels[channelName] != null) {
-    for (const historicalMsg of history.channels[channelName]) {
-      //    history.channels[channelName].forEach(msg => {
-      historicalMsg.publisher = historicalMsg.uuid
-
-      if (channelMembers[historicalMsg.uuid] != null) {
-        //  Only show past messages from users who didn't log out
-        messageReceived(historicalMsg)
+        if (channelMembers[historicalMsg.uuid] != null) {
+          //  Only show past messages from users who didn't log out
+          messageReceived(historicalMsg)
+        }
       }
     }
+  } catch (status) {
+    //  todo verify the feature is enabled on the portal
+    console.log('error: ' + status)
   }
-  //} catch (status) {
-  //  //  todo verify the feature is enabled on the portal
-  //  console.log('error: ' + status)
-  //}
+}
+
+async function lookupRemoteOneOneUser (channelName) {
+  //  Given the channel name of a direct chat, return the name of the person being spoken with
+  try {
+    //  Find the remote ID which is contained within the direct channel name
+    var remoteId = channelName
+    remoteId = remoteId.replace(pubnub.getUUID(), '')
+    remoteId = remoteId.replace('direct.', '')
+    remoteId = remoteId.replace('-', '')
+    if (userData[remoteId] != null) return userData[remoteId].name
+    else {
+      //  Possibly we are calling this before the users are loaded from the server, for performance reasons don't wait for those to load
+      //  Just find out our own uuid
+      const userInfo = await getUUIDMetaData(remoteId)
+      return userInfo.data.name
+    }
+  } catch (e) {
+    return 'unknown '
+  }
 }
 
 async function messageReceived (messageObj) {
   try {
-    console.log(messageObj)
+    //console.log(messageObj)
     if (messageObj.channel != channel) return
 
-      //  If we don't have the information about the message sender cached, retrieve that from objects
-      if (channelMembers[messageObj.publisher] == null) {
-        console.log('MISSING USER INFO')
-        try {
-          const result = await pubnub.objects.getUUIDMetadata({
-            uuid: messageObj.publisher
-          })
-          if (result != null) {
-            console.log('POPULATING MISSING INFO')
-            console.log(result)
-            channelMembers[messageObj.publisher] = {
-              name: result.data.name,
-              profileUrl: result.data.profileUrl
-            }
-          }
-        } catch (e) {
-          console.log(
-            'Lookup of unknown uuid failed - they probably logged out and cleared objects: ' +
-              e
+    //  If we don't have the information about the message sender cached, retrieve that from objects
+    if (channelMembers[messageObj.publisher] == null) {
+      try {
+        const result = await getUUIDMetaData(messageObj.publisher)
+        if (result != null) {
+          addUserToCurrentChannel(
+            messageObj.publisher,
+            result.data.name,
+            result.data.profileUrl
           )
         }
+      } catch (e) {
+        console
+          .log
+          //  Lookup of unknown uuid failed - they probably logged out and cleared objects: '
+          ()
       }
+    }
 
     var messageDiv = ''
     if (messageObj.publisher == pubnub.getUUID()) {
@@ -347,6 +466,13 @@ async function messageReceived (messageObj) {
   } catch (e) {
     console.log('Exception during message reception: ' + e)
   }
+}
+
+async function getUUIDMetaData (userId) {
+  const result = await pubnub.objects.getUUIDMetadata({
+    uuid: userId
+  })
+  return result
 }
 
 function createMessageSent (messageObj) {
@@ -485,11 +611,8 @@ function messageInputAttachment () {
 }
 
 function messageInputSend () {
-  console.log('Sending Message')
   var messageText = document.getElementById('input-message').value
-  console.log(channel)
   if (messageText !== '') {
-    console.log('publishing to ' + channel)
     pubnub.publish({
       channel: channel,
       storeInHistory: true,

@@ -94,21 +94,6 @@ function selectedAvatar (avatarId, source) {
   avatar.classList.add('selected-avatar')
 }
 
-function launchApp (app) {
-  console.log('launching ' + app)
-  if (app === 'chat')
-  {
-    window.location.href = "./chat/chat.html";
-  }
-  else if (app === '../chat')
-  {
-    window.location.href = "../chat/chat.html";
-  }
-  else {
-      notImplemented(app)
-  }
-}
-
 function uploadCustomAvatar()
 {
   const toastLiveExample = document.getElementById('liveToast')
@@ -119,9 +104,4 @@ function uploadCustomAvatar()
   toast.show()
 }
 
-function test()
-{
-    console.log(sessionStorage.getItem("nickname"));
-    console.log(sessionStorage.getItem("userId"));
-    console.log(sessionStorage.getItem("avatarUrl"));
-}
+

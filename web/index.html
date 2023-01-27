@@ -15,14 +15,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
     <link rel="icon" href="./favicon.ico" />
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./shared/style.css" />
+    <link rel="stylesheet" href="./index.css" />
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <script type='text/javascript' > 
         var pn = null; 
       </script>
-    <script src="./keys.js"></script>
-    <script src="./pubnub_setup.js"></script>
-    <script src="./app.js"></script>
+    <script src="./shared/keys.js"></script>
+    <script src="./shared/pubnub_setup.js"></script>
+    <script src="./shared/shared.js"></script>
+    <script src="./index.js"></script>
 </HEAD>
 
 <BODY onload="loadLogin()">
@@ -45,7 +47,7 @@
                 <H3>Choose a Nickname and Avatar</H3>
             </div>
             <div class="card-body">
-                <form action="discover.html" onsubmit="login(this); return false;">
+                <form action="./discover/discover.html" onsubmit="login(this); return false;">
                 <div class="mb-3">
                     <H3><label for="txtNickname" class="form-label">Nickname</label></H3>
                     <input type="text" class="form-control" id="txtNickname" placeholder="Enter a nickname" autofocus required />

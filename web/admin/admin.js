@@ -35,14 +35,12 @@ async function logout () {
   const channels = await pubnub.objects.getMemberships({
     uuid: pubnub.getUUID()
   })
-  console.log(channels)
   var channelArray = []
   for (var i = 0; i < channels.data.length; i++) {
     channelArray.push(channels.data[i].channel.id)
   }
-  console.log(channels)
   if (channelArray.length > 0) {
-    await pubnub.objects.removeMemberships({
+    pubnub.objects.removeMemberships({
       uuid: pubnub.getUUID(),
       channels: channelArray
     })

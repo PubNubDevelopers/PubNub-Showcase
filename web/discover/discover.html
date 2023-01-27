@@ -14,18 +14,14 @@
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
-    <link rel="icon" href="./favicon.ico" />
-    <link rel="stylesheet" href="./style.css" />
-    <script type='text/javascript' > 
-        var pn; 
-      </script>
-    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
-    <script src="./pubnub_setup.js"></script>
-    <script src="./app.js"></script>
+    <link rel="icon" href="../favicon.ico" />
+    <link rel="stylesheet" href="../shared/style.css" />
+    <link rel="stylesheet" href="./discover.css" />
+    <script src="../shared/shared.js"></script>
     <script src="./discover.js"></script>
 </HEAD>
 
-<BODY onload="test()">
+<BODY>
 
     <div class="container-fluid p-0">
         <div class="container-fluid mb-3 p-2" style="background-color:#9A1A1E; color:#FFFFFF">
@@ -35,12 +31,12 @@
         <div class="row mx-2" style="cursor: pointer;">
 
             <div class="col-sm-12 col-md-6">
-                <div class="card mb-3" onclick="launchApp('chat');">
+                <div class="card mb-3" onclick="launchApp('../chat');">
                     <div class="card-header" style="background-color:#72A9AD">
                         <H3>Chat</H3>
                     </div>
                     <div class="card-body">
-                        <img src="./img/icons/icon-chat.png" class="discover-image">
+                        <img src="./icons/icon-chat.png" class="discover-image">
                         <h5 class="card-title">1:1 Chat, Group Chat and Multi-point chat</h5>
                         <p class="card-text">The PubNub SDK is the most flexible and customizable way to add chat
                             features
@@ -56,7 +52,7 @@
                         <H3>People Nearby</H3>
                     </div>
                     <div class="card-body">
-                        <img src="./img/icons/icon-geolocation.png" class="discover-image">
+                        <img src="./icons/icon-geolocation.png" class="discover-image">
                         <h5 class="card-title">PubNub is ideal for sharing Geolocation data in real-time</h5>
                         <p class="card-text">Connect users and devices worldwide, sharing location data privately and
                             securely to enhance any widely distributed solution</p>
@@ -70,7 +66,7 @@
                         <H3>Public Whiteboard</H3>
                     </div>
                     <div class="card-body">
-                        <img src="./img/icons/icon-collaboration.png" class="discover-image">
+                        <img src="./icons/icon-collaboration.png" class="discover-image">
                         <h5 class="card-title">Collaborate with colleagues, friends and strangers in real-time</h5>
                         <p class="card-text">With PubNub, you can create a real-time collaborative demo in the web using
                             PubNub's JavaScript SDK to update users in real-time with drawings, name changes, and mouse
@@ -85,7 +81,7 @@
                         <H3>Auctions</H3>
                     </div>
                     <div class="card-body">
-                        <img src="./img/icons/icon-auctions.png" class="discover-image">
+                        <img src="./icons/icon-auctions.png" class="discover-image">
                         <h5 class="card-title">Real-Time Auctions Made a Reality</h5>
                         <p class="card-text">PubNub makes it easy to build auction apps with real-time bidding, user
                             presence, alerts, and more! PubNub handles the infrastructure of powering these features, so
@@ -101,7 +97,7 @@
                         <H3>Order Food</H3>
                     </div>
                     <div class="card-body">
-                        <img src="./img/icons/icon-food.png" class="discover-image">
+                        <img src="./icons/icon-food.png" class="discover-image">
                         <h5 class="card-title">PubNub is already used in a variety of delivery use-cases</h5>
                         <p class="card-text">PubNub can enable your delivery application, allowing real-time updates on
                             vehicle location, communication between customers and drivers, and notifications so users
@@ -117,7 +113,7 @@
                         <H3>Find my Luggage</H3>
                     </div>
                     <div class="card-body">
-                        <img src="./img/icons/icon-iot.png" class="discover-image">
+                        <img src="./icons/icon-iot.png" class="discover-image">
                         <h5 class="card-title">PubNub's infrastructure is ideal for IoT
                             solutions with thousands of devices spread across a large geographical area</h5>
                         <p class="card-text">PubNub can help you manage your distributed portfolio of IoT devices,
@@ -151,12 +147,12 @@
 
         <nav class="navbar fixed-bottom p-0">
             <div class="container-fluid p-0">
-                <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="javascript:launchApp('chat');"><i
-                        class="bi bi-chat-left" style="font-size: 2rem; color: white; padding:5px"></i><br>Chat</a>
-                <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="./discover.html"><i class="bi bi-search-heart"
-                        style="font-size: 2rem; color: white; padding:5px"></i><br>Discover</a>
-                <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="./admin/admin.html"><i class="bi bi-person-circle"
-                        style="font-size: 2rem; color: white; padding:5px"></i><br>Me</a>
+                <a class="nav-link flex-grow-1 bottom-nav-item" href="javascript:launchApp('../chat');"><i
+                        class="bi bi-chat-left p-1"></i><br>Chat</a>
+                <a class="nav-link flex-grow-1 bottom-nav-item" href="./discover.html"><i class="bi bi-search-heart p-1"
+                        ></i><br>Discover</a>
+                <a class="nav-link flex-grow-1 bottom-nav-item" href="../admin/admin.html"><i class="bi bi-person-circle p-1"
+                        ></i><br>Me</a>
             </div>
         </nav>
     </div>

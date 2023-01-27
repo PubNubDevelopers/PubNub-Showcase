@@ -14,12 +14,13 @@
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
-    <link rel="stylesheet" href="./chat.css" />
-    <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../favicon.ico" />
+    <link rel="stylesheet" href="./chat.css" />
+    <link rel="stylesheet" href="../shared/style.css" />
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
-    <script src="../keys.js"></script>
-    <script src="../pubnub_setup.js"></script>
+    <script src="../shared/shared.js"></script>
+    <script src="../shared/keys.js"></script>
+    <script src="../shared/pubnub_setup.js"></script>
     <script src="./chat_constants.js"></script>
     <script src="./chat.js"></script>
 </HEAD>
@@ -39,11 +40,11 @@
 
         <div id='messageListContents' class="d-flex px-3 message-list-contents">
 
-
+            <!--
             <div id='message-002' class='message-them align-self-start'>
                 <div class="user-with-presence float-start mx-2">
                     <img src="../img/avatar/002.png" class="chat-list-avatar">
-                    <span class="presence-dot-green"></span>
+                    <span class="presence-dot-online"></span>
                 </div>
                 <span class='messageCheck'><i class="bi bi-check-all"></i></span>
                 TEST MESSAGE - PLEASE IGNORE
@@ -100,6 +101,8 @@
 
             </div>
 
+        -->
+
         </div>
 
 
@@ -127,14 +130,9 @@
 
         <div class="d-flex flex-row py-2" style="background-color: #FFFFFF;width:100%">
 
-            <i class="bi bi-emoji-smile align-self-center message-input-icon mx-2" data-bs-toggle="popover"
-                data-bs-trigger="focus" data-bs-title="Dismissible popover"
-                data-bs-content="And here's some amazing content. It's very engaging. Right?"
-                onclick="messageInputEmoji()"></i>
+            <i class="bi bi-emoji-smile align-self-center message-input-icon mx-2" onclick="messageInputEmoji()"></i>
             <input id="input-message" class="message-input" style="width:100%" placeholder="Message" />
-            <i class="bi bi-paperclip align-self-center message-input-icon mx-2" data-bs-toggle="popover"
-                data-bs-placement="right" data-bs-custom-class="custom-popover" data-bs-title="Not Implemented"
-                data-bs-content="This feature is not yet implemented." onclick="messageInputAttachment()"></i>
+            <i class="bi bi-paperclip align-self-center message-input-icon mx-2" onclick="messageInputAttachment()"></i>
             <i class="bi bi-send align-self-center message-input-icon mx-2" onclick="messageInputSend()"></i>
 
         </div>
@@ -142,13 +140,12 @@
 
 
         <div class="container-fluid p-0">
-            <a class="nav-link flex-grow-1 bottom-nav-item message-input-icon p-1"
-                href="javascript:launchApp('../chat');"><i class="bi bi-chat-left"
-                    style="font-size: 2rem; color: white; padding:5px"></i><br>Chat</a>
-            <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="../discover.html"><i class="bi bi-search-heart"
-                    style="font-size: 2rem; color: white; padding:5px"></i><br>Discover</a>
-            <a class="nav-link flex-grow-1 bottom-nav-item p-1" href="../admin/admin.html"><i
-                    class="bi bi-person-circle" style="font-size: 2rem; color: white; padding:5px"></i><br>Me</a>
+            <a class="nav-link flex-grow-1 bottom-nav-item" href="javascript:launchApp('../chat');"><i
+                    class="bi bi-chat-left p-1"></i><br>Chat</a>
+            <a class="nav-link flex-grow-1 bottom-nav-item" href="../discover/discover.html"><i
+                    class="bi bi-search-heart p-1"></i><br>Discover</a>
+            <a class="nav-link flex-grow-1 bottom-nav-item" href="../admin/admin.html"><i
+                    class="bi bi-person-circle p-1"></i><br>Me</a>
         </div>
     </nav>
 
@@ -162,15 +159,18 @@
         </div>
         <div class="offcanvas-body">
             <div class="chat-list-current-user mb-3">
-                <img id="avatar" src="../img/avatar/placeholder.png" class="chat-list-avatar">
-                <span id="currentUser" class="chat-list-current-user-name mx-2"></span>
+                <div class="user-with-presence mb-2">
+                    <img id="avatar" src="../img/avatar/placeholder.png" class="chat-list-avatar">
+                    <span class="presence-dot-online"></span>
+                    <span id="currentUser" class="chat-list-current-user-name mx-2"></span>
+                </div>
             </div>
             <H2>Direct 1:1 Chats</H2>
             <div id="oneOneUserList" class="direct-user-list mb-3">
 
                 <div class="user-with-presence mb-2" onclick="launchDirectChat('user_001')">
                     <img src="../img/avatar/001.png" class="chat-list-avatar">
-                    <span class="presence-dot-green"></span>
+                    <span class="presence-dot-online"></span>
                     <span style="font-size: larger;padding-left: 0.5em;">IGNORE THIS USER</span>
                     <span class="unread-message-indicator">5</span>
                 </div>
@@ -182,7 +182,7 @@
                 </div>
                 <div class="user-with-presence mb-2" onclick="launchDirectChat('user_003')">
                     <img src="../img/avatar/003.png" class="chat-list-avatar">
-                    <span class="presence-dot-green"></span>
+                    <span class="presence-dot-online"></span>
                     <span style="font-size: larger;padding-left: 0.5em;">IGNORE THIS USER</span>
                     <span class="unread-message-indicator" style="display:none"></span>
                 </div>
@@ -193,7 +193,7 @@
 
             <H2>Groups <i class="bi bi-plus-circle" onclick="addGroupClick();"></i></H2>
             <div id="groupList" class="group-list mb-3">
-                    <!--div class="user-with-presence mb-2" onclick="launchGroupChat('test')">
+                <!--div class="user-with-presence mb-2" onclick="launchGroupChat('test')">
                     <img src="../img/avatar/003.png" class="chat-list-avatar">
                     <span style="font-size: larger;padding-left: 0.5em;">Test Group</span>
                     <span class="unread-message-indicator">Test</span>
@@ -203,9 +203,9 @@
                     <span style="font-size: larger;padding-left: 0.5em;">Global</span>
                     <span class="unread-message-indicator" style="display:none"></span>
                 </div-->
-        </div>
+            </div>
 
-    </div>
+        </div>
     </div>
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="chatRightSide" aria-labelledby="chatRightSideLabel">
@@ -214,9 +214,20 @@
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-            Not yet implemented
+            <H2>Chat Members</H2>
             <br>
-            <div id="infoPaneTemp"></div>
+            <div id="memberList" class="member-list mb-3">
+                <!--div id='member-001' class="user-with-presence mb-2">
+                    <img src="../img/avatar/001.png" class="chat-list-avatar">
+                    <span class="presence-dot-none"></span>
+                    <span class="chat-list-name">IGNORE THIS USER</span>
+                </div>
+                <div id='member-001' class="user-with-presence mb-2">
+                    <img src="../img/avatar/002.png" class="chat-list-avatar">
+                    <span class="presence-dot-none"></span>
+                    <span class="chat-list-name">IGNORE THIS USER</span>
+                </div-->
+            </div>
         </div>
 
 

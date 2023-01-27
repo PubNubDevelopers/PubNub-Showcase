@@ -1,9 +1,15 @@
 var pubnub = null
 var channel = null
+var previousChannel = null
 var channelMembers = null
 var userData = null
 var me = null
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
+
+window.addEventListener('beforeunload', function () {
+  console.log('unsubscribe all')
+  pubnub.unsubscribeAll()
+})
 
 async function loadChat () {
   channelMembers = {}
@@ -12,13 +18,13 @@ async function loadChat () {
 
   //  Long press handler for each chat message
   var m = document.getElementById('message-002')
-  onLongPress(m, () => {
-    console.log('Long pressed', m)
-  })
-  m.oncontextmenu = function (e) {
-    console.log('Right click ' + e)
-    return false
-  }
+  //onLongPress(m, () => {
+  //  console.log('Long pressed', m)
+  //})
+  //m.oncontextmenu = function (e) {
+  //  console.log('Right click ' + e)
+  //  return false
+  //}
 
   //  Handle Message input
   document
@@ -31,7 +37,7 @@ async function loadChat () {
 
   //  PubNub object
   pubnub = createPubNubObject()
-  getUserMetadataSelf() //  Populate own data for left hand pane
+  await getUserMetadataSelf() //  Populate own data for left hand pane
   getUserMetaDataOthers() //  Populate list of direct chats for left hand pane
   getGroupList() //  Populate list of group chats for left hand pane
   try {
@@ -52,17 +58,48 @@ async function loadChat () {
   pnListener = pubnub.addListener({
     //  Status events
     status: statusEvent => {
-      console.log(statusEvent)
+      //console.log(statusEvent)
     },
     message: payload => {
+      console.log("timetoken source: " + payload.timetoken)
       messageReceived(payload)
-      //  todo what if this message is from a user we haven't seen before?
     },
     signal: signalEvent => {
       signalReceived(payload)
     },
     presence: presenceEvent => {
-      console.log(presenceEvent)
+      //console.log('PRESENCE EVENT')
+      //console.log(presenceEvent)
+      //if (
+      //  !presenceEvent.channel.startsWith('direct.*') &&
+      //  !presenceEvent.channel.startsWith('group.*')
+      //) {
+      //  handlePresenceEvent(
+      //    presenceEvent.action,
+      //    presenceEvent.uuid,
+      //    presenceEvent.channel
+      //  )
+      //}
+      //console.log('Presence: ' + presenceEvent.action + ', ' + presenceEvent.channel + ' (' + presenceEvent.uuid + ')')
+      handlePresenceEvent(presenceEvent.action, presenceEvent.uuid)
+      //  todo handle announce max
+    },
+    messageAction: messageActionEvent => {
+      //  https://www.pubnub.com/docs/general/messages/receive#add-a-listener
+      console.log('MESSAGE ACTION')
+      console.log(messageActionEvent)
+      var originalMessage = document.getElementById('message-check-' + messageActionEvent.data.messageTimetoken)
+      console.log(originalMessage)
+      if (originalMessage != null)
+      {
+        console.log('original message was not null')
+        if (messageActionEvent.event == "added" && messageActionEvent.data.type == "read")
+        {
+          console.log('replacing class')
+          originalMessage.classList.remove('bi-check')
+          originalMessage.classList.add('bi-check-all')
+        }
+      }
     },
     objects: async objectEvent => {
       //console.log('OBJECT EVENT')
@@ -126,11 +163,14 @@ async function loadChat () {
           if (channelMembers[userId] == null) {
             //  if the user has joined the active channel, add them to the list of channel members
             const userInfo = await getUUIDMetaData(userId)
-            addUserToCurrentChannel(
-              userId,
-              userInfo.data.name,
-              userInfo.data.profileUrl
-            )
+            if (userInfo != null) {
+              addUserToCurrentChannel(
+                userId,
+                userInfo.data.name,
+                userInfo.data.profileUrl
+              )
+              updateInfoPane()
+            }
           }
         }
       } else if (
@@ -151,6 +191,8 @@ async function loadChat () {
       }
     }
   })
+
+  updatePresenceInfoFirstLoad()
 }
 
 function repositionMessageList () {
@@ -173,7 +215,7 @@ async function getUserMetadataSelf () {
       uuid: pubnub.getUUID()
     })
     me = result.data
-    document.getElementById('currentUser').innerText = me.name
+    document.getElementById('currentUser').innerText = me.name + ' (You)'
     document.getElementById('avatar').src = me.profileUrl
   } catch (e) {
     console.log('ERROR GETTING OWN META DATA')
@@ -224,9 +266,9 @@ function addNewUser (userId, name, profileUrl) {
     userId +
     "\")'><img src='" +
     profileUrl +
-    "' class='chat-list-avatar'><span id='pres-" +
+    "' class='chat-list-avatar'><span id='user-pres-" +
     userId +
-    "' class='presence-dot-none'></span><span class='chat-list-name'>" +
+    "' class='presence-dot-gray'></span><span class='chat-list-name'>" +
     name +
     "</span><span id='unread-" +
     userId +
@@ -274,13 +316,21 @@ function removeUserFromCurrentChannel (userId) {
   delete channelMembers[userId]
 }
 
-function addUserToCurrentChannel (userId, name, profileUrl) {
-  channelMembers[userId] = {
-    name: name,
-    profileUrl: profileUrl
+async function addUserToCurrentChannel (userId, name, profileUrl) {
+  //  Failsafe
+  try {
+    if (name == null || profileUrl == null) {
+      //const userInfo = await getUUIDMetaData(userId)
+      name = userInfo.data.name
+      profileUrl = userInfo.data.profileUrl
+    }
+    channelMembers[userId] = {
+      name: name,
+      profileUrl: profileUrl
+    }
+  } catch (e) {
+    //  Could not look up object
   }
-
-  updateInfoPane()
 }
 
 async function getGroupList () {
@@ -305,13 +355,11 @@ async function getGroupList () {
       channels: [group.channel],
       uuid: pubnub.getUUID()
     })
-
   }
   document.getElementById('groupList').innerHTML = groupList
 }
 
 async function launchDirectChat (withUserId) {
-
   //  Channel name of direct chats is just "direct-[userId1]-[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
   var userId1 = pubnub.getUUID()
   var userId2 = withUserId
@@ -329,7 +377,6 @@ async function launchDirectChat (withUserId) {
 }
 
 async function launchGroupChat (channelName) {
-
   channel = channelName
   await populateChatWindow(channel)
 
@@ -341,7 +388,6 @@ async function launchGroupChat (channelName) {
 async function populateChatWindow (channelName) {
   sessionStorage.setItem('activeChatChannel', channelName)
   if (channelName.startsWith('group')) {
-    //  todo put the name of the group here
     document.getElementById('heading').innerHTML =
       'Group: ' + lookupGroupName(channelName)
   } else if (channelName.startsWith('direct')) {
@@ -386,7 +432,8 @@ async function populateChatWindow (channelName) {
     const history = await pubnub.fetchMessages({
       channels: [channelName],
       count: 10,
-      includeUUID: true
+      includeUUID: true,
+      includeMessageActions: true
     })
     //console.log('HISTORY HISTORY for ' + channelName)
     //console.log(history)
@@ -456,6 +503,22 @@ async function messageReceived (messageObj) {
       messageDiv = createMessageSent(messageObj)
     } else {
       messageDiv = createMessageReceived(messageObj)
+
+      //  Add a message action that we have read the message, if one does not already exist.
+      //  This is very simplistic, once any user has read the message in the group, the message is marked as read
+      //  In production, you will want to have separate read receipts for each individual
+      if (messageObj.actions == null || messageObj.actions.read == null) {
+        //  We did not find a read message action for our message, add one
+        console.log('adding message action for read')
+        pubnub.addMessageAction({
+          channel: channel,
+          messageTimetoken: messageObj.timetoken,
+          action: {
+            type: 'read',
+            value: pubnub.getUUID()
+          }
+        })
+      }
     }
 
     document.getElementById('messageListContents').appendChild(messageDiv)
@@ -476,6 +539,7 @@ async function getUUIDMetaData (userId) {
 }
 
 function createMessageSent (messageObj) {
+  console.log('message timetoken s: ' + messageObj.timetoken)
   var profileUrl = '../img/avatar/placeholder.png'
   var name = 'pending...'
   if (channelMembers[messageObj.publisher] != null) {
@@ -528,6 +592,7 @@ function createMessageSent (messageObj) {
 }
 
 function createMessageReceived (messageObj) {
+  console.log('message timetoken: ' + messageObj.timetoken)
   var profileUrl = '../img/avatar/placeholder.png'
   var name = 'pending...'
   if (channelMembers[messageObj.publisher] != null) {
@@ -542,7 +607,7 @@ function createMessageReceived (messageObj) {
     profileUrl +
     "' class='chat-list-avatar'> <span class='presence-dot-none'></span> </div><span class='messageCheck'><i id='message-check-" +
     messageObj.timetoken +
-    "' class='bi bi-check'></i></span>" +
+    "' class='bi bi-check-all'></i></span>" +
     messageObj.message.message +
     "<div class='float-end' style='text-align:right'><div id='message-001-contextmenu' class='message-contextmenu-them py-2' style='display:none;'> \
     <button type='button' class='btn btn-danger'>Delete</button> \
@@ -566,26 +631,104 @@ function createMessageReceived (messageObj) {
 }
 
 function updateInfoPane () {
-  //  todo this is just a bare bones example
-  var withMembers = 'Pending... (you)'
-  if (channelMembers[pubnub.getUUID()] != null) {
-    withMembers =
-      'Active in last 24 hours: ' +
-      channelMembers[pubnub.getUUID()].name +
-      '(you)'
-  }
-
+  //  We are always present in any chat we are viewing information for
+  var memberListHtml = generateHtmlChatMember(
+    pubnub.getUUID(),
+    me.name + ' (You)',
+    me.profileUrl,
+    true
+  )
   for (var userId in channelMembers) {
     if (userId != pubnub.getUUID()) {
-      if (channelMembers[userId] != null) {
-        withMembers += ', ' + channelMembers[userId].name
-      } else {
-        withMembers += ', pending' //  todo - new idea: if the user isn't present in channelMembers then don't include it here (only add users to channelMembers if they were recently active)
+      memberListHtml += generateHtmlChatMember(
+        userId,
+        channelMembers[userId].name,
+        channelMembers[userId].profileUrl,
+        false
+      )
+    }
+  }
+  document.getElementById('memberList').innerHTML = memberListHtml
+}
+
+function generateHtmlChatMember (userId, name, profileUrl, online) {
+  var presenceClass = 'presence-dot-gray'
+  if (online) presenceClass = 'presence-dot-online'
+  return (
+    "<div id='member-" +
+    userId +
+    "' class='user-with-presence mb-2'> \
+            <img src='" +
+    profileUrl +
+    "' class='chat-list-avatar'> \
+              <span id='member-pres-" +
+    userId +
+    "' class='" +
+    presenceClass +
+    "'></span> \
+              <span class='chat-list-name'>" +
+    name +
+    '</span> \
+          </div>'
+  )
+}
+
+async function updatePresenceInfoFirstLoad () {
+  //  Called when chat window is first loaded, load initial presence state
+  //console.log('Update Presence Info: ' + channel)
+  try {
+    const result = await pubnub.hereNow({
+      channels: ['group.*'],
+      includeUUIDs: true,
+      includeState: true
+    })
+    //console.log(result.channels["group.*"])
+    for (var i = 0; i < result.channels['group.*'].occupancy; i++) {
+      handlePresenceEvent('join', result.channels['group.*'].occupants[i].uuid)
+    }
+  } catch (status) {
+    console.log(status)
+  }
+}
+
+function handlePresenceEvent (action, userId) {
+  //console.log('Presence: ' + action + ' (' + userId + ')')
+  var directChatAvatar = document.getElementById('user-pres-' + userId)
+  var memberListAvatar = document.getElementById('member-pres-' + userId)
+  if (action == 'join') {
+    if (userData[userId] != null) {
+      if (userData[userId] != null && userData[userId].presence != 'join') {
+        userData[userId].presence = 'join'
+        //console.log('user ' + userId + ' has joined')
+        if (directChatAvatar != null) {
+          directChatAvatar.classList.remove('presence-dot-gray')
+          directChatAvatar.classList.add('presence-dot-online')
+        }
+        if (memberListAvatar != null) {
+          memberListAvatar.classList.remove('presence-dot-gray')
+          memberListAvatar.classList.add('presence-dot-online')
+        }
+      }
+    }
+  } else if (action == 'leave') {
+    if (userData[userId] != null) {
+      if (userData[userId].presence != 'leave') {
+        userData[userId].presence = 'leave'
+        //console.log('user ' + userId + ' has left')
+        if (directChatAvatar != null) {
+          directChatAvatar.classList.remove('presence-dot-online')
+          directChatAvatar.classList.add('presence-dot-gray')
+        }
+        if (memberListAvatar != null) {
+          memberListAvatar.classList.remove('presence-dot-online')
+          memberListAvatar.classList.add('presence-dot-gray')
+        }
       }
     }
   }
-  document.getElementById('infoPaneTemp').innerHTML = withMembers
 }
+
+function userIsPresent (userId) {}
 
 function clearMessageList () {
   var messageListContents = document.getElementById('messageListContents')

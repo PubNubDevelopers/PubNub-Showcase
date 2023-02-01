@@ -87,7 +87,7 @@
     width: 1.5em;
     margin-top: 0.75em;
     line-height: 1.5em;
-    background: var(--pubnub-color-brick);
+    background: var(--demo-primary);
     float: right;
 }
 

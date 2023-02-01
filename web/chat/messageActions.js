@@ -1,3 +1,5 @@
+var inflightReadReceipt = {}
+
 function maReadReceipt (messageActionEvent) {
   var messageCheckElement = document.getElementById(
     'message-check-' + messageActionEvent.data.messageTimetoken
@@ -10,6 +12,10 @@ function maReadReceipt (messageActionEvent) {
       messageCheckElement.classList.remove('bi-check')
       messageCheckElement.classList.add('bi-check-all')
     }
+  }
+  else
+  {
+    inflightReadReceipt[messageActionEvent.data.messageTimetoken] = true;
   }
 }
 

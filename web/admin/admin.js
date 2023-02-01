@@ -29,7 +29,7 @@ async function getUserMetadata () {
 
 async function logout () {
   console.log('Logging Out')
-  pubnub.objects.removeUUIDMetadata({
+  const res = await pubnub.objects.removeUUIDMetadata({
     uuid: pubnub.getUUID()
   })
   const channels = await pubnub.objects.getMemberships({

@@ -25,9 +25,8 @@ function createPubNubObject () {
   var pubnub = new PubNub({
     publishKey: publish_key,
     subscribeKey: subscribe_key,
-    uuid: UUID
+    userId: UUID
   })
-  pubnub.setFilterExpression("uuid != '" + pubnub.getUUID() +"'");
   return pubnub
 }
 

@@ -1,5 +1,5 @@
 .selected-avatar {
-    border: #9A1A1E;
+    border: var(--pubnub-color-brick);
     border-style: solid;
 }
 

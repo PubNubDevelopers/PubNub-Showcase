@@ -22,12 +22,21 @@
     <script src="../shared/keys.js"></script>
     <script src="../shared/pubnub_setup.js"></script>
     <script src="./chat_constants.js"></script>
+    <script src="./message.js"></script>
+    <script src="./typingIndicator.js"></script>
+    <script src="./presence.js"></script>
+    <script src="./messageActions.js"></script>
     <script src="./chat.js"></script>
+
+    <!--  Emoji  -->
+    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+
+
 </HEAD>
 
 <BODY onload="loadChat()">
 
-    <div id="header" class="container-fluid p-2 header">
+    <div id="header" class="container-fluid p-2 header app-header">
         <i class="bi bi-list display-4 mt-1" style="float:left" type="button" data-bs-toggle="offcanvas"
             data-bs-target="#chatLeftSide" aria-controls="chatLeftSide"></i>
         <i class="bi bi-info-circle display-4 mt-1" style="float:right" type="button" data-bs-toggle="offcanvas"
@@ -39,69 +48,6 @@
     <div id='messageList' class="container-fluid message-list px-0">
 
         <div id='messageListContents' class="d-flex px-3 message-list-contents">
-
-            <!--
-            <div id='message-002' class='message-them align-self-start'>
-                <div class="user-with-presence float-start mx-2">
-                    <img src="../img/avatar/002.png" class="chat-list-avatar">
-                    <span class="presence-dot-online"></span>
-                </div>
-                <span class='messageCheck'><i class="bi bi-check-all"></i></span>
-                TEST MESSAGE - PLEASE IGNORE
-
-
-                <div class='float-end' style="text-align:right">
-                    <div id='message-001-contextmenu' class="message-contextmenu-them py-2" style="display:block;">
-                        <button type="button" class="btn btn-danger">Delete</button>
-                        <i class="bi bi-emoji-smile"></i>
-                        <i class="bi bi-emoji-frown"></i>
-                        <i class="bi bi-heart-fill"></i>
-                        <i class="bi bi-lightning"></i>
-                    </div>
-
-                </div>
-
-                <i class="bi bi-lightning message-reacted"></i>
-                <i class="bi bi-emoji-smile message-reacted"></i>
-                <div class='message-sender' style="display:block">Jason Jones</div>
-                <div class='message-time' style="display:inline">20th January 2023 14:08pm</div>
-            </div>
-
-
-
-            <div id='message-003' class='message-you align-self-end'>
-                TEST MESSAGE - PLEASE IGNORE
-
-
-                <div class="message-you-avatar">
-                    <div class="user-with-presence mx-2 message-you-avatar-contents">
-                        <img src="../img/avatar/003.png" class="chat-list-avatar">
-                        <span id='pres-message-003' class="presence-dot-gray"></span>
-                    </div>
-
-                    <div class='float-end' style="display:inline;width:fit-content">
-                        <div class='' style="text-align:right"><span id='message-reactions-003'><i
-                                    class="bi bi-heart-fill message-reacted"></i></span>
-                            <span class='messageCheck'><i id='check-message-003' class="bi bi-check"></i></span>
-                            <div class='message-sender'>(You)</div>
-                            <div class='message-time'>20th January 2023 14:08pm</div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div id='message-001-contextmenu' class="message-contextmenu-you py-2" style="display:none;">
-                    <button type="button" class="btn btn-danger">Delete</button>
-                    <i class="bi bi-emoji-smile"></i>
-                    <i class="bi bi-emoji-frown"></i>
-                    <i class="bi bi-heart-fill"></i>
-                    <i class="bi bi-lightning"></i>
-                </div>
-
-
-            </div>
-
-        -->
 
         </div>
 
@@ -121,17 +67,24 @@
         </div>
     </div>
 
+
+    <div id="emojiPicker" class="d-flex fixed-bottom mx-2 emoji-picker">
+
+    </div>
     <nav id="bottomNav" class="navbar fixed-bottom p-0">
-        <div class="d-flex py-1 mx-2 typingIndicator justify-content-end" style="width:100%;">
-            <i class="bi bi-chat-right-dots align-self-center small mx-2"></i>
-            <span>Jason Jones is typing... (NOT YET IMPLEMENTED)</span>
+
+    
+        <div class="d-flex py-1 mx-2 typing-indicator justify-content-end">
+            
+            <i id='typingIndicatorDots' class="bi bi-chat-right-dots align-self-center mx-2 typing-indicator-dots"></i>
+            <span id="typingIndicator"></span>
         </div>
 
 
-        <div class="d-flex flex-row py-2" style="background-color: #FFFFFF;width:100%">
+        <div class="d-flex flex-row py-2 message-input-bar">
 
-            <i class="bi bi-emoji-smile align-self-center message-input-icon mx-2" onclick="messageInputEmoji()"></i>
-            <input id="input-message" class="message-input" style="width:100%" placeholder="Message" />
+            <i id='emoji-pick' class="bi bi-emoji-smile align-self-center message-input-icon mx-2" onclick="messageInputEmoji()"></i>
+            <input id="input-message" class="message-input" placeholder="Message" />
             <i class="bi bi-paperclip align-self-center message-input-icon mx-2" onclick="messageInputAttachment()"></i>
             <i class="bi bi-send align-self-center message-input-icon mx-2" onclick="messageInputSend()"></i>
 
@@ -168,41 +121,12 @@
             <H2>Direct 1:1 Chats</H2>
             <div id="oneOneUserList" class="direct-user-list mb-3">
 
-                <div class="user-with-presence mb-2" onclick="launchDirectChat('user_001')">
-                    <img src="../img/avatar/001.png" class="chat-list-avatar">
-                    <span class="presence-dot-online"></span>
-                    <span style="font-size: larger;padding-left: 0.5em;">IGNORE THIS USER</span>
-                    <span class="unread-message-indicator">5</span>
-                </div>
-                <div class="user-with-presence mb-2" onclick="launchDirectChat('user_002')">
-                    <img src="../img/avatar/002.png" class="chat-list-avatar">
-                    <span class="presence-dot-gray"></span>
-                    <span style="font-size: larger;padding-left: 0.5em;">IGNORE THIS USER</span>
-                    <span class="unread-message-indicator">1</span>
-                </div>
-                <div class="user-with-presence mb-2" onclick="launchDirectChat('user_003')">
-                    <img src="../img/avatar/003.png" class="chat-list-avatar">
-                    <span class="presence-dot-online"></span>
-                    <span style="font-size: larger;padding-left: 0.5em;">IGNORE THIS USER</span>
-                    <span class="unread-message-indicator" style="display:none"></span>
-                </div>
-
-
             </div>
 
 
             <H2>Groups <i class="bi bi-plus-circle" onclick="addGroupClick();"></i></H2>
             <div id="groupList" class="group-list mb-3">
-                <!--div class="user-with-presence mb-2" onclick="launchGroupChat('test')">
-                    <img src="../img/avatar/003.png" class="chat-list-avatar">
-                    <span style="font-size: larger;padding-left: 0.5em;">Test Group</span>
-                    <span class="unread-message-indicator">Test</span>
-                </div>
-                <div class="user-with-presence mb-2" onclick="launchGroupChat('global')">
-                    <img src="../img/avatar/003.png" class="chat-list-avatar">
-                    <span style="font-size: larger;padding-left: 0.5em;">Global</span>
-                    <span class="unread-message-indicator" style="display:none"></span>
-                </div-->
+
             </div>
 
         </div>
@@ -217,16 +141,7 @@
             <H2>Chat Members</H2>
             <br>
             <div id="memberList" class="member-list mb-3">
-                <!--div id='member-001' class="user-with-presence mb-2">
-                    <img src="../img/avatar/001.png" class="chat-list-avatar">
-                    <span class="presence-dot-none"></span>
-                    <span class="chat-list-name">IGNORE THIS USER</span>
-                </div>
-                <div id='member-001' class="user-with-presence mb-2">
-                    <img src="../img/avatar/002.png" class="chat-list-avatar">
-                    <span class="presence-dot-none"></span>
-                    <span class="chat-list-name">IGNORE THIS USER</span>
-                </div-->
+
             </div>
         </div>
 
@@ -236,6 +151,14 @@
 
     </div>
 
+    <script>
+        const pickerOptions = { onEmojiSelect: selectEmoji }
+        const picker = new EmojiMart.Picker(pickerOptions)
+        
+        document.getElementById('emojiPicker').appendChild(picker)
+        //document.body.appendChild(picker)
+
+      </script>
 
 
 </BODY>

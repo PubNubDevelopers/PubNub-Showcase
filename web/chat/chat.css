@@ -1,6 +1,4 @@
 .header {
-    background-color: #9A1A1E;
-    color: #FFFFFF;
     position: fixed;
     top: 0
 }
@@ -14,8 +12,6 @@
 
 .message-list-contents {
     width:100%;
-    /*height:100%;*/
-    /*justify-content: flex-end;*/
     flex-direction:column
 }
 
@@ -84,19 +80,24 @@
 }
 
 .unread-message-indicator {
-    color: #FFFFFF;
+    color: var(--demo-text-white);
     border-radius: 50%;
     text-align: center;
     height: 1.5em;
     width: 1.5em;
     margin-top: 0.75em;
     line-height: 1.5em;
-    background: #9A1A1E;
+    background: var(--pubnub-color-brick);
     float: right;
 }
 
 .hidden {
     visibility:hidden;
+}
+
+.message-input-bar {
+    background-color: #FFFFFF;
+    width:100%;
 }
 
 .message-input {
@@ -105,6 +106,7 @@
     border-radius: 12px;
     font-size: medium;
     caret-color: auto;
+    width:100%;
 }
 
 .message-input-icon {
@@ -112,31 +114,27 @@
     cursor: pointer;
 }
 
-.message-them {
+.message {
+    font-size:large;
     width: 90%;
-    padding: 6px 20px 6px 10px;
     margin: 8px;
-    background-color: #FFFFFF;
     border-style: solid;
     border-color: black;
     border-width: 2px;
     box-sizing: border-box;
     border-top-left-radius: 30px;
     border-top-right-radius: 30px;
+}
+
+.message-them {
+    padding: 6px 20px 6px 10px;
+    background-color: #FFFFFF;
     border-bottom-right-radius: 30px;
 }
 
 .message-you {
-    width: 90%;
     padding: 6px 10px 6px 20px;
-    margin: 8px;
     background-color: #EAF0F6;
-    border-style: solid;
-    border-color: black;
-    border-width: 2px;
-    box-sizing: border-box;
-    border-top-left-radius: 30px;
-    border-top-right-radius: 30px;
     border-bottom-left-radius: 30px;
 }
 
@@ -152,28 +150,6 @@
     float:right
 }
 
-.message-contextmenu-you {
-    display:inline;
-    font-size:x-large;
-    cursor: pointer;
-    background-color: #FFFFFF;
-    border-radius:50px;
-    padding-left: 15px;
-    padding-right: 15px;
-    width:fit-content;
-}
-
-.message-contextmenu-them {
-    display:block;
-    font-size:x-large;
-    cursor: pointer;
-    background-color: #EAF0F6;
-    border-radius:50px;
-    padding-left: 15px;
-    padding-right: 15px;
-    width:fit-content;
-}
-
 .message-reacted {
     font-size:medium;
 }
@@ -184,19 +160,27 @@
 
 .message-time {
     font-size: x-small;
-    /*float: right;*/
 }
 
 .message-sender {
     font-size: small;
-    /*float: right;*/
 }
 
 .messageCheck {
     font-size: x-large;
-    /*float: right;*/
 }
 
-.typingIndicator {
-    font-size: small;
+.typing-indicator {
+    font-size: medium;
+    width:100%;
+}
+
+.typing-indicator-dots {
+    visibility:hidden;
+}
+
+.emoji-picker {
+    z-index:1;
+    position:absolute;
+    visibility:hidden
 }

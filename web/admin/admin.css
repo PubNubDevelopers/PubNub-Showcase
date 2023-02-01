@@ -1,0 +1,4 @@
+.btn-logout {
+    background-color:var(--pubnub-color-brick);
+    border:var(--pubnub-color-brick);
+}

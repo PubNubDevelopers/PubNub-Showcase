@@ -82,8 +82,8 @@ function setEnableButtonState()
 }
 
 function selectedAvatar (avatarId, source) {
-  user_avatar = source;
-
+  user_avatar = source
+  
   var id = 'avatar-' + avatarId
   var avatar = document.getElementById(id)
   for (var i = 0; i < num_avatars_to_display; i++) {

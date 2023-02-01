@@ -1,24 +1,41 @@
+:root {
+    --pubnub-color-navy: #161C2D;
+    --pubnub-color-cherry: #CD2026;
+    --pubnub-color-white: #FFFFFF;
+    --pubnub-color-seafoam: #72A9AD;
+    --pubnub-color-teal: #306270;
+    --pubnub-color-brick: #9A1A1E;
+    --demo-primary: var(--pubnub-color-brick);
+    --demo-secondary: var(--pubnub-color-seafoam);
+    --demo-text-white: var(--pubnub-color-white);
+}
+
 body {
     font-family: 'Poppins';
     background-color: rgb(245, 247, 250);
     caret-color: transparent;
 }
 
+.app-header {
+    background-color: var(--demo-primary); 
+    color: var(--demo-text-white); 
+}
+
 .bottom-nav-item {
-    background: #9A1A1E;
-    color: white;
+    background: var(--demo-primary);
+    color: var(--demo-text-white);
     font-weight: bold;
     font-size: 1.5em;
     text-align: center;
-    padding:5px;
+    padding: 5px;
 }
 
 .bottom-nav-item:hover {
-    color: white;
+    color: var(--demo-text-white);
 }
 
 .bottom-nav-item:visited {
-    color: white;
+    color: var(--demo-text-white);
 }
 
 .avatar {
@@ -30,10 +47,9 @@ body {
 }
 
 .btn-pn {
-    background: #72A9AD;
+    background: var(--demo-secondary);
     border-radius: 8px;
     padding: 16px 16px;
-    font-family: 'Poppins';
     font-style: normal;
     font-size: 24px;
     line-height: 24px;
@@ -41,40 +57,36 @@ body {
 }
 
 .btn-pn-small {
-    background: #72A9AD;
     border-radius: 8px;
     padding: 8px 8px;
-    font-family: 'Poppins';
     font-style: normal;
     font-size: 14px;
     line-height: 14px;
-    color: #000000;
-}
-
-.btn-pn:hover {
-    background: #155c76;
-    color: #FFFFFF;
-}
-
-.btn-pn-small:hover {
-    background: #155c76;
-    color: #FFFFFF;
 }
 
 .btn-pn-clear {
-    background: #FFFFFF;
+    background: var(--demo-text-white);
     border: 1px solid #33687B;
-    border-radius: 8px;
-    padding: 16px 16px;
-    font-family: 'Poppins';
-    font-style: normal;
-    font-size: 24px;
-    line-height: 24px;
     color: #33687B;
+}
+
+
+.btn-pn:hover {
+    background: #155c76;
+    color: var(--demo-text-white);
+}
+
+.btn-pn-clear:hover {
+    background: #155c76;
+    color: var(--demo-text-white);
 }
 
 .form-control {
     border: 1px solid #33687B;
     border-radius: 8px;
     caret-color: auto;
+}
+
+.card-header {
+    background-color: var(--demo-secondary);
 }

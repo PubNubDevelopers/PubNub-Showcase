@@ -317,11 +317,11 @@ async function getUserMetaDataOthers () {
   userData = {}
   try {
     const users = await pubnub.objects.getAllUUIDMetadata({
-      sort: { updated: 'asc' },
+      sort: { updated: 'desc' },
       limit: 50
     })
     //  Populate the Direct 1:1 Chat list with people you can chat with
-    for (var i = 0; i < users.data.length; i++) {
+    for (var i = users.data.length - 1; i >= 0; i--) {
       if (users.data[i].id == pubnub.getUUID()) continue
       var lastUpdated = new Date(users.data[i].updated)
       var cutoff = new Date()

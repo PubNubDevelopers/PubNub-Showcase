@@ -18,9 +18,9 @@
     <link rel="stylesheet" href="./shared/style.css" />
     <link rel="stylesheet" href="./index.css" />
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
-    <script type='text/javascript' > 
+    <script type='text/javascript'>
         var pn = null; 
-      </script>
+    </script>
     <script src="./shared/keys.js"></script>
     <script src="./shared/pubnub_setup.js"></script>
     <script src="./shared/shared.js"></script>
@@ -48,44 +48,48 @@
             </div>
             <div class="card-body">
                 <form action="./discover/discover.html" onsubmit="login(this); return false;">
-                <div class="mb-3">
-                    <H3><label for="txtNickname" class="form-label">Nickname</label></H3>
-                    <input type="text" class="form-control" id="txtNickname" maxlength="30" placeholder="Enter a nickname" autofocus required />
-                </div>
+                    <div class="mb-3">
+                        <H3><label for="txtNickname" class="form-label">Nickname</label></H3>
+                        <input type="text" class="form-control" id="txtNickname" maxlength="30"
+                            placeholder="Enter a nickname" autofocus required />
+                    </div>
 
-                <div class="mb-3">
-                    <H3><label class="form-label">Avatar</label></H3>
+                    <div class="mb-3">
+                        <H3><label class="form-label">Avatar</label></H3>
 
-                    <img src="" class="avatar" onclick="selectedAvatar(0, src);" id="avatar-0">
+                        <img src="" class="avatar" onclick="selectedAvatar(0, src);" id="avatar-0">
 
-                    <img src="" class="avatar" onclick="selectedAvatar(1, src);" id="avatar-1">
+                        <img src="" class="avatar" onclick="selectedAvatar(1, src);" id="avatar-1">
 
-                    <img src="" class="avatar" onclick="selectedAvatar(2, src);" id="avatar-2">
+                        <img src="" class="avatar" onclick="selectedAvatar(2, src);" id="avatar-2">
 
-                    <img src="" class="avatar" onclick="selectedAvatar(3, src);" id="avatar-3">
+                        <img src="" class="avatar" onclick="selectedAvatar(3, src);" id="avatar-3">
 
-                    <img src="" class="avatar" onclick="selectedAvatar(4, src);" id="avatar-4">
+                        <img src="" class="avatar" onclick="selectedAvatar(4, src);" id="avatar-4">
 
-                    <br><br>
+                        <br><br>
 
-                    <a href="#" class="btn btn-pn btn-pn-small" onclick="uploadCustomAvatar();">Upload custom avatar</a>
+                        <H4><label for="customAvatarPicker" class="form-label">Choose custom avatar</label></H4>
+                        <input class="form-control" type="file" id="customAvatarPicker">
 
-                </div>
-                <input type="submit" class="btn btn-pn disabled" id="btnLogin" value="Login" style="float:right"/>
-            </form>
+
+                    </div>
+            </div>
+            <div class="card-footer text-muted">
+                <a href="#" class="btn btn-pn btn-pn-clear" onclick="uploadCustomAvatar();">Upload custom avatar</a>
+                <input type="submit" class="btn btn-pn disabled" id="btnLogin" value="Login" style="float:right" />
+                </form>
             </div>
         </div>
     </div>
 
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <strong class="me-auto">Not Implemented</strong>
-                <small></small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div id='toast-body' class="toast-body">
-                This feature has not yet been implemented.
+        <div id="liveToast" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toast-body">
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>

@@ -41,7 +41,8 @@ async function loadChat () {
   pubnub = createPubNubObject()
   await getUserMetadataSelf() //  Populate own data for left hand pane
   getUserMetaDataOthers() //  Populate list of direct chats for left hand pane
-  getGroupList() //  Populate list of group chats for left hand pane
+  getPrivateGroupList() //  Populate list of private group chats for left hand pane
+  getGroupList() //  Populate list of public group chats for left hand pane
 
   //  Add an event listener for the channel
   pnListener = pubnub.addListener({
@@ -198,6 +199,8 @@ async function populateChatWindow (channelName) {
   if (channelName.startsWith('Public')) {
     document.getElementById('heading').innerHTML =
       'Group: ' + lookupGroupName(channelName)
+  } else if (channelName.startsWith('Private')) {
+    document.getElementById('heading').innerHTML = lookupGroupName(channelName)
   } else if (channelName.startsWith('DM')) {
     var recipientName = await lookupRemoteOneOneUser(channelName)
     document.getElementById('heading').innerHTML = 'Chat with ' + recipientName
@@ -335,7 +338,7 @@ async function getUserMetaDataOthers () {
     //  Private.<name> for private groups
     //  DM.A&B for direct messages between two users
     pubnub.subscribe({
-      channels: ['DM.*', 'Public.*'],
+      channels: ['DM.*', 'Public.*', 'Private.*'],
       withPresence: true
     })
   } catch (status) {
@@ -466,6 +469,33 @@ async function getGroupList () {
   updateMessageCountFirstLoad()
 }
 
+async function getPrivateGroupList () {
+  var privateGroupList = ''
+
+  for (const group of predefined_groups.private_groups) {
+    var actualChannel = group.channel.replace('uuid', pubnub.getUserId())
+    var privateGroupHtml =
+      "<div class='user-with-presence mb-2' onclick='launchGroupChat(\"" +
+      actualChannel +
+      "\")'><img src='../img/group/" +
+      group.profileIcon +
+      "' class='chat-list-avatar'> <span style='font-size: larger;padding-left: 0.5em;'>" +
+      group.name +
+      "</span> <span id='unread-" +
+      actualChannel +
+      "' class='unread-message-indicator hidden'>0</span></div>"
+    privateGroupList += privateGroupHtml
+
+    await pubnub.objects.setMemberships({
+      channels: [actualChannel],
+      uuid: pubnub.getUserId()
+    })
+    subscribedChannels.push(actualChannel)
+  }
+
+  document.getElementById('groupListPrivate').innerHTML = privateGroupList
+}
+
 //  Handler for when a user is selected in the 1:1 chat window
 async function launchDirectChat (withUserId) {
   //  Channel name of direct chats is just "DM.[userId1]&[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
@@ -566,6 +596,10 @@ function lookupGroupName (channelName) {
   //  Look in the predefined groups
   for (const group of predefined_groups.groups) {
     if (group.channel == channelName) return group.name
+  }
+  for (const group of predefined_groups.private_groups) {
+    var groupName = group.channel.replace(pubnub.getUserId(), 'uuid')
+    if (group.channel == groupName) return group.name
   }
 
   //  look in the dynamically created groups

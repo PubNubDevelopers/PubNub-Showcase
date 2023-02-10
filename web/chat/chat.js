@@ -26,7 +26,6 @@ async function loadChat () {
   userData = {}
   subscribedChannels = []
   activeTypers = {}
-  //repositionMessageList()
 
   //  Handle Message input
   document
@@ -92,14 +91,14 @@ async function loadChat () {
         }
         //  Consider 2 scenarios:
         //  Firstly, the current channel is a group chat
-        if (channel.startsWith('group.')) {
+        if (channel.startsWith('Public.')) {
           //  If the removed user is part of the active group, remove them
           if (channelMembers[userId] != null) {
             console.log('removing user from current channel')
             removeUserFromCurrentChannel(userId)
             updateInfoPane()
           }
-        } else if (channel.startsWith('direct')) {
+        } else if (channel.startsWith('DM')) {
           //  If the active group is a 1:1 conversation, if it is with the deleted user, quit the chat
           if (createDirectChannelName(userId, pubnub.getUserId()) == channel) {
             channel = predefined_groups.groups[0].channel
@@ -196,10 +195,10 @@ function scrollChatToEnd () {
 
 async function populateChatWindow (channelName) {
   sessionStorage.setItem('activeChatChannel', channelName)
-  if (channelName.startsWith('group')) {
+  if (channelName.startsWith('Public')) {
     document.getElementById('heading').innerHTML =
       'Group: ' + lookupGroupName(channelName)
-  } else if (channelName.startsWith('direct')) {
+  } else if (channelName.startsWith('DM')) {
     var recipientName = await lookupRemoteOneOneUser(channelName)
     document.getElementById('heading').innerHTML = 'Chat with ' + recipientName
   }
@@ -331,8 +330,12 @@ async function getUserMetaDataOthers () {
       addNewUser(users.data[i].id, users.data[i].name, users.data[i].profileUrl)
     }
     //  Subscribing to all possible channels we will want to know about.  Need to know about all channels so we can track the unread message counter
+    //  Using the recommended naming convention:
+    //  Public.<name> for public groups
+    //  Private.<name> for private groups
+    //  DM.A&B for direct messages between two users
     pubnub.subscribe({
-      channels: ['direct.*', 'group.*'],
+      channels: ['DM.*', 'Public.*'],
       withPresence: true
     })
   } catch (status) {
@@ -430,10 +433,10 @@ async function getUUIDMetaData (userId) {
 //  Left hand pane (Direct chats and Group) logic
 
 //  Create a channel for us to talk 1:1 with another user
-//  Channel name of direct chats is just "direct.[userId1]-[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
+//  Channel name of direct chats is just "DM.[userId1]&[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
 function createDirectChannelName (userId1, userId2) {
-  if (userId1 <= userId2) return 'direct.' + userId1 + '-' + userId2
-  else return 'direct.' + userId2 + '-' + userId1
+  if (userId1 <= userId2) return 'DM.' + userId1 + '&' + userId2
+  else return 'DM.' + userId2 + '&' + userId1
 }
 
 //  Populate the 'Groups'
@@ -465,7 +468,7 @@ async function getGroupList () {
 
 //  Handler for when a user is selected in the 1:1 chat window
 async function launchDirectChat (withUserId) {
-  //  Channel name of direct chats is just "direct-[userId1]-[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
+  //  Channel name of direct chats is just "DM.[userId1]&[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
   var userId1 = pubnub.getUserId()
   var userId2 = withUserId
   if (withUserId < pubnub.getUserId()) {
@@ -473,7 +476,7 @@ async function launchDirectChat (withUserId) {
     userId2 = pubnub.getUserId()
   }
 
-  channel = 'direct.' + userId1 + '-' + userId2
+  channel = 'DM.' + userId1 + '&' + userId2
   await populateChatWindow(channel)
 
   let myOffCanvas = document.getElementById('chatLeftSide')
@@ -497,8 +500,8 @@ async function lookupRemoteOneOneUser (channelName) {
     //  Find the remote ID which is contained within the direct channel name
     var remoteId = channelName
     remoteId = remoteId.replace(pubnub.getUserId(), '')
-    remoteId = remoteId.replace('direct.', '')
-    remoteId = remoteId.replace('-', '')
+    remoteId = remoteId.replace('DM.', '')
+    remoteId = remoteId.replace('&', '')
     if (userData[remoteId] != null) return userData[remoteId].name
     else {
       //  Possibly we are calling this before the users are loaded from the server, for performance reasons don't wait for those to load
@@ -556,6 +559,7 @@ function generateHtmlChatMember (userId, name, profileUrl, online) {
 
 function addGroupClick () {
   notImplemented('Adding a group')
+  //  This will be a private group, whose channel name will be of the form 'Private.<name>'
 }
 
 function lookupGroupName (channelName) {
@@ -566,6 +570,7 @@ function lookupGroupName (channelName) {
 
   //  look in the dynamically created groups
   //  todo use pubnub objects for channels
+  //  these private groups will have channel names 'Private.<name>'
 }
 
 //////////////////////////////////////
@@ -630,13 +635,17 @@ function messageInputAttachment () {
 function messageInputSend () {
   var messageText = document.getElementById('input-message').value
   if (messageText !== '') {
-    pubnub.publish({
-      channel: channel,
-      storeInHistory: true,
-      message: {
-        message: messageText
-      }
-    })
+    try {
+      pubnub.publish({
+        channel: channel,
+        storeInHistory: true,
+        message: {
+          message: messageText
+        }
+      })
+    } catch (err) {
+      console.log('Error sending message: ' + err)
+    }
   }
   document.getElementById('input-message').value = ''
 }

@@ -3,13 +3,13 @@ async function updatePresenceInfoFirstLoad () {
     //console.log('Update Presence Info: ' + channel)
     try {
       const result = await pubnub.hereNow({
-        channels: ['group.*'],
+        channels: ['Public.*'],
         includeUUIDs: true,
         includeState: true
       })
-      //console.log(result.channels["group.*"])
-      for (var i = 0; i < result.channels['group.*'].occupancy; i++) {
-        handlePresenceEvent('join', result.channels['group.*'].occupants[i].uuid)
+      //console.log(result.channels["Public.*"])
+      for (var i = 0; i < result.channels['Public.*'].occupancy; i++) {
+        handlePresenceEvent('join', result.channels['Public.*'].occupants[i].uuid)
       }
     } catch (status) {
       console.log(status)

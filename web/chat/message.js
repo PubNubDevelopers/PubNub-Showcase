@@ -186,8 +186,8 @@ function incrementChannelUnreadCounter (channel) {
 function setChannelUnreadCounter (channel, count) {
   try {
     channel = channel.replace(pubnub.getUserId(), '')
-    channel = channel.replace('direct.', '')
-    channel = channel.replace('-', '')
+    channel = channel.replace('DM.', '')
+    channel = channel.replace('&', '')
     var unreadMessage = document.getElementById('unread-' + channel)
     if (count == -1) {
       //  Increment current count by 1

@@ -38,7 +38,6 @@ function maEmojiReaction (messageActionEvent) {
           0,
           messageEmojiElement.innerHTML.length - 2
         )
-        console.log(newString)
         messageEmojiElement.innerHTML = newString
       }
     }
@@ -49,7 +48,6 @@ async function maAddEmojiReaction (messageId) {
   //  User has right clicked on a message, hard code reacting to this with a 🙂 emoji
   var messageElement = document.getElementById('emoji-reactions-' + messageId)
   if (messageElement.classList.contains('message-reacted')) {
-    console.log('remove reaction')
     //  We have already reacted to this message, remove the reaction
     try {
       const result = await pubnub.removeMessageAction({
@@ -64,7 +62,6 @@ async function maAddEmojiReaction (messageId) {
     }
   } else {
     try {
-      console.log('add reaction')
       const result = await pubnub.addMessageAction({
         channel: channel,
         messageTimetoken: messageId, //  We use the timetoken as our chat's message Id already

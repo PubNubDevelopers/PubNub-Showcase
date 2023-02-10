@@ -10,8 +10,11 @@ var userData = null
 var me = null
 //  Local cache of channels we are currently subscribed to
 var subscribedChannels = null
+//  The current attachment (image)
+var fileAttachment = null;
 const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
+const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1
 
 window.addEventListener('beforeunload', function () {
   console.log('unsubscribe all')
@@ -170,7 +173,10 @@ async function loadChat () {
       await populateChatWindow(channel)
     }
   } catch (err) {
-    console.log(err)
+    console.log(
+      'Error retrieving session storage.  This is needed to run the demo' + err
+    )
+    alert('Demo will not run without session storage')
   }
 
   updatePresenceInfoFirstLoad()
@@ -469,6 +475,18 @@ async function getGroupList () {
   updateMessageCountFirstLoad()
 }
 
+/*
+  PRODUCTION CONSIDERATIONS for private groups:
+  This demo hard codes the list of private groups but in a production chat solution
+  users should be added and removed from private groups by an authorized endpoint.
+  Typically this would be done on the server side, in conjunction with the access manager
+  ensuring that only authorized users are added to specific groups and controlling requests to be 
+  added to new groups.
+  A group will map to a channel.  Although you can choose any naming convention for your channel, 
+  recommendations exist in the documentation.  For private groups, the recommendation is to use Private.<channel name> 
+  for the channel name
+  You can still use PubNub Objects to organize which channels your users are members of.
+*/
 async function getPrivateGroupList () {
   var privateGroupList = ''
 
@@ -563,6 +581,15 @@ function updateInfoPane () {
     }
   }
   document.getElementById('memberList').innerHTML = memberListHtml
+
+  //  The information associated with the chat
+  //  In production, this should be stored as channel meta data but for simplicity
+  //  this app only uses hardcoded chats, therefore we can look up the information locally
+  var chatInfo = 'Direct chat between two members'
+  if (!channel.startsWith('DM')) {
+    chatInfo = lookupGroupDescription(channel)
+  }
+  document.getElementById('chatInformation').innerHTML = chatInfo
 }
 
 function generateHtmlChatMember (userId, name, profileUrl, online) {
@@ -587,11 +614,6 @@ function generateHtmlChatMember (userId, name, profileUrl, online) {
   )
 }
 
-function addGroupClick () {
-  notImplemented('Adding a group')
-  //  This will be a private group, whose channel name will be of the form 'Private.<name>'
-}
-
 function lookupGroupName (channelName) {
   //  Look in the predefined groups
   for (const group of predefined_groups.groups) {
@@ -601,15 +623,21 @@ function lookupGroupName (channelName) {
     var groupName = group.channel.replace(pubnub.getUserId(), 'uuid')
     if (group.channel == groupName) return group.name
   }
+}
 
-  //  look in the dynamically created groups
-  //  todo use pubnub objects for channels
-  //  these private groups will have channel names 'Private.<name>'
+function lookupGroupDescription (channelName) {
+  //  Only consider the predefined groups
+  for (const group of predefined_groups.groups) {
+    if (group.channel == channelName) return group.description
+  }
+  for (const group of predefined_groups.private_groups) {
+    var groupName = group.channel.replace(pubnub.getUserId(), 'uuid')
+    if (group.channel == groupName) return group.description
+  }
 }
 
 //////////////////////////////////////
 //  Right click handler and context menu
-
 function addContextHandler (element, callback) {
   //  On desktop environments, handle right click
   if (!('ontouchstart' in window)) {
@@ -662,24 +690,146 @@ function selectEmoji (data) {
 }
 
 function messageInputAttachment () {
-  console.log('Adding Message Attachment')
-  notImplemented('Adding an attachment')
+  const messageInput = document.getElementById('input-message')
+
+  var input = document.createElement('input')
+  input.type = 'file'
+
+  input.onchange = e => {
+    fileAttachment = e.target.files[0]
+    if (fileAttachment == null) {
+      //  User cancelled the attachment selection
+      return;
+    } else if (fileAttachment.size > MAX_ATTACHMENT_FILE_SIZE) {
+      errorMessage('Your file should be under 1MB')
+      return;
+    } else if (
+      !(
+        fileAttachment.type == 'image/png' ||
+        fileAttachment.type == 'image/jpeg' ||
+        fileAttachment.type == 'image/gif'
+      )
+    ) {
+      errorMessage('Please choose a JPG, PNG or GIF file')
+      return;
+    } else {
+      //  Attachment seems valid, read it in and show a resized version
+
+      var reader = new FileReader()
+      reader.readAsDataURL(fileAttachment)
+      reader.onload = async readerEvent => {
+        var content = readerEvent.target.result
+
+        //const resizedImage = await compressImage(content, 200, 200)
+
+        //console.log(resizedImage)
+
+        const img = new Image()
+        img.src = content
+        img.onload = async () => {
+          if (img.height > 200)
+          {
+            var newWidth = (img.height / img.width) * 200;
+            if (img.width > img.height)
+            {
+              newWidth = (img.width / img.height) * 200;
+            }
+            content = await compressImage(content, newWidth, 200)
+          }
+
+          document.getElementById('input-message').style.backgroundImage =
+            'url(' + content + ')'
+          document.getElementById('input-message')
+        }
+      }
+    }
+
+    messageBoxHasImage(true)
+  }
+
+  input.click()
+
+  //  notImplemented('Adding an attachment')
 }
 
-function messageInputSend () {
-  var messageText = document.getElementById('input-message').value
-  if (messageText !== '') {
+function messageBoxHasImage(hasImage)
+{
+  const msgInput = document.getElementById('input-message');
+  if (hasImage)
+  {
+    //  disable the message input field
+    msgInput.style.height = '200px'
+  }
+  else{
+    msgInput.style.height = '';
+    msgInput.style.backgroundImage = '';
+  }
+}
+
+async function compressImage (src, newX, newY) {
+  return new Promise((res, rej) => {
+    const img = new Image()
+    img.src = src
+    img.onload = () => {
+      const elem = document.createElement('canvas')
+      elem.width = newX
+      elem.height = newY
+      const ctx = elem.getContext('2d')
+      ctx.drawImage(img, 0, 0, newX, newY)
+      const data = ctx.canvas.toDataURL()
+      res(data)
+    }
+    img.onerror = error => rej(error)
+  })
+}
+
+async function messageInputSend () {
+  var messageInput = document.getElementById('input-message')
+  var messageText = messageInput.value
+  if (messageText == '')
+  {
+    //  Prevent duplicate sends
+    //  In Production, you would want to show a loading cursor here
+    return;
+  }
+  messageInput.value = ''
+  var fileUrl = null
+  if (messageInput.style.backgroundImage != '')
+  {
+    //  Message contains an image, upload it to PubNub
+    //  With large images, it would be far better to perform the upload asynchronously
+    try {
+      //  The image is OK, upload it to PubNub
+      const uploadedFile = await pubnub.sendFile({
+        channel: channel,
+        file: fileAttachment
+      })
+      fileUrl = await pubnub.getFileUrl({
+        channel: channel,
+        id: uploadedFile.id,
+        name: uploadedFile.name
+      })
+
+    } catch (err) {
+      errorMessage('Error uploading custom avatar')
+      console.log('Error uploading custom avatar: ' + err)
+    }
+
+  }
+  if (messageText !== '' || fileUrl !== null) {
     try {
       pubnub.publish({
         channel: channel,
         storeInHistory: true,
         message: {
-          message: messageText
+          message: messageText,
+          attachment: fileUrl
         }
       })
+      messageBoxHasImage(false)
     } catch (err) {
       console.log('Error sending message: ' + err)
     }
   }
-  document.getElementById('input-message').value = ''
+
 }

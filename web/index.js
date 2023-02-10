@@ -144,10 +144,4 @@ function customAvatarChecks (avatarFile) {
   return true
 }
 
-function errorMessage (message) {
-  const toastLiveExample = document.getElementById('liveToast')
-  const toastBody = document.getElementById('toast-body')
-  toastBody.innerHTML = message
-  const toast = new bootstrap.Toast(toastLiveExample)
-  toast.show()
-}
+

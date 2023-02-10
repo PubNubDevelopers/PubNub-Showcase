@@ -15,7 +15,7 @@
     flex-direction:column
 }
 
-.direct-user-list {
+.user-list {
     background-color: #EAF0F6;
     border-radius: 5px;
     padding: 2%;
@@ -107,6 +107,8 @@
     font-size: medium;
     caret-color: auto;
     width:100%;
+    background-repeat: no-repeat;
+    background-position: right;
 }
 
 .message-input-icon {
@@ -183,4 +185,8 @@
     z-index:1;
     position:absolute;
     visibility:hidden
+}
+
+#chatInformation {
+    padding-bottom: 20px;
 }

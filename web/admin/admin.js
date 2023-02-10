@@ -29,18 +29,35 @@ async function getUserMetadata () {
 }
 
 async function getUserGroups () {
-  const channels = await pubnub.objects.getMemberships({
+  const publicChannels = await pubnub.objects.getMemberships({
     uuid: pubnub.getUserId(),
     filter: "channel.id LIKE 'Public.*'"
   })
-  console.log(channels)
-  if (channels != null && channels.data.length > 0) {
-    var html = 'Total groups: ' + channels.data.length + "<BR><UL>"
-    for (var i = 0; i < channels.data.length; i++) {
-      html += "<LI>" + channels.data[i].channel.id
+  const privateChannels = await pubnub.objects.getMemberships({
+    uuid: pubnub.getUserId(),
+    filter: "channel.id LIKE 'Private.*'"
+  })
+  if (publicChannels != null && publicChannels.data.length > 0) {
+    var html = 'Total groups: ' + publicChannels.data.length + "<BR><UL>"
+    for (var i = 0; i < publicChannels.data.length; i++) {
+      html += "<LI>" + publicChannels.data[i].channel.id
     }
     html+= "</UL>"
     document.getElementById('groupMemberships').innerHTML = html;
+  }
+  else {
+    document.getElementById('groupMemberships').innerHTML = "None"
+  }
+  if (privateChannels != null && privateChannels.data.length > 0) {
+    var html = 'Total groups: ' + privateChannels.data.length + "<BR><UL>"
+    for (var i = 0; i < privateChannels.data.length; i++) {
+      html += "<LI>" + privateChannels.data[i].channel.id
+    }
+    html+= "</UL>"
+    document.getElementById('groupMembershipsPrivate').innerHTML = html;
+  }
+  else {
+    document.getElementById('groupMembershipsPrivate').innerHTML = "None"
   }
 }
 

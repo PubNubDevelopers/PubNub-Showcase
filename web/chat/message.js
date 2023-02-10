@@ -1,9 +1,13 @@
 async function messageReceived (messageObj) {
   try {
-    //console.log(messageObj)
     if (messageObj.channel != channel) {
       //  The message has been recevied on a channel we are not currently viewing, update the unread message indicators
       incrementChannelUnreadCounter(messageObj.channel)
+      return
+    }
+    if (messageObj.message.message == null)
+    {
+      //  The message does not have any text associated with it (for example, it is a file)
       return
     }
 
@@ -93,7 +97,7 @@ function createMessageSent (messageObj, messageIsRead) {
   newMsg.innerHTML =
     ' \
     ' +
-    messageObj.message.message +
+    messageContents(messageObj.message) +
     " <div id='emoji-reactions-" +
     messageObj.timetoken +
     "' class='message-reaction' style='display:inline' data-actionid=''></div> \
@@ -141,7 +145,7 @@ function createMessageReceived (messageObj) {
     "' class='chat-list-avatar'> <span class='presence-dot-none'></span> </div><span class='messageCheck'><i id='message-check-" +
     messageObj.timetoken +
     "' class='bi bi-check-all'></i></span>" +
-    messageObj.message.message +
+    messageContents(messageObj.message) +
     " <div id='emoji-reactions-" +
     messageObj.timetoken +
     "' class='message-reaction' style='display:inline' data-actionid=''></div>" +
@@ -152,6 +156,17 @@ function createMessageReceived (messageObj) {
     convertTimetokenToDate(messageObj.timetoken) +
     '</div></div>'
   return newMsg
+}
+
+function messageContents(messageData)
+{
+  if (messageData.attachment != null)
+  {
+    //  There was an image attachment with the message
+    var imageRender = "<img src='" + messageData.attachment + "' height='200'><br>"
+    return imageRender + messageData.message
+  }
+  return messageData.message
 }
 
 //////////////////////

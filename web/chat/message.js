@@ -27,7 +27,7 @@ async function messageReceived (messageObj) {
     }
 
     var messageDiv = ''
-    if (messageObj.publisher == pubnub.getUUID()) {
+    if (messageObj.publisher == pubnub.getUserId()) {
       //  If the read receipt was added as a message action before we could draw the message, do that now
       var messageIsRead = false
       if (
@@ -52,7 +52,7 @@ async function messageReceived (messageObj) {
           messageTimetoken: messageObj.timetoken,
           action: {
             type: 'read',
-            value: pubnub.getUUID()
+            value: pubnub.getUserId()
           }
         })
       }
@@ -185,7 +185,7 @@ function incrementChannelUnreadCounter (channel) {
 
 function setChannelUnreadCounter (channel, count) {
   try {
-    channel = channel.replace(pubnub.getUUID(), '')
+    channel = channel.replace(pubnub.getUserId(), '')
     channel = channel.replace('direct.', '')
     channel = channel.replace('-', '')
     var unreadMessage = document.getElementById('unread-' + channel)

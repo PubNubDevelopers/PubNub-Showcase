@@ -75,7 +75,7 @@ async function loadChat () {
       if (
         objectEvent.message.type == 'uuid' &&
         objectEvent.message.event == 'delete' &&
-        objectEvent.message.data.id == pubnub.getUUID()
+        objectEvent.message.data.id == pubnub.getUserId()
       ) {
         //  The Object associated with OUR UUID was deleted.
         //  log out.  This could have been caused e.g. by a duplicate tab logging out
@@ -83,7 +83,7 @@ async function loadChat () {
       } else if (
         objectEvent.message.type == 'uuid' &&
         objectEvent.message.event == 'delete' &&
-        objectEvent.message.data.id != pubnub.getUUID()
+        objectEvent.message.data.id != pubnub.getUserId()
       ) {
         var userId = objectEvent.message.data.id
         //  The Object associated with some other UUID was deleted.
@@ -101,7 +101,7 @@ async function loadChat () {
           }
         } else if (channel.startsWith('direct')) {
           //  If the active group is a 1:1 conversation, if it is with the deleted user, quit the chat
-          if (createDirectChannelName(userId, pubnub.getUUID()) == channel) {
+          if (createDirectChannelName(userId, pubnub.getUserId()) == channel) {
             channel = predefined_groups.groups[0].channel
             await populateChatWindow(channel)
           }
@@ -109,14 +109,14 @@ async function loadChat () {
       } else if (
         objectEvent.message.type == 'membership' &&
         objectEvent.message.event == 'set' &&
-        objectEvent.message.data.uuid.id == pubnub.getUUID()
+        objectEvent.message.data.uuid.id == pubnub.getUserId()
       ) {
         //  We have joined a channel, logic for this is handled elsewhere.
         //  No action required
       } else if (
         objectEvent.message.type == 'membership' &&
         objectEvent.message.event == 'set' &&
-        objectEvent.message.data.uuid.id != pubnub.getUUID()
+        objectEvent.message.data.uuid.id != pubnub.getUserId()
       ) {
         //  Somebody else has joined a channel
         //  Regardless of our active channel, add this person to our list of direct chats if they aren't there already (this is our indication a new user is added)
@@ -144,14 +144,14 @@ async function loadChat () {
       } else if (
         objectEvent.message.type == 'membership' &&
         objectEvent.message.event == 'delete' &&
-        objectEvent.message.data.uuid == pubnub.getUUID()
+        objectEvent.message.data.uuid == pubnub.getUserId()
       ) {
         //  This will only ever be called by this app if we log out, the logic of which is handled elsewhere.  Specifically, if we log out in a duplicate tab, we handle this in [uuid][delete]
         //  No action required
       } else if (
         objectEvent.message.type == 'membership' &&
         objectEvent.message.event == 'delete' &&
-        objectEvent.message.data.uuid != pubnub.getUUID()
+        objectEvent.message.data.uuid != pubnub.getUserId()
       ) {
         //  Somebody else has removed themselves from a channel
         //  In this application, this can only happen if the user has logged out (which clears their data), a scenario caught by the [uuid][delete] handler
@@ -280,7 +280,7 @@ async function populateChatWindow (channelName) {
             var reaction = ''
             for (const action of historicalMsg.actions.react.smile) {
               reaction += String.fromCodePoint(0x1f642)
-              if (action.uuid == pubnub.getUUID()) {
+              if (action.uuid == pubnub.getUserId()) {
                 messageEmojiElement.classList.add('message-reacted')
                 messageEmojiElement.dataset.actionid = action.actionTimetoken
               }
@@ -300,7 +300,7 @@ async function populateChatWindow (channelName) {
 async function getUserMetadataSelf () {
   try {
     const result = await pubnub.objects.getUUIDMetadata({
-      uuid: pubnub.getUUID()
+      uuid: pubnub.getUserId()
     })
     me = result.data
     document.getElementById('currentUser').innerText = me.name + ' (You)'
@@ -322,7 +322,7 @@ async function getUserMetaDataOthers () {
     })
     //  Populate the Direct 1:1 Chat list with people you can chat with
     for (var i = users.data.length - 1; i >= 0; i--) {
-      if (users.data[i].id == pubnub.getUUID()) continue
+      if (users.data[i].id == pubnub.getUserId()) continue
       var lastUpdated = new Date(users.data[i].updated)
       var cutoff = new Date()
       cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
@@ -372,7 +372,7 @@ function addNewUser (userId, name, profileUrl) {
   document.getElementById('oneOneUserList').innerHTML =
     oneOneUser + document.getElementById('oneOneUserList').innerHTML
 
-  var tempChannel = createDirectChannelName(pubnub.getUUID(), userId)
+  var tempChannel = createDirectChannelName(pubnub.getUserId(), userId)
   subscribedChannels.push(tempChannel)
 
   //  Add myself and the recipient to the direct chat channel
@@ -380,7 +380,7 @@ function addNewUser (userId, name, profileUrl) {
   //  simplicity, we'll do this on every client
   pubnub.objects.setMemberships({
     channels: [tempChannel],
-    uuid: pubnub.getUUID()
+    uuid: pubnub.getUserId()
   })
 }
 
@@ -391,9 +391,9 @@ function removeUser (userId) {
   var leftPaneUser = document.getElementById('user-' + userId)
   leftPaneUser.parentNode.removeChild(leftPaneUser)
 
-  var tempChannel = createDirectChannelName(pubnub.getUUID(), userId)
+  var tempChannel = createDirectChannelName(pubnub.getUserId(), userId)
   pubnub.objects.removeMemberships({
-    uuid: pubnub.getUUID(),
+    uuid: pubnub.getUserId(),
     channels: [tempChannel]
   })
 }
@@ -455,7 +455,7 @@ async function getGroupList () {
 
     await pubnub.objects.setMemberships({
       channels: [group.channel],
-      uuid: pubnub.getUUID()
+      uuid: pubnub.getUserId()
     })
     subscribedChannels.push(group.channel)
   }
@@ -466,11 +466,11 @@ async function getGroupList () {
 //  Handler for when a user is selected in the 1:1 chat window
 async function launchDirectChat (withUserId) {
   //  Channel name of direct chats is just "direct-[userId1]-[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
-  var userId1 = pubnub.getUUID()
+  var userId1 = pubnub.getUserId()
   var userId2 = withUserId
-  if (withUserId < pubnub.getUUID()) {
+  if (withUserId < pubnub.getUserId()) {
     userId1 = withUserId
-    userId2 = pubnub.getUUID()
+    userId2 = pubnub.getUserId()
   }
 
   channel = 'direct.' + userId1 + '-' + userId2
@@ -496,7 +496,7 @@ async function lookupRemoteOneOneUser (channelName) {
   try {
     //  Find the remote ID which is contained within the direct channel name
     var remoteId = channelName
-    remoteId = remoteId.replace(pubnub.getUUID(), '')
+    remoteId = remoteId.replace(pubnub.getUserId(), '')
     remoteId = remoteId.replace('direct.', '')
     remoteId = remoteId.replace('-', '')
     if (userData[remoteId] != null) return userData[remoteId].name
@@ -514,13 +514,13 @@ async function lookupRemoteOneOneUser (channelName) {
 function updateInfoPane () {
   //  We are always present in any chat we are viewing information for
   var memberListHtml = generateHtmlChatMember(
-    pubnub.getUUID(),
+    pubnub.getUserId(),
     me.name + ' (You)',
     me.profileUrl,
     true
   )
   for (var userId in channelMembers) {
-    if (userId != pubnub.getUUID()) {
+    if (userId != pubnub.getUserId()) {
       memberListHtml += generateHtmlChatMember(
         userId,
         channelMembers[userId].name,

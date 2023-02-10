@@ -4,7 +4,7 @@ const TYPING_INDICATOR_TIMEOUT_IN_MSECS = 5000 //  ms
 
 function sendTypingIndicator () {
     pubnub.signal({
-      message: { id: pubnub.getUUID(), t: 't' },
+      message: { id: pubnub.getUserId(), t: 't' },
       channel: channel
     })
   }

@@ -27,6 +27,7 @@ function createPubNubObject () {
     subscribeKey: subscribe_key,
     userId: UUID
   })
+  PubNub.prototype.getUserId = function(){return this.getUUID()}
   return pubnub
 }
 

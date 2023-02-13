@@ -16,6 +16,10 @@ body {
     color: #33687B;
 }
 
+.new-location-padding {
+    padding: 4px 16px;
+}
+
 .input-group-append > button {
     margin-left: 20px;
 }
@@ -55,7 +59,7 @@ body {
     justify-content: space-between !important;
     padding-left: 0px;
 }
-  
+
 .form-check-label {
     margin-right: 50px !important;
 }
@@ -103,13 +107,13 @@ body {
     #map-canvas-div {height: 191px;}
     .form-check-input {margin-right: 150px;}
 }
-  
+
 @media only screen and (min-width: 600px) {
     #map-canvas-div {height: 394px;}
     .form-check-input {margin-right: 80px;}
 }
-  
+
 @media only screen and (min-width: 992px) {
     #map-canvas-div {height: 524px;}
     .form-check-input {margin-right: 80px;}
-} 
+}

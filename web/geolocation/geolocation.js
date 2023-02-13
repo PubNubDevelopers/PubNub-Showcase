@@ -8,7 +8,8 @@
 ..######...#######..##....##..######.....##...
 */
 
-var geoChannel = "GeoChannel";
+var geoChannel = "GeoChannel"; // Channel
+const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 
 /*
 ..######..########....###....########.########
@@ -24,6 +25,10 @@ var geoChannel = "GeoChannel";
 var pubnub = null;
 //  Our own data, populated asynchronously on startup
 var me = null;
+//  Local cache of members also in our channel (excluding ourselves)
+var channelMembers = null
+// Local cache of members whos position has already been displayed
+var displayedMembers = null
 // Map Configuration
 var map = null;
 var mark = [];
@@ -45,6 +50,8 @@ var lastLng = "";
 
 
 async function initialize () {
+    channelMembers = {};
+    displayedMembers = {};
     // Intialize PubNub Object
     pubnub = createPubNubObject();
     await getUserMetadataSelf();
@@ -53,17 +60,32 @@ async function initialize () {
     map  = new google.maps.Map(document.getElementById('map-canvas'), {
         zoom: 2,
         center: myLatlng
-    })
+    });
+    pubnub.subscribe({channels: [geoChannel], withPresence: true});
+    await activatePubNubListener();
     bounds  = new google.maps.LatLngBounds();
     getLocation();
-    loadLastLocations();
-    pubnub.subscribe({channels: [geoChannel, geoChannel+'.greet'], withPresence: true});
-    pubnub.addListener({
-        message:redraw,
-        presence: (presenceEvent) => {
-            document.getElementById("active-label").innerHTML = presenceEvent.occupancy;
-        },
+    pubnub.hereNow({
+        channels: [geoChannel],
+    }).then((response) => {
+        document.getElementById("active-label").innerHTML = response.totalOccupancy;
+    }).catch((error) => {
+        console.log(error)
     });
+    loadLastLocations();
+
+    // Initialize Map Search
+    const card = document.getElementById("pac-card");
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
+    const input = document.getElementById("pac-input");
+    const autocomplete = new google.maps.places.Autocomplete(input);
+    const southwest = { lat: 5.6108, lng: 136.589326 };
+    const northeast = { lat: 61.179287, lng: 2.64325 };
+    const newBounds = new google.maps.LatLngBounds(southwest, northeast);
+    autocomplete.setBounds(newBounds);
+    const infowindow = new google.maps.InfoWindow();
+    const infowindowContent = document.getElementById("infowindow-content");
+    infowindow.setContent(infowindowContent);
 }
 
 //  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
@@ -94,11 +116,7 @@ function nothing(){}
 
 // Add position as a channel member
 async function showPosition(position) {
-    console.log("showPosition");
-    console.log(pubnub.getUUID());
-    console.log(me.name);
     if ( true) {
-        console.log("Set Channel Members");
         await pubnub.objects.setChannelMembers({
             channel: geoChannel,
             uuids: [
@@ -119,79 +137,193 @@ async function showPosition(position) {
         .catch((err) => {
             console.log(err);
         });
+        console.log("PUBLISHING POSITION");
         pubnub.publish({channel:geoChannel, message:{uuid:pubnub.getUUID(), name: me.name, lat:position.coords.latitude, lng:position.coords.longitude}});
-        pubnub.publish({channel:geoChannel+"."+pubnub.getUUID(), message:{uuid:pubnub.getUUID(), name: me.name, lat:position.coords.latitude, lng:position.coords.longitude}}); // For future feature: playback of user history
     }
 }
 
-/// Populates the map with the last locations seen in the channel
-function loadLastLocations() {
-    console.log("Loading Last Locations");
-    pubnub.objects.getChannelMembers({
+async function activatePubNubListener(){
+    pnListener = pubnub.addListener({
+        message: redraw,
+        presence: (presenceEvent) => {
+            document.getElementById("active-label").innerHTML = presenceEvent.occupancy;
+        },
+        objects: async objectEvent => {
+
+        }
+    })
+
+    try {
+        await populateChannelMembers();
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+
+async function populateChannelMembers(){
+    const result = await pubnub.objects.getChannelMembers({
         channel: geoChannel,
         sort: { updated: 'desc' },
         include: {
-            customFields: true,
-            UUIDFields: true,
-            customUUIDFields: true,
+            UUIDFields: true
         },
         limit: 100,
         totalCount: true
-    }).then(response => {
-        console.log("Response for locations");
-        console.log(response);
-        // console.log(response);
-        var arrayLength = response.data.length;
-        for (var i = 0; i < arrayLength; i++) {
-            console.log("Enter");
-            console.log(response.data[i].custom);
-            if (response.data[i].uuid.id != pubnub.getUUID() && response.data[i].custom) {
-                console.log(response.data[i].custom.lat);
-                loc = new google.maps.LatLng(response.data[i].custom.lat, response.data[i].custom.lng);
-                mark[response.data[i].uuid.id] = new google.maps.Marker({
-                    position:loc,
-                    map:map,
-                    label: {
-                        text: response.data[i].custom.username,
-                        color: "#000000",
-                        fontWeight: "bold",
-                    }
-                });
+    });
 
-                console.log(response.data[i]);
+    channelMembers = {}
+    for (var i = 0; i < result.data.length; i++) {
+        //  Since this is a shared system with essentially ephemeral users, only display users who were created in the last 24 hours
+        //  The 'updated' field, for our purposes, will be when the user was created (or changed their name), but either way, this
+        //  allows the list of 'users' to be kept manageable.
+        //  There is logic to load the names / avatars on historical messages separately, so they are not blank.
+        var lastUpdated = new Date(result.data[i].updated)
+        var cutoff = new Date()
+        cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
+        if (lastUpdated > cutoff) {
+        addUserToCurrentChannel(
+            result.data[i].uuid.id,
+            result.data[i].uuid.name,
+            result.data[i].uuid.profileUrl
+        )
+        }
+    }
+}
 
-                var lastseen = new Date(response.data[i].updated);
+//  Update our cache of which users are in the current channel
+function addUserToCurrentChannel (userId, name, profileUrl) {
+    try {
+        if (name == null || profileUrl == null) {
+            name = userInfo.data.name
+            profileUrl = userInfo.data.profileUrl
+        }
+        channelMembers[userId] = {
+            name: name,
+            profileUrl: profileUrl
+        }
+    } catch (e) {
+        //  Could not look up object
+        console.log(e);
+    }
+}
 
-                var content = "Name: " + response.data[i].custom.username + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + response.data[i].custom.lat +  '<br>' + "Long: " + response.data[i].custom.lng +  '<br>' + "Greeting: " + response.data[i].custom.greeting;
+function addToDisplayedUsers(userId){
+    displayedMembers[userId] = true;
+}
 
-                var infowindow = new google.maps.InfoWindow();
+/// Populates the map with the last locations seen in the channel
+async function loadLastLocations() {
+    const history = await pubnub.fetchMessages({
+        channels: [geoChannel],
+        count: 100,
+        includeUUID: true,
+        includeMessageActions: true
+    });
+    if (history.channels[geoChannel] != null) {
+        for (const historicalMsg of history.channels[geoChannel]) {
+            historicalMsg.publisher = historicalMsg.uuid;
+            if (channelMembers[historicalMsg.uuid] != null && !(displayedMembers.hasOwnProperty(historicalMsg.uuid))) {
+                addToDisplayedUsers(historicalMsg.uuid);
+                if (historicalMsg.message && historicalMsg.message.uuid != pubnub.getUUID()) {
+                    // Display position on the map
+                    loc = new google.maps.LatLng(historicalMsg.message.lat, historicalMsg.message.lng);
+                    mark[historicalMsg.uuid] = new google.maps.Marker({
+                        position:loc,
+                        map:map,
+                        label: {
+                            text: historicalMsg.message.name,
+                            color: "#000000",
+                            fontWeight: "bold",
+                        }
+                    });
 
-                var markdata = response.data[i];
+                    var lastseen = new Date(historicalMsg.timetoken / 10000000);
 
-                google.maps.event.addListener(mark[markdata.uuid.id], 'click', (function(markdata,content,infowindow){
-                    return function() {
-                        infowindow.setContent(content);
-                        infowindow.open(map,mark[markdata.uuid.id]);
-                        google.maps.event.addListener(map,'click', function(){
-                            infowindow.close();
-                        });
-                    };
-                })(markdata,content,infowindow));
+                    var content = "Name: " + historicalMsg.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + historicalMsg.message.lat +  '<br>' + "Long: " + historicalMsg.message.lng;
+
+                    var infowindow = new google.maps.InfoWindow();
+
+                    google.maps.event.addListener(mark[historicalMsg.uuid], 'click', (function(content,infowindow){
+                        return function() {
+                            infowindow.setContent(content);
+                            infowindow.open(map,mark[historicalMsg.uuid]);
+                            google.maps.event.addListener(map,'click', function(){
+                                infowindow.close();
+                            });
+                        };
+                    })(content,infowindow));
 
 
-                mark[response.data[i].uuid.id].setMap(map);
-                bounds.extend(loc);
+                    mark[historicalMsg.uuid].setMap(map);
+                    bounds.extend(loc);
+                }}
             }
         }
-        if (document.getElementById('fitviewswitch').checked) {
-            map.fitBounds(bounds);
-            map.panToBounds(bounds);
-        }
-    });
-};
+    }
+    // console.log("Loading Last Locations");
+
+    // pubnub.objects.getChannelMembers({
+    //     channel: geoChannel,
+    //     sort: { updated: 'desc' },
+    //     include: {
+    //         customFields: true,
+    //         UUIDFields: true,
+    //         customUUIDFields: true,
+    //     },
+    //     limit: 100,
+    //     totalCount: true
+    // }).then(response => {
+    //     console.log("Response for locations");
+    //     console.log(response);
+    //     // console.log(response);
+    //     var arrayLength = response.data.length;
+    //     for (var i = 0; i < arrayLength; i++) {
+    //         console.log("Enter");
+    //         console.log(response);
+    //         console.log(response.data[i].custom);
+    //         if (response.data[i].uuid.id != pubnub.getUUID() && response.data[i].custom) {
+    //             loc = new google.maps.LatLng(response.data[i].custom.lat, response.data[i].custom.lng);
+    //             mark[response.data[i].uuid.id] = new google.maps.Marker({
+    //                 position:loc,
+    //                 map:map,
+    //                 label: {
+    //                     text: response.data[i].custom.username,
+    //                     color: "#000000",
+    //                     fontWeight: "bold",
+    //                 }
+    //             });
+
+    //             var lastseen = new Date(response.data[i].updated);
+
+    //             var content = "Name: " + response.data[i].custom.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + response.data[i].custom.lat +  '<br>' + "Long: " + response.data[i].custom.lng;
+
+    //             var infowindow = new google.maps.InfoWindow();
+
+    //             var markdata = response.data[i];
+
+    //             google.maps.event.addListener(mark[markdata.uuid.id], 'click', (function(markdata,content,infowindow){
+    //                 return function() {
+    //                     infowindow.setContent(content);
+    //                     infowindow.open(map,mark[markdata.uuid.id]);
+    //                     google.maps.event.addListener(map,'click', function(){
+    //                         infowindow.close();
+    //                     });
+    //                 };
+    //             })(markdata,content,infowindow));
+
+
+    //             mark[response.data[i].uuid.id].setMap(map);
+    //             bounds.extend(loc);
+    //         }
+    //     }
+    //     if (document.getElementById('fitviewswitch').checked) {
+    //         map.fitBounds(bounds);
+    //         map.panToBounds(bounds);
+    //     }
+    // });
 
 var redraw = function(payload) {
-    console.log("REDRAW FUNCTION");
     if (payload.channel == geoChannel) {
         var lineSymbol = {
             path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
@@ -201,11 +333,10 @@ var redraw = function(payload) {
         lastLat = lat;
         lastLng = lng;
         var uuid = payload.message.uuid;
-        var displayName = payload.message.username;
-        var greeting = payload.message.greeting;
+        var displayName = payload.message.name;
         var lastseen = new Date(payload.timetoken.substring(0, 10)*1000);
         loc = new google.maps.LatLng(lat, lng);
-        if ( document.getElementById('plotnewswitch').checked === false ) {
+
             lineCoords = [];
             if (mark[uuid] && mark[uuid].setMap) {
                 mark[uuid].setMap(null);
@@ -223,7 +354,7 @@ var redraw = function(payload) {
                 }
             });
 
-            var content = "Name: " + displayName + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + lat +  '<br>' + "Long: " + lng +  '<br>' + "Greeting: " + greeting;
+            var content = "Name: " + displayName + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + lat +  '<br>' + "Long: " + lng +  '<br>';
 
             var infowindow = new google.maps.InfoWindow();
 
@@ -240,61 +371,8 @@ var redraw = function(payload) {
                 };
             })(markdata,content,infowindow));
 
-            mark[uuid].setMap(map);
-        } else {
-            if (typeof lineCoords[uuid] == 'undefined' || lineCoords[uuid].length == 0) {
-                lineCoords[uuid] = [];
-            }
-            if (mark[uuid] && mark[uuid].setMap) {
-                mark[uuid].setMap(null);
-            }
-            if (lineCoordinatesPath[uuid] && lineCoordinatesPath[uuid].setMap) {
-                lineCoordinatesPath[uuid].setMap(null);
-            }
-            lineCoords[uuid].push(loc);
-            lineCoordinatesPath[uuid] = new google.maps.Polyline({
-                path: lineCoords[uuid],
-                icons: [{
-                    icon: lineSymbol,
-                    repeat: '35px',
-                    offset: '100%'
-                }],
-                geodesic: true,
-                strokeColor: '#C70E20'
-            });
-            lineCoordinatesPath[uuid].setMap(map);
-
-            mark[uuid] = new google.maps.Marker({
-                position:loc,
-                map:map,
-                label: {
-                    text: displayName,
-                    color: "#000000",
-                    fontWeight: "bold"
-                }
-            });
-
-            var content = "Name: " + displayName + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + lat +  '<br>' + "Long: " + lng +  '<br>' + "Greeting: " + greeting;
-
-            var infowindow = new google.maps.InfoWindow();
-
-            google.maps.event.addListener(mark[uuid], 'click', function() {
-                infowindow.setContent(content);
-                infowindow.open(map,mark[uuid]);
-                google.maps.event.addListener(map,'click', function(){
-                    infowindow.close();
-                });
-            });
-
-            mark[uuid].setMap(map);
-        }
+        mark[uuid].setMap(map);
         bounds.extend(loc);
-        if (document.getElementById('fitviewswitch').checked) {
-            map.fitBounds(bounds);
-            map.panToBounds(bounds);
-        }
-    } else if (payload.channel ==  GEOchannel+".greet") {
-        alert(payload.message);
     }
 };
 

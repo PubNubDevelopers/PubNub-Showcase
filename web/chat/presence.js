@@ -24,7 +24,7 @@ async function updatePresenceInfoFirstLoad () {
       if (userData[userId] != null) {
         if (userData[userId] != null && userData[userId].presence != 'join') {
           userData[userId].presence = 'join'
-          console.log('user ' + userId + ' has joined')
+          //console.log('user ' + userId + ' has joined')
           if (directChatAvatar != null) {
             directChatAvatar.classList.remove('presence-dot-gray')
             directChatAvatar.classList.add('presence-dot-online')
@@ -39,7 +39,7 @@ async function updatePresenceInfoFirstLoad () {
       if (userData[userId] != null) {
         if (userData[userId].presence != 'leave') {
           userData[userId].presence = 'leave'
-          console.log('user ' + userId + ' has left')
+          //console.log('user ' + userId + ' has left')
           if (directChatAvatar != null) {
             directChatAvatar.classList.remove('presence-dot-online')
             directChatAvatar.classList.add('presence-dot-gray')

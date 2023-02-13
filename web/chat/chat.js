@@ -6,12 +6,14 @@ var channel = null
 var channelMembers = null
 //  List of remote users (not ourselves) that we know about
 var userData = null
-//  Our own data, populated asynchronously on startup
+//  Our own data, populated synchronously on startup
 var me = null
 //  Local cache of channels we are currently subscribed to
 var subscribedChannels = null
 //  The current attachment (image)
-var fileAttachment = null;
+var fileAttachment = null
+//  Avoid duplicate sends
+var isMessageSendingInProgress = false
 const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1
@@ -370,7 +372,7 @@ function addNewUser (userId, name, profileUrl) {
   var oneOneUser =
     " <div id='user-" +
     userId +
-    "' class='user-with-presence mb-2' onclick='launchDirectChat(\"" +
+    "' class='user-with-presence cursor-pointer mb-2' onclick='launchDirectChat(\"" +
     userId +
     "\")'><img src='" +
     profileUrl +
@@ -454,7 +456,7 @@ async function getGroupList () {
 
   for (const group of predefined_groups.groups) {
     var groupHtml =
-      "<div class='user-with-presence mb-2' onclick='launchGroupChat(\"" +
+      "<div class='user-with-presence cursor-pointer mb-2' onclick='launchGroupChat(\"" +
       group.channel +
       "\")'><img src='../img/group/" +
       group.profileIcon +
@@ -493,7 +495,7 @@ async function getPrivateGroupList () {
   for (const group of predefined_groups.private_groups) {
     var actualChannel = group.channel.replace('uuid', pubnub.getUserId())
     var privateGroupHtml =
-      "<div class='user-with-presence mb-2' onclick='launchGroupChat(\"" +
+      "<div class='user-with-presence cursor-pointer mb-2' onclick='launchGroupChat(\"" +
       actualChannel +
       "\")'><img src='../img/group/" +
       group.profileIcon +
@@ -699,10 +701,10 @@ function messageInputAttachment () {
     fileAttachment = e.target.files[0]
     if (fileAttachment == null) {
       //  User cancelled the attachment selection
-      return;
+      return
     } else if (fileAttachment.size > MAX_ATTACHMENT_FILE_SIZE) {
       errorMessage('Your file should be under 1MB')
-      return;
+      return
     } else if (
       !(
         fileAttachment.type == 'image/png' ||
@@ -711,7 +713,7 @@ function messageInputAttachment () {
       )
     ) {
       errorMessage('Please choose a JPG, PNG or GIF file')
-      return;
+      return
     } else {
       //  Attachment seems valid, read it in and show a resized version
 
@@ -720,19 +722,13 @@ function messageInputAttachment () {
       reader.onload = async readerEvent => {
         var content = readerEvent.target.result
 
-        //const resizedImage = await compressImage(content, 200, 200)
-
-        //console.log(resizedImage)
-
         const img = new Image()
         img.src = content
         img.onload = async () => {
-          if (img.height > 200)
-          {
-            var newWidth = (img.height / img.width) * 200;
-            if (img.width > img.height)
-            {
-              newWidth = (img.width / img.height) * 200;
+          if (img.height > 200) {
+            var newWidth = (img.height / img.width) * 200
+            if (img.width < img.height) {
+              newWidth = (img.width / img.height) * 200
             }
             content = await compressImage(content, newWidth, 200)
           }
@@ -748,21 +744,16 @@ function messageInputAttachment () {
   }
 
   input.click()
-
-  //  notImplemented('Adding an attachment')
 }
 
-function messageBoxHasImage(hasImage)
-{
-  const msgInput = document.getElementById('input-message');
-  if (hasImage)
-  {
+function messageBoxHasImage (hasImage) {
+  const msgInput = document.getElementById('input-message')
+  if (hasImage) {
     //  disable the message input field
     msgInput.style.height = '200px'
-  }
-  else{
-    msgInput.style.height = '';
-    msgInput.style.backgroundImage = '';
+  } else {
+    msgInput.style.height = ''
+    msgInput.style.backgroundImage = ''
   }
 }
 
@@ -783,19 +774,28 @@ async function compressImage (src, newX, newY) {
   })
 }
 
+function messageSendingInProgress (inProgress) {
+  if (inProgress) {
+    isMessageSendingInProgress = true
+    document.getElementById('spinner').style.display = 'block'
+  } else {
+    isMessageSendingInProgress = false
+    document.getElementById('spinner').style.display = 'none'
+  }
+}
+
 async function messageInputSend () {
   var messageInput = document.getElementById('input-message')
   var messageText = messageInput.value
-  if (messageText == '')
-  {
+  if (isMessageSendingInProgress) {
     //  Prevent duplicate sends
     //  In Production, you would want to show a loading cursor here
-    return;
+    console.log('send alredy in progress')
+    return
   }
-  messageInput.value = ''
+  messageSendingInProgress(true)
   var fileUrl = null
-  if (messageInput.style.backgroundImage != '')
-  {
+  if (messageInput.style.backgroundImage != '') {
     //  Message contains an image, upload it to PubNub
     //  With large images, it would be far better to perform the upload asynchronously
     try {
@@ -809,16 +809,18 @@ async function messageInputSend () {
         id: uploadedFile.id,
         name: uploadedFile.name
       })
-
+      if (!(await imageExists(fileUrl))) {
+        errorMessage('Image moderation failed and has been deleted')
+        fileUrl = null
+      }
     } catch (err) {
-      errorMessage('Error uploading custom avatar')
-      console.log('Error uploading custom avatar: ' + err)
+      errorMessage('Error uploading attachment.')
+      console.log('Error uploading attachment: ' + err)
     }
-
   }
   if (messageText !== '' || fileUrl !== null) {
     try {
-      pubnub.publish({
+      await pubnub.publish({
         channel: channel,
         storeInHistory: true,
         message: {
@@ -826,10 +828,11 @@ async function messageInputSend () {
           attachment: fileUrl
         }
       })
-      messageBoxHasImage(false)
     } catch (err) {
       console.log('Error sending message: ' + err)
     }
+    messageInput.value = ''
   }
-
+  messageBoxHasImage(false)
+  messageSendingInProgress(false)
 }

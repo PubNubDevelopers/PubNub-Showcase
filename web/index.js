@@ -101,6 +101,7 @@ function selectedAvatar (avatarId, source) {
 async function uploadCustomAvatar () {
   var customAvatar = document.getElementById('customAvatarPicker').files[0]
   if (customAvatarChecks(customAvatar)) {
+    uploadInProgress(true)
     try {
       //  The image is OK, upload it to PubNub
       const uploadedFile = await pubnub.sendFile({
@@ -112,15 +113,36 @@ async function uploadCustomAvatar () {
         id: uploadedFile.id,
         name: uploadedFile.name
       })
-
-      //  Upload was successful, replace the first avatar with our custom avatar
-      var avatar = document.getElementById('avatar-0')
-      avatar.src = fileUrl
-      selectedAvatar(0, avatar.src)
+      if (await imageExists(fileUrl)) {
+        //  Upload was successful, replace the first avatar with our custom avatar
+        var avatar = document.getElementById('avatar-0')
+        avatar.src = fileUrl
+        selectedAvatar(0, avatar.src)
+      } else {
+        //  The Image moderation function (PubNub function) will delete any image which does not pass moderation
+        errorMessage(
+          'Image Moderation Failed.  Please select a different image'
+        )
+      }
+      uploadInProgress(false)
     } catch (err) {
       errorMessage('Error uploading custom avatar')
       console.log('Error uploading custom avatar: ' + err)
+      uploadInProgress(false)
     }
+  }
+}
+
+function uploadInProgress(inProgress)
+{
+  var spinner = document.getElementById('spinner');
+  if (inProgress)
+  {
+    spinner.style.display = 'inline-block'
+  }
+  else
+  {
+    spinner.style.display = 'none'
   }
 }
 
@@ -143,5 +165,3 @@ function customAvatarChecks (avatarFile) {
   }
   return true
 }
-
-

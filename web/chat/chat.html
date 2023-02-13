@@ -71,9 +71,8 @@
     </div>
     <nav id="bottomNav" class="navbar fixed-bottom p-0">
 
-    
+
         <div class="d-flex py-1 mx-2 typing-indicator justify-content-end">
-            
             <i id='typingIndicatorDots' class="bi bi-chat-right-dots align-self-center mx-2 typing-indicator-dots"></i>
             <span id="typingIndicator"></span>
         </div>
@@ -81,10 +80,16 @@
 
         <div class="d-flex flex-row py-2 message-input-bar">
 
-            <i id='emoji-pick' class="bi bi-emoji-smile align-self-center message-input-icon mx-2" onclick="messageInputEmoji()"></i>
+            <i id='emoji-pick' class="bi bi-emoji-smile align-self-center message-input-icon mx-2"
+                onclick="messageInputEmoji()"></i>
             <input id="input-message" class="message-input" placeholder="Message" />
-            <i class="bi bi-paperclip align-self-center message-input-icon mx-2" id="msgAttachment" onclick="messageInputAttachment()"></i>
+            <i class="bi bi-paperclip align-self-center message-input-icon mx-2" id="msgAttachment"
+                onclick="messageInputAttachment()"></i>
             <i class="bi bi-send align-self-center message-input-icon mx-2" onclick="messageInputSend()"></i>
+            <div class="spinner-border align-self-center mx-2" id="spinner" style="display:none" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+
 
         </div>
 
@@ -153,13 +158,13 @@
     </div>
 
     <script>
-        const pickerOptions = { onEmojiSelect: selectEmoji }
+        const pickerOptions = {onEmojiSelect: selectEmoji}
         const picker = new EmojiMart.Picker(pickerOptions)
-        
+
         document.getElementById('emojiPicker').appendChild(picker)
         //document.body.appendChild(picker)
 
-      </script>
+    </script>
 
 
 </BODY>

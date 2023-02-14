@@ -50,6 +50,10 @@ var useCurrentLocation = true;
 .##........#######..##....##..######.....##....####..#######..##....##..######.
 */
 
+window.addEventListener('beforeunload', function () {
+    console.log('unsubscribe all')
+    pubnub.unsubscribeAll()
+})
 
 async function initialize () {
     channelMembers = {};
@@ -64,18 +68,28 @@ async function initialize () {
     });
     pubnub.subscribe({channels: [geoChannel], withPresence: true});
     await activatePubNubListener();
-    pubnub.addListener({
-        message: (payload) => {
-            console.log("New Message Received");
-            redraw(payload)
-        },
-        presence: (presenceEvent) => {
-            document.getElementById("active-label").innerHTML = presenceEvent.occupancy;
-        },
-    })
     loadLastLocations();
     initalizeMapSearch();
     findLocation();
+
+    pnListener = pubnub.addListener({
+        status: statusEvent => {
+            console.log("Status Event");
+        },
+        message: (payload) => {
+            try{
+                console.log("New Message Received");
+                redraw(payload);
+            }
+            catch(e){
+                console.log(e);
+            }
+        },
+        presence: (presenceEvent) => {
+            console.log("Presence Event")
+            document.getElementById("active-label").innerHTML = presenceEvent.occupancy;
+        },
+    })
 }
 
 //  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
@@ -93,15 +107,6 @@ async function getUserMetadataSelf () {
     }
 }
 
-// Get current location
-// function getLocation() {
-//     if (navigator.geolocation) {
-//         navigator.geolocation.watchPosition(showPosition);
-//     } else {
-//         alert("Not sharing location. Please refresh and try again to share.");
-//     }
-// }
-
 // Get either the current location or the location input
 // Get either the current location or the location input
 function findLocation(){
@@ -113,18 +118,6 @@ function findLocation(){
         else{
             alert("Not sharing location. Please refresh and try again to share.");
         }
-        // else{
-        //     const autocomplete = new google.maps.places.Autocomplete(locationInput);
-        //     const place = autocomplete.getPlace();
-        //     console.log(locationInput);
-        //     console.log(place);
-        //     if (!place.geometry || !place.geometry.location) {
-        //         // User entered the name of a Place that was not suggested and
-        //         // pressed the Enter key, or the Place Details request failed.
-        //         window.alert("No details available for input: '" + place.name + "'");
-        //         return;
-        //     }
-        // }
     })
 }
 
@@ -354,7 +347,6 @@ var redraw = function(payload) {
             })(markdata,content,infowindow));
 
         mark[uuid].setMap(map);
-        bounds.extend(loc);
     }
 };
 
@@ -374,7 +366,7 @@ function initalizeMapSearch(){
 
     autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
-
+        console.log("Place changed Called");
         if (!place.geometry || !place.geometry.location) {
             // User entered the name of a Place that was not suggested and
             // pressed the Enter key, or the Place Details request failed.
@@ -384,18 +376,6 @@ function initalizeMapSearch(){
 
         showNewPosition(place);
     });
-
-    // Listen for input field changes
-    input.addEventListener('input', (value) => {
-        if(value.data == null){
-            useCurrentLocation = true;
-            document.getElementById("text-box-enter").innerHTML = "Use Current Location";
-        }
-        else{
-            useCurrentLocation = false;
-            document.getElementById("text-box-enter").innerHTML = "Enter New Location";
-        }
-    })
 }
 
 

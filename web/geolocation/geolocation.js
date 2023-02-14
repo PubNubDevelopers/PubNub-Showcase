@@ -38,6 +38,8 @@ var bounds = [];
 var lastLat = "";
 var lastLng = "";
 
+var useCurrentLocation = true;
+
 /*
 .########.##.....##.##....##..######..########.####..#######..##....##..######.
 .##.......##.....##.###...##.##....##....##.....##..##.....##.###...##.##....##
@@ -55,7 +57,6 @@ async function initialize () {
     // Intialize PubNub Object
     pubnub = createPubNubObject();
     await getUserMetadataSelf();
-    // Configure Starting position for map
     var myLatlng = new google.maps.LatLng(37.7749,122.4194);
     map  = new google.maps.Map(document.getElementById('map-canvas'), {
         zoom: 2,
@@ -63,29 +64,8 @@ async function initialize () {
     });
     pubnub.subscribe({channels: [geoChannel], withPresence: true});
     await activatePubNubListener();
-    bounds  = new google.maps.LatLngBounds();
-    getLocation();
-    pubnub.hereNow({
-        channels: [geoChannel],
-    }).then((response) => {
-        document.getElementById("active-label").innerHTML = response.totalOccupancy;
-    }).catch((error) => {
-        console.log(error)
-    });
     loadLastLocations();
-
-    // Initialize Map Search
-    const card = document.getElementById("pac-card");
-    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
-    const input = document.getElementById("pac-input");
-    const autocomplete = new google.maps.places.Autocomplete(input);
-    const southwest = { lat: 5.6108, lng: 136.589326 };
-    const northeast = { lat: 61.179287, lng: 2.64325 };
-    const newBounds = new google.maps.LatLngBounds(southwest, northeast);
-    autocomplete.setBounds(newBounds);
-    const infowindow = new google.maps.InfoWindow();
-    const infowindowContent = document.getElementById("infowindow-content");
-    infowindow.setContent(infowindowContent);
+    initalizeMapSearch();
 }
 
 //  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
@@ -104,15 +84,13 @@ async function getUserMetadataSelf () {
 }
 
 // Get current location
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(showPosition);
-    } else {
-        alert("Not sharing location. Please refresh and try again to share.");
-    }
-}
-
-function nothing(){}
+// function getLocation() {
+//     if (navigator.geolocation) {
+//         navigator.geolocation.watchPosition(showPosition);
+//     } else {
+//         alert("Not sharing location. Please refresh and try again to share.");
+//     }
+// }
 
 // Add position as a channel member
 async function showPosition(position) {
@@ -137,7 +115,6 @@ async function showPosition(position) {
         .catch((err) => {
             console.log(err);
         });
-        console.log("PUBLISHING POSITION");
         pubnub.publish({channel:geoChannel, message:{uuid:pubnub.getUUID(), name: me.name, lat:position.coords.latitude, lng:position.coords.longitude}});
     }
 }
@@ -256,72 +233,10 @@ async function loadLastLocations() {
 
 
                     mark[historicalMsg.uuid].setMap(map);
-                    bounds.extend(loc);
                 }}
             }
         }
     }
-    // console.log("Loading Last Locations");
-
-    // pubnub.objects.getChannelMembers({
-    //     channel: geoChannel,
-    //     sort: { updated: 'desc' },
-    //     include: {
-    //         customFields: true,
-    //         UUIDFields: true,
-    //         customUUIDFields: true,
-    //     },
-    //     limit: 100,
-    //     totalCount: true
-    // }).then(response => {
-    //     console.log("Response for locations");
-    //     console.log(response);
-    //     // console.log(response);
-    //     var arrayLength = response.data.length;
-    //     for (var i = 0; i < arrayLength; i++) {
-    //         console.log("Enter");
-    //         console.log(response);
-    //         console.log(response.data[i].custom);
-    //         if (response.data[i].uuid.id != pubnub.getUUID() && response.data[i].custom) {
-    //             loc = new google.maps.LatLng(response.data[i].custom.lat, response.data[i].custom.lng);
-    //             mark[response.data[i].uuid.id] = new google.maps.Marker({
-    //                 position:loc,
-    //                 map:map,
-    //                 label: {
-    //                     text: response.data[i].custom.username,
-    //                     color: "#000000",
-    //                     fontWeight: "bold",
-    //                 }
-    //             });
-
-    //             var lastseen = new Date(response.data[i].updated);
-
-    //             var content = "Name: " + response.data[i].custom.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + response.data[i].custom.lat +  '<br>' + "Long: " + response.data[i].custom.lng;
-
-    //             var infowindow = new google.maps.InfoWindow();
-
-    //             var markdata = response.data[i];
-
-    //             google.maps.event.addListener(mark[markdata.uuid.id], 'click', (function(markdata,content,infowindow){
-    //                 return function() {
-    //                     infowindow.setContent(content);
-    //                     infowindow.open(map,mark[markdata.uuid.id]);
-    //                     google.maps.event.addListener(map,'click', function(){
-    //                         infowindow.close();
-    //                     });
-    //                 };
-    //             })(markdata,content,infowindow));
-
-
-    //             mark[response.data[i].uuid.id].setMap(map);
-    //             bounds.extend(loc);
-    //         }
-    //     }
-    //     if (document.getElementById('fitviewswitch').checked) {
-    //         map.fitBounds(bounds);
-    //         map.panToBounds(bounds);
-    //     }
-    // });
 
 var redraw = function(payload) {
     if (payload.channel == geoChannel) {
@@ -375,5 +290,32 @@ var redraw = function(payload) {
         bounds.extend(loc);
     }
 };
+
+function initalizeMapSearch(){
+    // Initialize Map Search
+    const card = document.getElementById("pac-card");
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
+    const input = document.getElementById("pac-input");
+    const autocomplete = new google.maps.places.Autocomplete(input);
+    const southwest = { lat: 5.6108, lng: 136.589326 };
+    const northeast = { lat: 61.179287, lng: 2.64325 };
+    const newBounds = new google.maps.LatLngBounds(southwest, northeast);
+    autocomplete.setBounds(newBounds);
+    const infowindow = new google.maps.InfoWindow();
+    const infowindowContent = document.getElementById("infowindow-content");
+    infowindow.setContent(infowindowContent);
+
+    // Listen for input field changes
+    input.addEventListener('input', (value) => {
+        if(value.data == null){
+            useCurrentLocation = true;
+            document.getElementById("text-box-enter").innerHTML = "Use Current Location";
+        }
+        else{
+            useCurrentLocation = false;
+            document.getElementById("text-box-enter").innerHTML = "Enter New Location";
+        }
+    })
+}
 
 

@@ -58,14 +58,24 @@ async function initialize () {
     pubnub = createPubNubObject();
     await getUserMetadataSelf();
     var myLatlng = new google.maps.LatLng(37.7749,122.4194);
-    map  = new google.maps.Map(document.getElementById('map-canvas'), {
+    map = new google.maps.Map(document.getElementById('map-canvas'), {
         zoom: 2,
         center: myLatlng
     });
     pubnub.subscribe({channels: [geoChannel], withPresence: true});
     await activatePubNubListener();
+    pubnub.addListener({
+        message: (payload) => {
+            console.log("New Message Received");
+            redraw(payload)
+        },
+        presence: (presenceEvent) => {
+            document.getElementById("active-label").innerHTML = presenceEvent.occupancy;
+        },
+    })
     loadLastLocations();
     initalizeMapSearch();
+    findLocation();
 }
 
 //  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
@@ -92,44 +102,98 @@ async function getUserMetadataSelf () {
 //     }
 // }
 
+// Get either the current location or the location input
+// Get either the current location or the location input
+function findLocation(){
+    const position = document.getElementById("enter-button");
+    position.addEventListener('click', () => {
+        if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(showPosition);
+        }
+        else{
+            alert("Not sharing location. Please refresh and try again to share.");
+        }
+        // else{
+        //     const autocomplete = new google.maps.places.Autocomplete(locationInput);
+        //     const place = autocomplete.getPlace();
+        //     console.log(locationInput);
+        //     console.log(place);
+        //     if (!place.geometry || !place.geometry.location) {
+        //         // User entered the name of a Place that was not suggested and
+        //         // pressed the Enter key, or the Place Details request failed.
+        //         window.alert("No details available for input: '" + place.name + "'");
+        //         return;
+        //     }
+        // }
+    })
+}
+
 // Add position as a channel member
 async function showPosition(position) {
-    if ( true) {
-        await pubnub.objects.setChannelMembers({
-            channel: geoChannel,
-            uuids: [
-                pubnub.getUUID(),
-                {
-                    id: pubnub.getUUID(),
-                    custom: {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        name: me.name,
-                    }
+    await pubnub.objects.setChannelMembers({
+        channel: geoChannel,
+        uuids: [
+            pubnub.getUUID(),
+            {
+                id: pubnub.getUUID(),
+                custom: {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    name: me.name,
                 }
-            ]
-        })
-        .then((resp) => {
-            console.log(resp);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-        pubnub.publish({channel:geoChannel, message:{uuid:pubnub.getUUID(), name: me.name, lat:position.coords.latitude, lng:position.coords.longitude}});
-    }
+            }
+        ]
+    })
+    .then((resp) => {
+        console.log(resp);
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+    pubnub.publish({
+        channel: geoChannel,
+        message: {
+            uuid:pubnub.getUUID(),
+            name: me.name,
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        }
+    });
+}
+
+function showNewPosition(position) {
+    // await pubnub.objects.setChannelMembers({
+    //     channel: geoChannel,
+    //     uuids: [
+    //         pubnub.getUUID(),
+    //         {
+    //             id: pubnub.getUUID(),
+    //             custom: {
+    //                 lat: position.geometry.location.lat(),
+    //                 lng: position.geometry.location.lng(),
+    //                 name: me.name,
+    //             }
+    //         }
+    //     ]
+    // })
+    // .then((resp) => {
+    //     console.log(resp);
+    // })
+    // .catch((err) => {
+    //     console.log(err);
+    // });
+    console.log("PUBLISHING MESSAGE");
+    pubnub.publish({
+        channel: geoChannel,
+        message: {
+        uuid: pubnub.getUUID(),
+        name: me.name,
+        lat: position.geometry.location.lat(),
+        lng: position.geometry.location.lng()
+    }});
 }
 
 async function activatePubNubListener(){
-    pnListener = pubnub.addListener({
-        message: redraw,
-        presence: (presenceEvent) => {
-            document.getElementById("active-label").innerHTML = presenceEvent.occupancy;
-        },
-        objects: async objectEvent => {
-
-        }
-    })
-
     try {
         await populateChannelMembers();
     }
@@ -239,10 +303,14 @@ async function loadLastLocations() {
     }
 
 var redraw = function(payload) {
+    console.log("REDRAWING");
+    console.log(payload);
     if (payload.channel == geoChannel) {
+        console.log("IN");
         var lineSymbol = {
             path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
         };
+        console.log(payload.message.lat);
         var lat = payload.message.lat;
         var lng = payload.message.lng;
         lastLat = lat;
@@ -279,7 +347,6 @@ var redraw = function(payload) {
                 return function() {
                     infowindow.setContent(content);
                     infowindow.open(map,markdata);
-                    actionCompleted({action: 'View User Details', windowLocation: orglocation}); // This is for the interactive demo on PubNub.com. It is not part of the demo of this application.
                     google.maps.event.addListener(map,'click', function(){
                         infowindow.close();
                     });
@@ -304,6 +371,19 @@ function initalizeMapSearch(){
     const infowindow = new google.maps.InfoWindow();
     const infowindowContent = document.getElementById("infowindow-content");
     infowindow.setContent(infowindowContent);
+
+    autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+
+        if (!place.geometry || !place.geometry.location) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            window.alert("No details available for input: '" + place.name + "'");
+            return;
+        }
+
+        showNewPosition(place);
+    });
 
     // Listen for input field changes
     input.addEventListener('input', (value) => {

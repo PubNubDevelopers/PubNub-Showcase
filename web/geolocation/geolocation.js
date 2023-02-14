@@ -28,7 +28,11 @@ var me = null;
 //  Local cache of members also in our channel (excluding ourselves)
 var channelMembers = null
 // Local cache of members whos position has already been displayed
-var displayedMembers = null
+var displayedMembers = null;
+// Where the user has last travelled
+var travelHistory = null;
+// Last location the user has travelled
+var lastLocation = null;
 // Map Configuration
 var map = null;
 var mark = [];
@@ -37,7 +41,8 @@ var lineCoordinatesPath = [];
 var bounds = [];
 var lastLat = "";
 var lastLng = "";
-
+var infoWindow = null;
+var geocoder = null;
 var useCurrentLocation = true;
 
 /*
@@ -56,8 +61,10 @@ window.addEventListener('beforeunload', function () {
 })
 
 async function initialize () {
+    // Declarations
     channelMembers = {};
     displayedMembers = {};
+    travelHistory = {};
     // Intialize PubNub Object
     pubnub = createPubNubObject();
     await getUserMetadataSelf();
@@ -73,21 +80,20 @@ async function initialize () {
     findLocation();
 
     pnListener = pubnub.addListener({
-        status: statusEvent => {
-            console.log("Status Event");
-        },
         message: (payload) => {
             try{
-                console.log("New Message Received");
+                if(payload.message && payload.message.address && payload.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(payload.timetoken)){
+                    travelHistory[payload.timetoken] = payload.message.address;
+                    var li = document.createElement("li");
+                    li.appendChild(document.createTextNode(payload.message.address));
+                    var ul = document.getElementById("history-list");
+                    ul.appendChild(li);
+                }
                 redraw(payload);
             }
             catch(e){
                 console.log(e);
             }
-        },
-        presence: (presenceEvent) => {
-            console.log("Presence Event")
-            document.getElementById("active-label").innerHTML = presenceEvent.occupancy;
         },
     })
 }
@@ -123,31 +129,50 @@ function findLocation(){
 
 // Add position as a channel member
 async function showPosition(position) {
-    await pubnub.objects.setChannelMembers({
-        channel: geoChannel,
-        uuids: [
-            pubnub.getUUID(),
-            {
-                id: pubnub.getUUID(),
-                custom: {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                    name: me.name,
-                }
-            }
-        ]
-    })
-    .then((resp) => {
-        console.log(resp);
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+    // await pubnub.objects.setChannelMembers({
+    //     channel: geoChannel,
+    //     uuids: [
+    //         pubnub.getUUID(),
+    //         {
+    //             id: pubnub.getUUID(),
+    //             custom: {
+    //                 lat: position.coords.latitude,
+    //                 lng: position.coords.longitude,
+    //                 name: me.name,
+    //             }
+    //         }
+    //     ]
+    // })
+    // .then((resp) => {
+    //     console.log(resp);
+    // })
+    // .catch((err) => {
+    //     console.log(err);
+    // });
+    const pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+    };
+    map.setCenter(pos);
+    map.setZoom(3);
+    const decode = await geocoder.geocode({ location: pos });
+    var formatted_address;
+    try{
+        formatted_address = decode.results[0].formatted_address;
+    }
+    catch(e){
+        formatted_address = "Home";
+    }
+    if(lastLocation == formatted_address){
+        return;
+    }
+    lastLocation = formatted_address;
     pubnub.publish({
         channel: geoChannel,
         message: {
             uuid:pubnub.getUUID(),
             name: me.name,
+            address: formatted_address,
             lat: position.coords.latitude,
             lng: position.coords.longitude
         }
@@ -181,6 +206,7 @@ function showNewPosition(position) {
         message: {
         uuid: pubnub.getUUID(),
         name: me.name,
+        address: position.formatted_address,
         lat: position.geometry.location.lat(),
         lng: position.geometry.location.lng()
     }});
@@ -248,6 +274,7 @@ function addToDisplayedUsers(userId){
 
 /// Populates the map with the last locations seen in the channel
 async function loadLastLocations() {
+    travelHistory = {};
     const history = await pubnub.fetchMessages({
         channels: [geoChannel],
         count: 100,
@@ -257,6 +284,13 @@ async function loadLastLocations() {
     if (history.channels[geoChannel] != null) {
         for (const historicalMsg of history.channels[geoChannel]) {
             historicalMsg.publisher = historicalMsg.uuid;
+            if(historicalMsg.message && historicalMsg.message.address && historicalMsg.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(historicalMsg.timetoken)){
+                travelHistory[historicalMsg.timetoken] = historicalMsg.message.address;
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode(historicalMsg.message.address));
+                var ul = document.getElementById("history-list");
+                ul.appendChild(li);
+            }
             if (channelMembers[historicalMsg.uuid] != null && !(displayedMembers.hasOwnProperty(historicalMsg.uuid))) {
                 addToDisplayedUsers(historicalMsg.uuid);
                 if (historicalMsg.message && historicalMsg.message.uuid != pubnub.getUUID()) {
@@ -290,20 +324,14 @@ async function loadLastLocations() {
 
 
                     mark[historicalMsg.uuid].setMap(map);
-                }}
+                }
             }
         }
     }
+}
 
 var redraw = function(payload) {
-    console.log("REDRAWING");
-    console.log(payload);
     if (payload.channel == geoChannel) {
-        console.log("IN");
-        var lineSymbol = {
-            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-        };
-        console.log(payload.message.lat);
         var lat = payload.message.lat;
         var lng = payload.message.lng;
         lastLat = lat;
@@ -360,19 +388,27 @@ function initalizeMapSearch(){
     const northeast = { lat: 61.179287, lng: 2.64325 };
     const newBounds = new google.maps.LatLngBounds(southwest, northeast);
     autocomplete.setBounds(newBounds);
-    const infowindow = new google.maps.InfoWindow();
+    infowindow = new google.maps.InfoWindow();
     const infowindowContent = document.getElementById("infowindow-content");
     infowindow.setContent(infowindowContent);
+    geocoder = new google.maps.Geocoder();
+
 
     autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
-        console.log("Place changed Called");
+        if(lastLocation == place.formatted_address){
+            return;
+        }
+        lastLocation = place.formatted_address;
         if (!place.geometry || !place.geometry.location) {
             // User entered the name of a Place that was not suggested and
             // pressed the Enter key, or the Place Details request failed.
             window.alert("No details available for input: '" + place.name + "'");
             return;
         }
+
+        map.setCenter(place.geometry.location);
+        map.setZoom(3);
 
         showNewPosition(place);
     });

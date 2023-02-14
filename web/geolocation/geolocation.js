@@ -35,15 +35,10 @@ var travelHistory = null;
 var lastLocation = null;
 // Map Configuration
 var map = null;
+// Markers
 var mark = [];
-var lineCoords = {};
-var lineCoordinatesPath = [];
-var bounds = [];
-var lastLat = "";
-var lastLng = "";
-var infoWindow = null;
+// Decoder for lat lng positioning
 var geocoder = null;
-var useCurrentLocation = true;
 
 /*
 .########.##.....##.##....##..######..########.####..#######..##....##..######.
@@ -74,28 +69,11 @@ async function initialize () {
         center: myLatlng
     });
     pubnub.subscribe({channels: [geoChannel], withPresence: true});
+    await populateChannelMembers();
     await activatePubNubListener();
     loadLastLocations();
     initalizeMapSearch();
     findLocation();
-
-    pnListener = pubnub.addListener({
-        message: (payload) => {
-            try{
-                if(payload.message && payload.message.address && payload.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(payload.timetoken)){
-                    travelHistory[payload.timetoken] = payload.message.address;
-                    var li = document.createElement("li");
-                    li.appendChild(document.createTextNode(payload.message.address));
-                    var ul = document.getElementById("history-list");
-                    ul.appendChild(li);
-                }
-                redraw(payload);
-            }
-            catch(e){
-                console.log(e);
-            }
-        },
-    })
 }
 
 //  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
@@ -113,7 +91,13 @@ async function getUserMetadataSelf () {
     }
 }
 
-// Get either the current location or the location input
+async function getUUIDMetaData (userId) {
+    const result = await pubnub.objects.getUUIDMetadata({
+        uuid: userId
+    })
+    return result
+}
+
 // Get either the current location or the location input
 function findLocation(){
     const position = document.getElementById("enter-button");
@@ -129,26 +113,6 @@ function findLocation(){
 
 // Add position as a channel member
 async function showPosition(position) {
-    // await pubnub.objects.setChannelMembers({
-    //     channel: geoChannel,
-    //     uuids: [
-    //         pubnub.getUUID(),
-    //         {
-    //             id: pubnub.getUUID(),
-    //             custom: {
-    //                 lat: position.coords.latitude,
-    //                 lng: position.coords.longitude,
-    //                 name: me.name,
-    //             }
-    //         }
-    //     ]
-    // })
-    // .then((resp) => {
-    //     console.log(resp);
-    // })
-    // .catch((err) => {
-    //     console.log(err);
-    // });
     const pos = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
@@ -180,27 +144,6 @@ async function showPosition(position) {
 }
 
 function showNewPosition(position) {
-    // await pubnub.objects.setChannelMembers({
-    //     channel: geoChannel,
-    //     uuids: [
-    //         pubnub.getUUID(),
-    //         {
-    //             id: pubnub.getUUID(),
-    //             custom: {
-    //                 lat: position.geometry.location.lat(),
-    //                 lng: position.geometry.location.lng(),
-    //                 name: me.name,
-    //             }
-    //         }
-    //     ]
-    // })
-    // .then((resp) => {
-    //     console.log(resp);
-    // })
-    // .catch((err) => {
-    //     console.log(err);
-    // });
-    console.log("PUBLISHING MESSAGE");
     pubnub.publish({
         channel: geoChannel,
         message: {
@@ -213,12 +156,96 @@ function showNewPosition(position) {
 }
 
 async function activatePubNubListener(){
-    try {
-        await populateChannelMembers();
-    }
-    catch (err) {
-        console.log(err)
-    }
+    pnListener = pubnub.addListener({
+        message: (payload) => {
+            try{
+                if(payload.message && payload.message.address && payload.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(payload.timetoken)){
+                    travelHistory[payload.timetoken] = payload.message.address;
+                    var div = document.createElement("div");
+                    div.classList.add("card");
+                    div.appendChild(document.createTextNode(payload.message.address));
+                    var ul = document.getElementById("history-list");
+                    ul.appendChild(div);
+                }
+                redraw(payload);
+            }
+            catch(e){
+                console.log(e);
+            }
+        },
+        objects: async objectEvent => {
+            console.log("RECEIVED OBJECT EVENT");
+            console.log(objectEvent);
+            if (
+                objectEvent.message.type == 'uuid' &&
+                objectEvent.message.event == 'delete' &&
+                objectEvent.message.data.id == pubnub.getUUID()
+            ) {
+                //  The Object associated with OUR UUID was deleted.
+                //  log out.  This could have been caused e.g. by a duplicate tab logging out
+                location.href = '../index.html'
+            }
+            else if (
+                objectEvent.message.type == 'uuid' &&
+                objectEvent.message.event == 'delete' &&
+                objectEvent.message.data.id != pubnub.getUUID()
+            ) {
+                console.log("Removing membership");
+                var userId = objectEvent.message.data.id
+                //  Remove member from geolocation channel
+                if (channelMembers.hasOwnProperty(userId)) {
+                    removeUserFromGeoChannel(userId)
+                }
+            }
+            else if (
+                objectEvent.message.type == 'membership' &&
+                objectEvent.message.event == 'set' &&
+                objectEvent.message.data.uuid.id == pubnub.getUUID()
+            ) {
+                //  We have joined a channel, logic for this is handled elsewhere.
+                //  No action required
+            }
+            else if (
+                objectEvent.message.type == 'membership' &&
+                objectEvent.message.event == 'set' &&
+                objectEvent.message.data.uuid.id != pubnub.getUUID()
+            ) {
+                //  Somebody else has joined a channel
+                //  Regardless of our active channel, add this person to our list of direct chats if they aren't there already (this is our indication a new user is added)
+                var userId = objectEvent.message.data.uuid.id;
+                if (!channelMembers.hasOwnProperty(userId)) {
+                    //  Find out the information about this user
+                    const userInfo = await getUUIDMetaData(userId);
+
+                    if(!channelMembers.hasOwnProperty(userId)){
+                        if (userInfo != null) {
+                            addUserToCurrentChannel(
+                                userId,
+                                userInfo.data.name,
+                                userInfo.data.profileUrl
+                            )
+                        }
+                    }
+                }
+            }
+            else if (
+                objectEvent.message.type == 'membership' &&
+                objectEvent.message.event == 'delete' &&
+                objectEvent.message.data.uuid == pubnub.getUUID()
+            ) {
+                //  This will only ever be called by this app if we log out, the logic of which is handled elsewhere.  Specifically, if we log out in a duplicate tab, we handle this in [uuid][delete]
+                //  No action required
+            } else if (
+                objectEvent.message.type == 'membership' &&
+                objectEvent.message.event == 'delete' &&
+                objectEvent.message.data.uuid != pubnub.getUUID()
+            ) {
+                //  Somebody else has removed themselves from a channel
+                //  In this application, this can only happen if the user has logged out (which clears their data), a scenario caught by the [uuid][delete] handler
+                //  No action required
+            }
+        }
+    })
 }
 
 async function populateChannelMembers(){
@@ -231,7 +258,7 @@ async function populateChannelMembers(){
         limit: 100,
         totalCount: true
     });
-
+    console.log(result);
     channelMembers = {}
     for (var i = 0; i < result.data.length; i++) {
         //  Since this is a shared system with essentially ephemeral users, only display users who were created in the last 24 hours
@@ -242,21 +269,29 @@ async function populateChannelMembers(){
         var cutoff = new Date()
         cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
         if (lastUpdated > cutoff) {
-        addUserToCurrentChannel(
-            result.data[i].uuid.id,
-            result.data[i].uuid.name,
-            result.data[i].uuid.profileUrl
-        )
+            addUserToCurrentChannel(
+                result.data[i].uuid.id,
+                result.data[i].uuid.name,
+                result.data[i].uuid.profileUrl
+            )
         }
+    }
+
+    if(!channelMembers.hasOwnProperty(pubnub.getUUID())){
+        setChannelMember();
     }
 }
 
 //  Update our cache of which users are in the current channel
 function addUserToCurrentChannel (userId, name, profileUrl) {
+    console.log("ADDING USER TO CURRENT CHANNEL");
+    console.log(userId);
+    console.log(name);
+    console.log(profileUrl);
     try {
         if (name == null || profileUrl == null) {
-            name = userInfo.data.name
-            profileUrl = userInfo.data.profileUrl
+            name = me.name
+            profileUrl = me.profileUrl
         }
         channelMembers[userId] = {
             name: name,
@@ -268,8 +303,37 @@ function addUserToCurrentChannel (userId, name, profileUrl) {
     }
 }
 
+async function setChannelMember(){
+    await pubnub.objects.setChannelMembers({
+        channel: geoChannel,
+        uuids: [
+            pubnub.getUUID(),
+            {
+                id: pubnub.getUUID(),
+                custom: {
+                    name: me.name,
+                    profileUrl: me.profileUrl
+                }
+            }
+        ]
+    })
+    .then((resp) => {
+        console.log(resp);
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+}
+
 function addToDisplayedUsers(userId){
     displayedMembers[userId] = true;
+}
+
+//  Remove a user from the geo channel (just updates our internal cache)
+function removeUserFromGeoChannel (userId) {
+    delete channelMembers[userId];
+    mark[userId].setMap(null);
+    delete mark[userId];
 }
 
 /// Populates the map with the last locations seen in the channel
@@ -285,11 +349,45 @@ async function loadLastLocations() {
         for (const historicalMsg of history.channels[geoChannel]) {
             historicalMsg.publisher = historicalMsg.uuid;
             if(historicalMsg.message && historicalMsg.message.address && historicalMsg.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(historicalMsg.timetoken)){
+                if(lastLocation == null){
+                    lastLocation = "Last Location";
+                    // Display position on the map
+                    loc = new google.maps.LatLng(historicalMsg.message.lat, historicalMsg.message.lng);
+                    mark[historicalMsg.uuid] = new google.maps.Marker({
+                        position:loc,
+                        map:map,
+                        label: {
+                            text: historicalMsg.message.name,
+                            color: "#000000",
+                            fontWeight: "bold",
+                        }
+                    });
+
+                    var lastseen = new Date(historicalMsg.timetoken / 10000000);
+
+                    var content = "Name: " + historicalMsg.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + historicalMsg.message.lat +  '<br>' + "Long: " + historicalMsg.message.lng;
+
+                    var infowindow = new google.maps.InfoWindow();
+
+                    google.maps.event.addListener(mark[historicalMsg.uuid], 'click', (function(content,infowindow){
+                        return function() {
+                            infowindow.setContent(content);
+                            infowindow.open(map,mark[historicalMsg.uuid]);
+                            google.maps.event.addListener(map,'click', function(){
+                                infowindow.close();
+                            });
+                        };
+                    })(content,infowindow));
+
+
+                    mark[historicalMsg.uuid].setMap(map);
+                }
                 travelHistory[historicalMsg.timetoken] = historicalMsg.message.address;
-                var li = document.createElement("li");
-                li.appendChild(document.createTextNode(historicalMsg.message.address));
+                var div = document.createElement("div");
+                div.classList.add("card");
+                div.appendChild(document.createTextNode(historicalMsg.message.address));
                 var ul = document.getElementById("history-list");
-                ul.appendChild(li);
+                ul.appendChild(div);
             }
             if (channelMembers[historicalMsg.uuid] != null && !(displayedMembers.hasOwnProperty(historicalMsg.uuid))) {
                 addToDisplayedUsers(historicalMsg.uuid);
@@ -334,19 +432,12 @@ var redraw = function(payload) {
     if (payload.channel == geoChannel) {
         var lat = payload.message.lat;
         var lng = payload.message.lng;
-        lastLat = lat;
-        lastLng = lng;
         var uuid = payload.message.uuid;
         var displayName = payload.message.name;
         var lastseen = new Date(payload.timetoken.substring(0, 10)*1000);
         loc = new google.maps.LatLng(lat, lng);
-
-            lineCoords = [];
             if (mark[uuid] && mark[uuid].setMap) {
                 mark[uuid].setMap(null);
-            }
-            if (lineCoordinatesPath[uuid] && lineCoordinatesPath[uuid].setMap) {
-                lineCoordinatesPath[uuid].setMap(null);
             }
             mark[uuid] = new google.maps.Marker({
                 position:loc,
@@ -388,7 +479,7 @@ function initalizeMapSearch(){
     const northeast = { lat: 61.179287, lng: 2.64325 };
     const newBounds = new google.maps.LatLngBounds(southwest, northeast);
     autocomplete.setBounds(newBounds);
-    infowindow = new google.maps.InfoWindow();
+    var infowindow = new google.maps.InfoWindow();
     const infowindowContent = document.getElementById("infowindow-content");
     infowindow.setContent(infowindowContent);
     geocoder = new google.maps.Geocoder();

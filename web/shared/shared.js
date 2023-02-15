@@ -1,13 +1,20 @@
 function launchApp (app) {
-  console.log('launching ' + app)
-  if (app === 'chat') {
-    window.location.href = './chat/chat.html'
-  } else if (app === '../chat') {
-    window.location.href = '../chat/chat.html'
-  } else {
-    notImplemented(app)
+    console.log('launching ' + app)
+    if (app === 'chat')
+    {
+      window.location.href = "./chat/chat.html";
+    }
+    else if(app === 'geolocation'){
+      window.location.href = "../geolocation/geolocation.html";
+    }
+    else if (app === '../chat')
+    {
+      window.location.href = "../chat/chat.html";
+    }
+    else {
+        notImplemented(app)
+    }
   }
-}
 
 function notImplemented (feature) {
   const toastLiveExample = document.getElementById('liveToast')

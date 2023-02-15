@@ -1,3 +1,8 @@
+/**
+ * This file contains logic for receiving messages and converting them into a user-readable form.
+ * For notes about transitioning between this demo and a production app, see chat.js.
+ */
+
 async function messageReceived (messageObj) {
   try {
     if (messageObj.channel != channel) {

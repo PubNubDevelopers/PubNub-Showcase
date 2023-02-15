@@ -1,3 +1,9 @@
+/**
+ * This file contains the logic for handing the typing indicator, which uses PubNub signals to detect whether
+ * other members of the active chat are typing or not.  For notes about transitioning
+ * between this demo and a production app, see chat.js.
+ */
+
 var activeTypers = null
 var activeTypersTimer = 0
 const TYPING_INDICATOR_TIMEOUT_IN_MSECS = 5000 //  ms

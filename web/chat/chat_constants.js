@@ -1,3 +1,9 @@
+/**
+ * This file contains various constants associated with the chat portion of the demo.
+ * Groups (both public and private) are hardcoded in the client, which is clearly not
+ * good practice in a production app where they would be stored on the server.
+ * For more notes about transitioning between this demo and a production app, see chat.js.
+ */
 var predefined_groups = {
   groups: [
     {

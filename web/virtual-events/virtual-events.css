@@ -1,0 +1,106 @@
+body {
+    display: flex;
+    flex-flow: column;
+    height: 100vh
+}
+
+iframe {
+    /*max-width: 1280px;*/
+    width: 100%;
+}
+
+.live-stream {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    min-height: 35%;
+}
+
+.message-list {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    overflow: scroll;
+    flex-direction: column-reverse
+}
+
+.message-list-contents {
+    width: 100%;
+    flex-direction: column;
+    display: flex;
+}
+
+.ve-message-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%
+}
+
+.ve-avatar {
+    display: flex;
+    height: 1.5em;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.ve-nickname {
+    display: flex;
+    white-space: nowrap;
+    font-size: 0.875em;
+    font-weight: 900;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    color: var(--pubnub-color-navy);
+}
+
+.ve-nickname-you {
+    display: flex;
+    color: var(--pubnub-color-brick);
+}
+
+.ve-message {
+    display: flex;
+    font-size: 0.875em;
+    margin-bottom: 5px;
+}
+
+
+
+
+.poll-container {
+    background-color: #FFFFFF;
+    width: 100%;
+    /*display: flex;
+    flex-direction: row;*/
+    align-items: center;
+    display:block;
+}
+
+.poll-question-column {
+    /*display: flex;
+    flex-direction: column;
+    flex-grow: 1*/
+}
+
+.poll-options-column {
+    /*display: flex;
+    flex-direction: column;
+    flex-grow: 1*/
+}
+
+.poll-options-row {
+    /*display: flex;
+    flex-direction: row*/
+}
+
+.option-label {
+    padding-left: 5px;
+}
+
+.emoji-picker {
+    z-index: 1;
+    bottom: 150px;
+    position: absolute;
+    visibility: hidden
+}

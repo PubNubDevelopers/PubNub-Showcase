@@ -1,3 +1,9 @@
+/**
+ * This file contains logic related to Message actions, which provide the functionality
+ * for read receipts and 'emoji' reactions in this demo.  For notes about transitioning
+ * between this demo and a production app, see chat.js.
+ */
+
 var inflightReadReceipt = {}
 
 function maReadReceipt (messageActionEvent) {

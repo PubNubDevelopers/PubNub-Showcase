@@ -1,3 +1,8 @@
+/**
+ * This file contains the logic for monitoring whether other users are online or offline.
+ * For notes about transitioningbetween this demo and a production app, see chat.js.
+ */
+
 async function updatePresenceInfoFirstLoad () {
     //  Called when chat window is first loaded, load initial presence state
     //console.log('Update Presence Info: ' + channel)

@@ -51,7 +51,6 @@ var geocoder = null;
 */
 
 window.addEventListener('beforeunload', function () {
-    console.log('unsubscribe all')
     pubnub.unsubscribeAll()
 })
 
@@ -63,11 +62,7 @@ async function initialize () {
     // Intialize PubNub Object
     pubnub = createPubNubObject();
     await getUserMetadataSelf();
-    var myLatlng = new google.maps.LatLng(37.7749,122.4194);
-    map = new google.maps.Map(document.getElementById('map-canvas'), {
-        zoom: 2,
-        center: myLatlng
-    });
+    initMap();
     pubnub.subscribe({channels: [geoChannel], withPresence: true});
     await populateChannelMembers();
     await activatePubNubListener();
@@ -89,6 +84,14 @@ async function getUserMetadataSelf () {
       //  Some error retrieving our own meta data - probably the objects were deleted, therefore log off (possible duplicate tab)
         location.href = '../index.html'
     }
+}
+
+function initMap(){
+    var myLatlng = new google.maps.LatLng(37.7749,122.4194);
+    map = new google.maps.Map(document.getElementById('map-canvas'), {
+        zoom: 2,
+        center: myLatlng
+    });
 }
 
 async function getUUIDMetaData (userId) {
@@ -174,8 +177,6 @@ async function activatePubNubListener(){
             }
         },
         objects: async objectEvent => {
-            console.log("RECEIVED OBJECT EVENT");
-            console.log(objectEvent);
             if (
                 objectEvent.message.type == 'uuid' &&
                 objectEvent.message.event == 'delete' &&
@@ -190,7 +191,6 @@ async function activatePubNubListener(){
                 objectEvent.message.event == 'delete' &&
                 objectEvent.message.data.id != pubnub.getUUID()
             ) {
-                console.log("Removing membership");
                 var userId = objectEvent.message.data.id
                 //  Remove member from geolocation channel
                 if (channelMembers.hasOwnProperty(userId)) {
@@ -258,7 +258,6 @@ async function populateChannelMembers(){
         limit: 100,
         totalCount: true
     });
-    console.log(result);
     channelMembers = {}
     for (var i = 0; i < result.data.length; i++) {
         //  Since this is a shared system with essentially ephemeral users, only display users who were created in the last 24 hours
@@ -284,10 +283,6 @@ async function populateChannelMembers(){
 
 //  Update our cache of which users are in the current channel
 function addUserToCurrentChannel (userId, name, profileUrl) {
-    console.log("ADDING USER TO CURRENT CHANNEL");
-    console.log(userId);
-    console.log(name);
-    console.log(profileUrl);
     try {
         if (name == null || profileUrl == null) {
             name = me.name
@@ -352,35 +347,7 @@ async function loadLastLocations() {
                 if(lastLocation == null){
                     lastLocation = "Last Location";
                     // Display position on the map
-                    loc = new google.maps.LatLng(historicalMsg.message.lat, historicalMsg.message.lng);
-                    mark[historicalMsg.uuid] = new google.maps.Marker({
-                        position:loc,
-                        map:map,
-                        label: {
-                            text: historicalMsg.message.name,
-                            color: "#000000",
-                            fontWeight: "bold",
-                        }
-                    });
-
-                    var lastseen = new Date(historicalMsg.timetoken / 10000000);
-
-                    var content = "Name: " + historicalMsg.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + historicalMsg.message.lat +  '<br>' + "Long: " + historicalMsg.message.lng;
-
-                    var infowindow = new google.maps.InfoWindow();
-
-                    google.maps.event.addListener(mark[historicalMsg.uuid], 'click', (function(content,infowindow){
-                        return function() {
-                            infowindow.setContent(content);
-                            infowindow.open(map,mark[historicalMsg.uuid]);
-                            google.maps.event.addListener(map,'click', function(){
-                                infowindow.close();
-                            });
-                        };
-                    })(content,infowindow));
-
-
-                    mark[historicalMsg.uuid].setMap(map);
+                    displayPosition(historicalMsg);
                 }
                 travelHistory[historicalMsg.timetoken] = historicalMsg.message.address;
                 var div = document.createElement("div");
@@ -393,35 +360,7 @@ async function loadLastLocations() {
                 addToDisplayedUsers(historicalMsg.uuid);
                 if (historicalMsg.message && historicalMsg.message.uuid != pubnub.getUUID()) {
                     // Display position on the map
-                    loc = new google.maps.LatLng(historicalMsg.message.lat, historicalMsg.message.lng);
-                    mark[historicalMsg.uuid] = new google.maps.Marker({
-                        position:loc,
-                        map:map,
-                        label: {
-                            text: historicalMsg.message.name,
-                            color: "#000000",
-                            fontWeight: "bold",
-                        }
-                    });
-
-                    var lastseen = new Date(historicalMsg.timetoken / 10000000);
-
-                    var content = "Name: " + historicalMsg.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + historicalMsg.message.lat +  '<br>' + "Long: " + historicalMsg.message.lng;
-
-                    var infowindow = new google.maps.InfoWindow();
-
-                    google.maps.event.addListener(mark[historicalMsg.uuid], 'click', (function(content,infowindow){
-                        return function() {
-                            infowindow.setContent(content);
-                            infowindow.open(map,mark[historicalMsg.uuid]);
-                            google.maps.event.addListener(map,'click', function(){
-                                infowindow.close();
-                            });
-                        };
-                    })(content,infowindow));
-
-
-                    mark[historicalMsg.uuid].setMap(map);
+                    displayPosition(historicalMsg);
                 }
             }
         }
@@ -430,6 +369,13 @@ async function loadLastLocations() {
 
 var redraw = function(payload) {
     if (payload.channel == geoChannel) {
+        console.log(channelMembers);
+        console.log(payload);
+        var img = channelMembers[payload.message.uuid].profileUrl;
+        const image = {
+            url: img,
+            scaledSize: new google.maps.Size(30, 30),
+        };
         var lat = payload.message.lat;
         var lng = payload.message.lng;
         var uuid = payload.message.uuid;
@@ -442,10 +388,11 @@ var redraw = function(payload) {
             mark[uuid] = new google.maps.Marker({
                 position:loc,
                 map:map,
+                icon: image,
+                animation: google.maps.Animation.DROP,
                 label: {
                     text: displayName,
                     color: "#000000",
-                    fontWeight: "bold"
                 }
             });
 
@@ -504,5 +451,60 @@ function initalizeMapSearch(){
         showNewPosition(place);
     });
 }
+
+function displayPosition(payload){
+    loc = new google.maps.LatLng(payload.message.lat, payload.message.lng);
+    var img = channelMembers[payload.uuid].profileUrl;
+    const image = {
+        url: img,
+        scaledSize: new google.maps.Size(30, 30),
+    };
+
+    let shape = {
+        coords: [25, 25, 25],
+        type: 'circle'
+    };
+
+    mark[payload.uuid] = new google.maps.Marker({
+        position: loc,
+        map: map,
+        icon: image,
+        animation: google.maps.Animation.DROP,
+        shape: shape,
+        optimized: true,
+        label: {
+            text: payload.message.name,
+            color: "#000000",
+        }
+    });
+
+    var lastseen = new Date(payload.timetoken / 10000000);
+
+    var content = "Name: " + payload.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + payload.message.lat +  '<br>' + "Long: " + payload.message.lng;
+
+    var infowindow = new google.maps.InfoWindow();
+
+    google.maps.event.addListener(mark[payload.uuid], 'click', (function(content,infowindow){
+        return function() {
+            // toggleBounce(mark[payload.uuid]);
+            infowindow.setContent(content);
+            infowindow.open(map, mark[payload.uuid]);
+            google.maps.event.addListener(map,'click', function(){
+                infowindow.close();
+            });
+        };
+    })(content,infowindow));
+
+
+    mark[payload.uuid].setMap(map);
+}
+
+// function toggleBounce(marker) {
+//     if (marker.getAnimation() != null) {
+//         marker.setAnimation(null);
+//     } else {
+//         marker.setAnimation(google.maps.Animation.BOUNCE);
+//     }
+// }
 
 

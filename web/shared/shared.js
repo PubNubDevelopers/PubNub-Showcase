@@ -1,21 +1,20 @@
 function launchApp (app) {
-  console.log('launching ' + app)
-  if (app === 'chat') {
-    window.location.href = './chat/chat.html'
-  } else if (app === '../chat') {
-    window.location.href = '../chat/chat.html'
-  } else if (app === 'virtual_events') {
-    window.location.href = '../virtual-events/virtual-events.html'
-  } else if (app === 'geolocation') {
-    window.location.href = '../geolocation/geolocation.html'
-  } else if(app === 'iot'){
-    window.location.href = "../iot/iot.html";
-  }else if(app === 'real_time'){
-    window.location.href = "../real-time/real-time.html";
-  }else if(app === 'collaboration'){
-    window.location.href = "../collaboration/collaboration.html";
+    console.log('launching ' + app)
+    if (app === 'chat')
+    {
+      window.location.href = "./chat/chat.html";
+    }
+    else if(app === 'geolocation'){
+      window.location.href = "../geolocation/geolocation.html";
+    }
+    else if (app === '../chat')
+    {
+      window.location.href = "../chat/chat.html";
+    }
+    else {
+        notImplemented(app)
+    }
   }
-}
 
 /////////////////////////
 //  Emoji logic

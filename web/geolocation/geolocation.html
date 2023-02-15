@@ -1,0 +1,98 @@
+<html>
+    <HEAD>
+        <TITLE>PubNub Showcase Demo</TITLE>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+        <!--  Fonts -->
+        <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+            crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    
+        <link rel="icon" href="../favicon.ico" />
+        <link rel="stylesheet" href="geolocation.css">
+        <link rel="stylesheet" href="../shared/style.css" />
+        <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
+        <script src="../shared/shared.js"></script>
+        <script src="../shared/keys.js"></script>
+        <script src="../shared/pubnub_setup.js"></script>
+        <script src="../geolocation/geolocation.js"></script>
+    
+        <!--  Emoji  -->
+        <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+    </HEAD>
+    <body onload="initialize()">
+        <div class="container">
+            <!--<h1>GEO Track App - Real-time Locating Service</h1>-->
+            <br>
+            <div class="row">
+                <div class="col" >
+                    <span class="custom-bubble">
+                        <span id="active-label">0</span> active user(s)
+                    </span>
+                </div>
+                <div class="col-auto">
+                    <span id="geo-channel-id">GEO-Channel ID</span><span id="channel-label" class="custom-bubble">XXXXX</span> 
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div id="map-canvas-div">
+                    <div id="map-canvas" style="width:100%;height:100%"></div>
+                </div>
+            </div>
+            <br>
+            <div class="row justify-content-start">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-create-new" id="newsession">Create new session</button>
+                </div>
+                <div class="col-auto my-2 my-sm-0 px-sm-0">
+                    <button type="button" class="btn btn-invite " id="newinvite">Email invite link</button>
+                    <button type="button" class="btn btn-invite mx-2" id="newinvitelink">Copy invite link</button>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+            <div class="col">
+                <h3>Settings</h3>
+                <div class="form-check form-switch  mb-2">
+                    <input class="form-check-input" type="checkbox" id="locationshareswitch">
+                    <label class="form-check-label" for="locationshareswitch">Don't Update My Location</label>
+                </div>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="fitviewswitch" checked>
+                    <label class="form-check-label" for="fitviewswitch">Auto Fit View</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="plotnewswitch">
+                    <label class="form-check-label" for="plotnewswitch">Plot New Paths</label>
+                </div> 
+                <br>  
+            </div>
+            <div class="col-lg-8 col-md-6">
+                <h3>User details</h3>
+                <span class="user-details-label">Username</span>
+                <div class="mb-3 input-group">
+                    <input type="text" class="form-control" placeholder="Enter a new username" id="input-changeusername">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary user-details-button" type="button" id="button-changeusername">Update</button>
+                    </div>
+                </div>
+                <span class="user-details-label">Greeting message</span>
+                <div class="mb-3 input-group">
+                    <input type="text" class="form-control" placeholder="Enter a new greeting" id="input-greet">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary user-details-button" type="button" id="send-greet">Update</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyl7ItKt5viBBju5Rwsqwrii5soyWUzp0&callback=initialize"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    </body>
+</html>

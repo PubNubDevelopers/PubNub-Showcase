@@ -165,3 +165,5 @@ function customAvatarChecks (avatarFile) {
   }
   return true
 }
+
+

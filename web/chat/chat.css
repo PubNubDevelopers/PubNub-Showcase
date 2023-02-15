@@ -98,6 +98,27 @@
     visibility:hidden;
 }
 
+.message-input-bar {
+    background-color: #FFFFFF;
+    width:100%;
+}
+
+.message-input {
+    padding: 6px 15px 6px 15px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    font-size: medium;
+    caret-color: auto;
+    width:100%;
+    background-repeat: no-repeat;
+    background-position: right;
+}
+
+.message-input-icon {
+    font-size:xx-large;
+    cursor: pointer;
+}
+
 .message {
     font-size:large;
     width: 90%;

@@ -171,9 +171,7 @@ function messageContents(messageData)
     var imageRender = "<img src='" + messageData.attachment + "' height='200'><br>"
     return imageRender + messageData.message
   }
-  else{
-    return messageData.message
-  }
+  return messageData.message
 }
 
 //////////////////////

@@ -1,71 +1,71 @@
 /**
- * Many customers use PubNub to implement chat into their solution, so they don't have to 
+ * Many customers use PubNub to implement chat into their solution, so they don't have to
  * worry about scale, reliability or other infrastructure considerations.  If you are reading
  * this source code, hopefully you are implementing an app with PubNub :)  THANK YOU!
  * Here are some tips for things you'll need to watch out for as you move to production, this is
- * just a demo and beyond the usual caveats to add 'error handling' code, it's worth bearing the 
- * following in mind 
+ * just a demo and beyond the usual caveats to add 'error handling' code, it's worth bearing the
+ * following in mind
  * IN PRODUCTION:
  * - PubNub provides all the underlying APIs you need to implement your chat solution but we don't
  *   provide an opinionated visual design - feel free to build your own UI on top of our APIs, this
  *   demo uses a very basic chat UI to 'get the idea across'
  * - PubNub uses a flexible channel architecture for communication, endpoints 'subscribe' and 'publish'
- *   messages to channels.  By naming channels in a sensible hierarchy you can enable public and 
+ *   messages to channels.  By naming channels in a sensible hierarchy you can enable public and
  *   private groups.  This demo follows the same naming convention a number of our customers use for
  *   'Public.<channel>', 'Private.<channel>' and 'DM.A&B', enabling all possible grouping use cases.
  *   In production, you will use Access Manager to restrict access to channels as appropriate but that
  *   is not done in this demo, for readability.
  * - This demo does not encrypt any messages, but you could do this if you chose to do so for additional
  *   privacy and security.  Obviously all messages are already sent over secure connection and PubNub
- *   is SOC2 compliant so even if you do not choose to implement message encryption, your messages are 
+ *   is SOC2 compliant so even if you do not choose to implement message encryption, your messages are
  *   still secure.
  * - Subscription: This demo uses wildcard subscription in conjunction with the channel naming topology
  *   to listen for new messages.  This will be sufficient for most production use cases but if you need
  *   an even greater number of channels then please see our Channel Groups feature.
- * - Presence: This demo uses PubNub presence APIs to detect who is online.  Presence is based subscription 
+ * - Presence: This demo uses PubNub presence APIs to detect who is online.  Presence is based subscription
  *   which, in the case of this demo, is to 'channel.*', so a user will be shown as online even if they are
  *   not viewing the same conversation as you.  Presence is configurable at both the client and server level,
  *   for example you can choose to unsubscribe / resubscribe to channels as you switch conversations and additional
- *   options are available on the admin portal (for example, unsubscribing when a TCP ACK is received).  
+ *   options are available on the admin portal (for example, unsubscribing when a TCP ACK is received).
  * - Read receipts and message reactions: Both of these are implemented in this demo using PubNub's message
  *   actions feature.  Message actions allow you to add meta data to a specific message, which can subsequently
- *   be read by recipients and stored in history.  You can also use message actions to edit message data (still 
+ *   be read by recipients and stored in history.  You can also use message actions to edit message data (still
  *   retaining the original message content) and 'delete' existing messages.  The logic around read receipts
- *   can get particularly complex with groups (messages are sent, delivered, read by a subset of the group, then 
+ *   can get particularly complex with groups (messages are sent, delivered, read by a subset of the group, then
  *   finally are read by the entire group).  To keep things simple, this demo implements a simplified mechanism
  *   for read receipts (they are sent, then marked as read when only one person has read them) BUT this is not
  *   a limitation of PubNub, it is just a simple demo to show the principle.
  * - Objects: If you are building a chat app based on the PubNub SDK you will have a number of requirements in
- *   common with other chat implementations, i.e. you will need to store metadata associated with a user (name, 
+ *   common with other chat implementations, i.e. you will need to store metadata associated with a user (name,
  *   avatar URL, mood), channel and which users are members of which channel.  This demo uses PubNub objects
  *   extensively to track user information including which channels they are members of.  Objects are particularly
- *   useful if you do not have an existing backend or you want to isolate your chat functionality so it is 
+ *   useful if you do not have an existing backend or you want to isolate your chat functionality so it is
  *   entirely within the PubNub domain.
- * - Typing indicator: We recommend you use PubNub signals, as this demo does.  This demo's logic for the typing 
- *   indicator with groups, where multiple people are typing, is quite simple (especially the use of setTimeout).  
- *   In production, you would have more robust logic but, again, the demo was written with readibility in mind. 
+ * - Typing indicator: We recommend you use PubNub signals, as this demo does.  This demo's logic for the typing
+ *   indicator with groups, where multiple people are typing, is quite simple (especially the use of setTimeout).
+ *   In production, you would have more robust logic but, again, the demo was written with readibility in mind.
  *   PubNub signals will meet your typing indicator use case regardless of scale.
  * - Attachments are handled using the PubNub file API.  In production, you will probably have some complex use
- *   cases around sharing files, previewing them and opening them externally.  The PubNub file API provides 
- *   serverside storage for ANY file type, though this demo restricts itself to images only.  The file API also 
+ *   cases around sharing files, previewing them and opening them externally.  The PubNub file API provides
+ *   serverside storage for ANY file type, though this demo restricts itself to images only.  The file API also
  *   supports files up to 5MB (increasible if you contact support), though this demo restricts images to 1MB.
  *   Images in this demo are moderated using PubNub functions and it is strongly recommended you moderate any images
- *   in your own chat solution.  This demo will delete any image that does not pass moderation before it is 
+ *   in your own chat solution.  This demo will delete any image that does not pass moderation before it is
  *   delivered to the recipient, though in production you will want a more complex logic around 'banning' users
  *   who do not follow your chat rules.
  * - Persistence: The data in this demo (messages, files) only persist for 1 day.  That is a deliberate choice since
- *   this is only a demo but in production, this is something you can configure from your PubNub admin dashboard, so 
- *   data can be persisted as long as you need.  The history (AKA persistence) API can retrieve messages (along with 
- *   their accompanying actions) as far back as you need but for readibility, this demo only goes back to the past 
- *   50 messages.  
+ *   this is only a demo but in production, this is something you can configure from your PubNub admin dashboard, so
+ *   data can be persisted as long as you need.  The history (AKA persistence) API can retrieve messages (along with
+ *   their accompanying actions) as far back as you need but for readibility, this demo only goes back to the past
+ *   50 messages.
  * - Paging: Related to persistence, in production you will need to page through the results from a number of API
- *   calls that return a lot of data (message history including message actions, object data, etc.).  This is 
+ *   calls that return a lot of data (message history including message actions, object data, etc.).  This is
  *   standard for Network APIs but to keep things simple, this demo has been designed to avoid having to page any
  *   data.  Be sure to add paging logic to any API call you make that returns a 'next' page.
  * - Functions: Functions provide server logic that can be exeuted after an event occurs, such as a message is published
  *   or a file is uploaded.  Functions are used by this demo to moderate both text and images but are not used beyond
- *   that.  In production, you might choose to use functions to perform inline language translation or to store a 
- *   copy of any message in your own storage for analytics purposes (you can also use Events & Actions for this 
+ *   that.  In production, you might choose to use functions to perform inline language translation or to store a
+ *   copy of any message in your own storage for analytics purposes (you can also use Events & Actions for this
  *   analytics use case)
  */
 //  Connection to the PubNub API
@@ -81,9 +81,13 @@ var me = null
 //  Local cache of channels we are currently subscribed to
 var subscribedChannels = null
 //  The current attachment (image)
+<<<<<<< HEAD
 var fileAttachment = null
 //  Avoid duplicate sends
 var isMessageSendingInProgress = false
+=======
+var fileAttachment = null;
+>>>>>>> cb93de5 (rebase)
 const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1
@@ -552,10 +556,10 @@ async function getGroupList () {
   This demo hard codes the list of private groups but in a production chat solution
   users should be added and removed from private groups by an authorized endpoint.
   Typically this would be done on the server side, in conjunction with the access manager
-  ensuring that only authorized users are added to specific groups and controlling requests to be 
+  ensuring that only authorized users are added to specific groups and controlling requests to be
   added to new groups.
-  A group will map to a channel.  Although you can choose any naming convention for your channel, 
-  recommendations exist in the documentation.  For private groups, the recommendation is to use Private.<channel name> 
+  A group will map to a channel.  Although you can choose any naming convention for your channel,
+  recommendations exist in the documentation.  For private groups, the recommendation is to use Private.<channel name>
   for the channel name
   You can still use PubNub Objects to organize which channels your users are members of.
 */
@@ -760,10 +764,10 @@ function messageInputAttachment () {
     fileAttachment = e.target.files[0]
     if (fileAttachment == null) {
       //  User cancelled the attachment selection
-      return
+      return;
     } else if (fileAttachment.size > MAX_ATTACHMENT_FILE_SIZE) {
       errorMessage('Your file should be under 1MB')
-      return
+      return;
     } else if (
       !(
         fileAttachment.type == 'image/png' ||
@@ -772,7 +776,7 @@ function messageInputAttachment () {
       )
     ) {
       errorMessage('Please choose a JPG, PNG or GIF file')
-      return
+      return;
     } else {
       //  Attachment seems valid, read it in and show a resized version
 
@@ -781,13 +785,19 @@ function messageInputAttachment () {
       reader.onload = async readerEvent => {
         var content = readerEvent.target.result
 
+        //const resizedImage = await compressImage(content, 200, 200)
+
+        //console.log(resizedImage)
+
         const img = new Image()
         img.src = content
         img.onload = async () => {
-          if (img.height > 200) {
-            var newWidth = (img.height / img.width) * 200
-            if (img.width < img.height) {
-              newWidth = (img.width / img.height) * 200
+          if (img.height > 200)
+          {
+            var newWidth = (img.height / img.width) * 200;
+            if (img.width > img.height)
+            {
+              newWidth = (img.width / img.height) * 200;
             }
             content = await compressImage(content, newWidth, 200)
           }
@@ -803,16 +813,21 @@ function messageInputAttachment () {
   }
 
   input.click()
+
+  //  notImplemented('Adding an attachment')
 }
 
-function messageBoxHasImage (hasImage) {
-  const msgInput = document.getElementById('input-message')
-  if (hasImage) {
+function messageBoxHasImage(hasImage)
+{
+  const msgInput = document.getElementById('input-message');
+  if (hasImage)
+  {
     //  disable the message input field
     msgInput.style.height = '200px'
-  } else {
-    msgInput.style.height = ''
-    msgInput.style.backgroundImage = ''
+  }
+  else{
+    msgInput.style.height = '';
+    msgInput.style.backgroundImage = '';
   }
 }
 
@@ -833,30 +848,40 @@ async function compressImage (src, newX, newY) {
   })
 }
 
-function messageSendingInProgress (inProgress) {
-  if (inProgress) {
-    isMessageSendingInProgress = true
-    document.getElementById('spinner').style.display = 'block'
-  } else {
-    isMessageSendingInProgress = false
-    document.getElementById('spinner').style.display = 'none'
-  }
-}
-
 async function messageInputSend () {
   var messageInput = document.getElementById('input-message')
   var messageText = messageInput.value
-  if (isMessageSendingInProgress) {
+  if (messageText == '')
+  {
     //  Prevent duplicate sends
     //  In Production, you would want to show a loading cursor here
-    console.log('send alredy in progress')
-    return
+    return;
   }
-  messageSendingInProgress(true)
+  messageInput.value = ''
   var fileUrl = null
-  if (messageInput.style.backgroundImage != '') {
+  if (messageInput.style.backgroundImage != '')
+  {
     //  Message contains an image, upload it to PubNub
     //  With large images, it would be far better to perform the upload asynchronously
+    try {
+      //  The image is OK, upload it to PubNub
+      const uploadedFile = await pubnub.sendFile({
+        channel: channel,
+        file: fileAttachment
+      })
+      fileUrl = await pubnub.getFileUrl({
+        channel: channel,
+        id: uploadedFile.id,
+        name: uploadedFile.name
+      })
+
+    } catch (err) {
+      errorMessage('Error uploading custom avatar')
+      console.log('Error uploading custom avatar: ' + err)
+    }
+
+  }
+  if (messageText !== '' || fileUrl !== null) {
     try {
       //  The image is OK, upload it to PubNub
       const uploadedFile = await pubnub.sendFile({
@@ -887,12 +912,11 @@ async function messageInputSend () {
           attachment: fileUrl
         }
       })
+      messageBoxHasImage(false)
     } catch (err) {
       console.log('Error sending message: ' + err)
     }
     messageInput.value = ''
     hideEmojiWindow()
   }
-  messageBoxHasImage(false)
-  messageSendingInProgress(false)
 }

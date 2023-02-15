@@ -81,13 +81,7 @@ var me = null
 //  Local cache of channels we are currently subscribed to
 var subscribedChannels = null
 //  The current attachment (image)
-<<<<<<< HEAD
-var fileAttachment = null
-//  Avoid duplicate sends
-var isMessageSendingInProgress = false
-=======
 var fileAttachment = null;
->>>>>>> cb93de5 (rebase)
 const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1

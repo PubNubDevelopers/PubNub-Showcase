@@ -65,10 +65,21 @@ async function initialize () {
     initMap();
     pubnub.subscribe({channels: [geoChannel], withPresence: true});
     await populateChannelMembers();
+    initPubNubUserToChannelMembers();
     await activatePubNubListener();
     loadLastLocations();
     initalizeMapSearch();
     findLocation();
+}
+
+function initPubNubUserToChannelMembers(){
+    console.log(me.name);
+    console.log(me.profileUrl);
+    console.log(pubnub.getUUID());
+    channelMembers[pubnub.getUUID()] = {
+        name: me.name,
+        profileUrl: me.profileUrl
+    }
 }
 
 //  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache

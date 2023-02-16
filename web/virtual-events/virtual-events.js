@@ -1,21 +1,21 @@
 /**
- * IN PRODUCTION: 
- * This demo only uses a single channel for the live event (1 channel for 1 video stream).  
- * In prodution, you would have multiple streams, and the channel topology will be more complex, 
+ * IN PRODUCTION:
+ * This demo only uses a single channel for the live event (1 channel for 1 video stream).
+ * In prodution, you would have multiple streams, and the channel topology will be more complex,
  * depending on how many users are in your chat and the kind of chat experience you want for those users.
  * Some considerations when designing your chat user experience for live events:
  * - How many people will you have in each stream (or room, depending on your app)?
  * - Do you want messages to be readable by the audience?  Or is the chat just 'reactions' to an event
  * - If you want messages to be readable, how will the message flow be controlled?  (lossy / lossless?)
- * If you want messages to be readable, you should limit the message rate to about 1 message per second.  
- * There are a number of ways of limiting message rate, including organizing participants into cohorts, 
+ * If you want messages to be readable, you should limit the message rate to about 1 message per second.
+ * There are a number of ways of limiting message rate, including organizing participants into cohorts,
  * or sharding your rooms.
  * You will also need to ensure you have a degree of spam prevention for your chat, you can easily implement
  * that using the flexible PubNub Functions.  Whilst this demo has moderation for bad language, there is no spam
  * moderation since all messages have a limited lifetime.
- * PubNub is very flexible and we have a wide variety of virtual events customers, with a proven track 
+ * PubNub is very flexible and we have a wide variety of virtual events customers, with a proven track
  * record of supporting live events of any scale, please contact our support team to discuss your individual needs
- */  
+ */
 
 //  Connection to the PubNub API
 var pubnub = null
@@ -24,8 +24,8 @@ const VIRTUAL_EVENT_CHANNEL = 'live-event-1'
 var me = null
 const MAX_MESSAGES_SHOWN_PER_CHAT = 100
 
+//  Called when the page is loaded
 async function loadVirtualEvents () {
-  //  Called when the page is loaded
   //  Handle Message input
   document
     .getElementById('input-message')
@@ -43,23 +43,29 @@ async function loadVirtualEvents () {
   pnListener = pubnub.addListener({
     //  Status events
     status: statusEvent => {
-      //console.log(statusEvent)
     },
     message: payload => {
+      //  Received a message.  This will either be a message from the virtual events chat
+      //  (either our message or a message from a bot) or it might be a poll response.
+      //  See the poll.js file for more information on how polls should be handled.
       if (payload.channel === VIRTUAL_EVENT_CHANNEL) messageReceived(payload)
       else if (payload.channel === POLLS_CHANNEL_NAME) pollVoteReceived(payload)
     }
   })
 
+  //  Subscribe to messages both for the virtual events chat (single channel since this is a single live feed)
+  //  Also subscribe to any message related to the polls (votes.*) - see polls.js for more information.
   pubnub.subscribe({
     channels: [VIRTUAL_EVENT_CHANNEL, 'votes.*'],
     withPresence: true
   })
 
-  loadHistoricPollVotes();
+  //  Polls data is stored in history to make the demo more interactive.  Virtual event chat messages are not stored
+  //  in history, a design decision for this app, not a limitation of the PubNub SDK
+  loadHistoricPollVotes()
 }
 
-//  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
+//  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache for this data
 async function getUserMetadataSelf () {
   try {
     const result = await pubnub.objects.getUUIDMetadata({
@@ -72,20 +78,21 @@ async function getUserMetadataSelf () {
   }
 }
 
+//  Message called when the user presses the send button or hits return
 async function messageInputSend () {
   var messageInput = document.getElementById('input-message')
   var messageText = messageInput.value
   if (messageText !== '') {
     try {
       /*
-        Compare the code below with the Chat demo, the avatar and name are sent along with the message.
+        Compare the code below with the Chat demo.  The avatar and name are sent along with the message.
         Whilst this makes it harder to design a UI to update old messages when a user changes their name or avatar URL
-        this is an uncommon use case for virtual events with a very high quantity of messages.  The avatar and name is sent
+        this is an uncommon use case for virtual events with a *very high* quantity of messages.  The avatar and name is sent
         along with the message, to make it easier to retrieve this data at the other end. 
         */
       await pubnub.publish({
         channel: VIRTUAL_EVENT_CHANNEL,
-        storeInHistory: false,
+        storeInHistory: false,  //  In this app, we don't persist virtual events chat messages
         message: {
           message: messageText,
           avatar: me.profileUrl,
@@ -100,10 +107,11 @@ async function messageInputSend () {
   }
 }
 
+//  A chat message is received (this also handles messages we send ourselves to keep the logic consistent)
 function messageReceived (messageObj) {
   var messageDiv = createMessage(messageObj, messageObj.publisher == me.id)
-
   var messageListDiv = document.getElementById('messageListContents')
+  
   if (messageListDiv.children.length >= MAX_MESSAGES_SHOWN_PER_CHAT) {
     messageListDiv.removeChild(messageListDiv.children[0])
   }

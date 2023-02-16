@@ -36,7 +36,7 @@
 
 <BODY onload="loadChat()">
 
-    <div id="header" class="container-fluid p-2 header app-header">
+    <div id="header" class="container-fluid p-2 app-header">
         <i class="bi bi-list display-4 mt-1" style="float:left" type="button" data-bs-toggle="offcanvas"
             data-bs-target="#chatLeftSide" aria-controls="chatLeftSide"></i>
         <i class="bi bi-info-circle display-4 mt-1" style="float:right" type="button" data-bs-toggle="offcanvas"
@@ -45,14 +45,19 @@
         <H3 id='header-subheading' class="text-center"> </H3>
     </div>
 
-    <div id='messageList' class="container-fluid message-list px-0">
+    <div id='messageList' class="message-list">
 
-        <div id='messageListContents' class="d-flex px-3 message-list-contents">
+        <div id='messageListContents' class="px-2 message-list-contents">
 
         </div>
 
 
     </div>
+
+    <div id="emojiPicker" class="mx-2 emoji-picker">
+
+    </div>
+
 
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="liveToast" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
@@ -66,10 +71,7 @@
     </div>
 
 
-    <div id="emojiPicker" class="d-flex fixed-bottom mx-2 emoji-picker">
-
-    </div>
-    <nav id="bottomNav" class="navbar fixed-bottom p-0">
+    <nav id="bottomNav" class="navbar p-0" style="min-height: fit-content">
 
 
         <div class="d-flex py-1 mx-2 typing-indicator justify-content-end">
@@ -162,7 +164,6 @@
         const picker = new EmojiMart.Picker(pickerOptions)
 
         document.getElementById('emojiPicker').appendChild(picker)
-        //document.body.appendChild(picker)
 
     </script>
 

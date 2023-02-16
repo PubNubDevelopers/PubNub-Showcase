@@ -26,7 +26,10 @@ var predefined_groups = {
     }
   ],
   private_groups: [
-    //  Note, channel names containing 'uuid' will have that uuid replaced with the user's actual UUID
+    //  Private groups are named 'Private.<name>' in this demo.  PubNub does not impose restrictions on names (beyond length & allowed characters) but
+    //  it is a good idea to choose a sensible naming convention.
+    //  To keep channels specific to an individual user, this demo will include the user's ID as part of the channel name, for example
+    //  'Private.a54as68df1as-iot'.  Since the groups are hardcoded, the channel name will replace any instance of 'uuid' with the user's actual ID 
     {
       channel: 'Private.uuid-iot',
       name: 'My Home (IoT)',

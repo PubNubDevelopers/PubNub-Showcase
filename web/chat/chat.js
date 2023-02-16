@@ -91,23 +91,25 @@ var currentLocation = null;
 
 const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
-const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1
+const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1  //  bytes
 
+//  To make presence indications more accurate if the webpage is being refreshed, notify PubNub that the client is leaving .
+//  PubNub will eventually catch up, but this makes it quicker
 window.addEventListener('beforeunload', function () {
-  console.log('unsubscribe all')
   pubnub.unsubscribeAll()
 })
 
 //////////////////////
 //  Initial setup and configuration
 
+//  Called on page load
 async function loadChat () {
   channelMembers = {}
   userData = {}
   subscribedChannels = []
   activeTypers = {}
 
-  //  Handle Message input
+  //  Handle Message input field
   document
     .getElementById('input-message')
     .addEventListener('keypress', function (event) {
@@ -117,7 +119,7 @@ async function loadChat () {
       }
     })
 
-  //  PubNub object
+  //  PubNub object - connection with the PubNub infrastructure
   pubnub = createPubNubObject()
   await getUserMetadataSelf() //  Populate own data for left hand pane
   getUserMetaDataOthers() //  Populate list of direct chats for left hand pane
@@ -131,27 +133,25 @@ async function loadChat () {
       //console.log(statusEvent)
     },
     message: payload => {
+      //  Messages are used for chat messages
       messageReceived(payload)
     },
     signal: signalEvent => {
-      //console.log('SIGNAL EVENT')
+      //  Signals are used for the typing indicator
       signalReceived(signalEvent)
     },
     presence: presenceEvent => {
-      //console.log('PRESENCE EVENT')
-      //console.log(presenceEvent)
-      handlePresenceEvent(presenceEvent.action, presenceEvent.uuid)
-      //  todo handle announce max
+      //  Presence is used to determine whether users are online or offline
+      handlePresenceEvent(presenceEvent.action, presenceEvent)
     },
     messageAction: messageActionEvent => {
-      //console.log('MESSAGE ACTION')
-      //console.log(messageActionEvent)
+      //  Message actions are used to handle read receipts and message reactions (add emoji to messages)
       maReadReceipt(messageActionEvent)
       maEmojiReaction(messageActionEvent)
     },
     objects: async objectEvent => {
-      //console.log('OBJECT EVENT')
-      //console.log(objectEvent)
+      //  Objects are used to maintain the state of users in the system, as well as which channels
+      //  they are members of
       if (
         objectEvent.message.type == 'uuid' &&
         objectEvent.message.event == 'delete' &&
@@ -171,7 +171,7 @@ async function loadChat () {
           removeUser(userId)
         }
         //  Consider 2 scenarios:
-        //  Firstly, the current channel is a group chat
+        //  Firstly, the current channel is a public group chat
         if (channel.startsWith('Public.')) {
           //  If the removed user is part of the active group, remove them
           if (channelMembers[userId] != null) {
@@ -180,7 +180,7 @@ async function loadChat () {
             updateInfoPane()
           }
         } else if (channel.startsWith('DM')) {
-          //  If the active group is a 1:1 conversation, if it is with the deleted user, quit the chat
+          //  Secondly, if the active group is a 1:1 conversation, if it is with the deleted user, quit the chat
           if (createDirectChannelName(userId, pubnub.getUserId()) == channel) {
             channel = predefined_groups.groups[0].channel
             await populateChatWindow(channel)
@@ -240,6 +240,7 @@ async function loadChat () {
     }
   });
 
+  //  When the chat app first loads, read the current active channel from session storage
   try {
     var lat = localStorage.getItem('current-location-lat');
     var lng = localStorage.getItem('current-location-lng');
@@ -279,42 +280,37 @@ async function loadChat () {
     alert('Demo will not run without session storage')
   }
 
+  //  Call PubNub's hereNow() API to see who else is here
   updatePresenceInfoFirstLoad()
 }
 
-function repositionMessageList () {
-  //  Position the message list
-  var top = document.getElementById('header').offsetHeight
-  var bottom = document.getElementById('bottomNav').offsetHeight
-  var messageListDiv = document.getElementById('messageList')
-  messageListDiv.style.top = top
-  messageListDiv.style.bottom = bottom
-
-  var emojiPicker = document.getElementById('emojiPicker')
-  var navbarBottom = document.getElementById('bottomNav').offsetHeight
-  emojiPicker.style.bottom = navbarBottom
-}
-
-function scrollChatToEnd () {
-  var messageListDiv = document.getElementById('messageList')
-  messageListDiv.scrollTop = messageListDiv.scrollHeight
-}
-
+//  Very large method to handle all the logic of populating the chat window with the chat
+//  associated with the specified channel
 async function populateChatWindow (channelName) {
   sessionStorage.setItem('activeChatChannel', channelName)
+  
+  //  Update the heading
   if (channelName.startsWith('Public')) {
+    //  This is a public group
     document.getElementById('heading').innerHTML =
       'Group: ' + lookupGroupName(channelName)
   } else if (channelName.startsWith('Private')) {
     document.getElementById('heading').innerHTML = lookupGroupName(channelName)
   } else if (channelName.startsWith('DM')) {
+    //  1:1 message between two users
     var recipientName = await lookupRemoteOneOneUser(channelName)
     document.getElementById('heading').innerHTML = 'Chat with ' + recipientName
   }
   clearMessageList()
+  //  If we select a channel to view it, clear all unread messages for this channel regardless of the 
+  //  position of the scrollbar (to keep the demo simple)
   setChannelUnreadCounter(channelName, 0)
+  //  To help populate the unread message counter, keep track of when the messages were last 'read'.  This is
+  //  required for the pubnub.messageCounts API
   sessionStorage.setItem('chatLastLoadTimestamp', Date.now() * 10000)
-  //  Get the meta data for users in this chat
+
+  //  Get the meta data for other users in this chat.  This will be stored locally for efficiency.  If we see a new user after the chat
+  //  is loaded, that user's data will be loaded dynamically as needed
   try {
     const result = await pubnub.objects.getChannelMembers({
       channel: channel,
@@ -322,7 +318,7 @@ async function populateChatWindow (channelName) {
       include: {
         UUIDFields: true
       },
-      limit: 50,
+      limit: 50,  //  To keep the logic simple, this demo is limited to 50 simultaneous users.  See notes about paging at the top of this file.
       totalCount: true
     })
     channelMembers = {}
@@ -343,21 +339,18 @@ async function populateChatWindow (channelName) {
       }
     }
 
+    //  The current channel members are shown in the right hand pane
     updateInfoPane()
-
-    //  Account for header potentially growing with group name
-    repositionMessageList()
 
     //  Load channel history
     const history = await pubnub.fetchMessages({
       channels: [channelName],
-      count: 10,
+      count: 10,  //  Limit to 10 messages.  Design decision for this app, not a limitation of PubNUb
       includeUUID: true,
       includeMessageActions: true
     })
     if (history.channels[channelName] != null) {
       for (const historicalMsg of history.channels[channelName]) {
-        //    history.channels[channelName].forEach(msg => {
         historicalMsg.publisher = historicalMsg.uuid
 
         if (channelMembers[historicalMsg.uuid] != null) {
@@ -375,7 +368,7 @@ async function populateChatWindow (channelName) {
             originalMessage.classList.remove('bi-check')
             originalMessage.classList.add('bi-check-all')
           }
-          //  React historical emoji readtions (message actions)
+          //  Read in emoji reactions for historical messages (message actions)
           if (
             historicalMsg.actions != null &&
             historicalMsg.actions.react != null &&
@@ -399,8 +392,7 @@ async function populateChatWindow (channelName) {
       }
     }
   } catch (status) {
-    //  todo verify the feature is enabled on the portal
-    console.log('error: ' + status)
+    console.log('error (check you have history & objects enabled in the admin portal): ' + status)
   }
 }
 
@@ -432,6 +424,7 @@ async function getUserMetaDataOthers () {
     for (var i = users.data.length - 1; i >= 0; i--) {
       if (users.data[i].id == pubnub.getUserId()) continue
       var lastUpdated = new Date(users.data[i].updated)
+      //  Do not show users who logged in more than 24 hours ago.  To avoid stale data in the demo - you probably would not do this in production
       var cutoff = new Date()
       cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
       if (lastUpdated < cutoff) continue
@@ -466,7 +459,7 @@ function addNewUser (userId, name, profileUrl) {
   //  Add this user's details to our local cache of user details
   userData[userId] = { name: name, profileUrl: profileUrl }
 
-  //  Add this user to the left hand pane of direct chats
+  //  Add this user to the left hand pane of direct chats.  Not amazing practice to include styling within the JS code, sorry :)
   var oneOneUser =
     " <div id='user-" +
     userId +
@@ -496,7 +489,7 @@ function addNewUser (userId, name, profileUrl) {
   })
 }
 
-//  Remove a user from the system, this can happen if the user logs out
+//  Remove a user from the system, this can happen if the user logs out.
 function removeUser (userId) {
   delete userData[userId]
 
@@ -531,6 +524,7 @@ async function addUserToCurrentChannel (userId, name, profileUrl) {
   }
 }
 
+//  Wrapper for pubnub's getUUIDMetadata for code readability
 async function getUUIDMetaData (userId) {
   const result = await pubnub.objects.getUUIDMetadata({
     uuid: userId
@@ -548,7 +542,7 @@ function createDirectChannelName (userId1, userId2) {
   else return 'DM.' + userId2 + '&' + userId1
 }
 
-//  Populate the 'Groups'
+//  Populate the public 'Groups', in the left hand pane
 async function getGroupList () {
   var groupList = ''
 
@@ -565,6 +559,7 @@ async function getGroupList () {
       "' class='unread-message-indicator hidden'>0</span></div>"
     groupList += groupHtml
 
+    //  Add ourself as a member of every (public) group
     await pubnub.objects.setMemberships({
       channels: [group.channel],
       uuid: pubnub.getUserId()
@@ -575,18 +570,19 @@ async function getGroupList () {
   updateMessageCountFirstLoad()
 }
 
-/*
-  PRODUCTION CONSIDERATIONS for private groups:
-  This demo hard codes the list of private groups but in a production chat solution
-  users should be added and removed from private groups by an authorized endpoint.
-  Typically this would be done on the server side, in conjunction with the access manager
-  ensuring that only authorized users are added to specific groups and controlling requests to be
-  added to new groups.
-  A group will map to a channel.  Although you can choose any naming convention for your channel,
-  recommendations exist in the documentation.  For private groups, the recommendation is to use Private.<channel name>
-  for the channel name
-  You can still use PubNub Objects to organize which channels your users are members of.
-*/
+/**
+ *  PRODUCTION CONSIDERATIONS for private groups:
+ *  This demo hard codes the list of private groups but in a production chat solution
+ *  users should be added and removed from private groups by an authorized endpoint.
+ *  Typically this would be done on the server side, in conjunction with the access manager
+ *  ensuring that only authorized users are added to specific groups and controlling requests to be 
+ *  added to new groups.
+ *  A group will map to a channel.  Although you can choose any naming convention for your channel, 
+ *  recommendations exist in the documentation.  For private groups, the recommendation is to use Private.<channel name> 
+ *  for the channel name
+ *  You can still use PubNub Objects to organize which channels your users are members of.
+ */
+
 async function getPrivateGroupList () {
   var privateGroupList = ''
 
@@ -614,7 +610,7 @@ async function getPrivateGroupList () {
   document.getElementById('groupListPrivate').innerHTML = privateGroupList
 }
 
-//  Handler for when a user is selected in the 1:1 chat window
+//  Handler for when a user is selected in the 1:1 chat window.  Display the chat with that user
 async function launchDirectChat (withUserId) {
   //  Channel name of direct chats is just "DM.[userId1]&[userId2]" where userId1 / userId2 are defined by whoever is lexicographically earliest
   var userId1 = pubnub.getUserId()
@@ -632,7 +628,7 @@ async function launchDirectChat (withUserId) {
   openedCanvas.hide()
 }
 
-//  Handler for when a group is selected from the left hand pane
+//  Handler for when a public or private group is selected from the left hand pane
 async function launchGroupChat (channelName) {
   channel = channelName
   await populateChatWindow(channel)
@@ -662,6 +658,7 @@ async function lookupRemoteOneOneUser (channelName) {
   }
 }
 
+//  Update the right hand pane with the members of the group, i.e. members of the active channel
 function updateInfoPane () {
   //  We are always present in any chat we are viewing information for
   var memberListHtml = generateHtmlChatMember(
@@ -692,6 +689,7 @@ function updateInfoPane () {
   document.getElementById('chatInformation').innerHTML = chatInfo
 }
 
+//  HTML for a member in the info (right hand) pane
 function generateHtmlChatMember (userId, name, profileUrl, online) {
   var presenceClass = 'presence-dot-gray'
   if (online) presenceClass = 'presence-dot-online'
@@ -714,6 +712,7 @@ function generateHtmlChatMember (userId, name, profileUrl, online) {
   )
 }
 
+//  Given a channel, return the corresponding group name (from chat-constants.js)
 function lookupGroupName (channelName) {
   //  Look in the predefined groups
   for (const group of predefined_groups.groups) {
@@ -725,6 +724,7 @@ function lookupGroupName (channelName) {
   }
 }
 
+//  Given a channel, return the corresponding group description (from chat-constants.js)
 function lookupGroupDescription (channelName) {
   //  Only consider the predefined groups
   for (const group of predefined_groups.groups) {
@@ -752,7 +752,6 @@ function addContextHandler (element, callback) {
 
 //  Handler for when user right clicks or long presses the element
 async function onContextHandler (messageId) {
-  console.log(messageId)
   maAddEmojiReaction(messageId)
 }
 
@@ -793,20 +792,26 @@ async function locationInputAttachment(){
 }
 
 //////////////////////////////////////
-//  Right click handler and context menu
+//  Message Attachments
 
+//  Click handler for the attachment (paperclip) icon
 function messageInputAttachment () {
   const messageInput = document.getElementById('input-message')
 
+  //  Prompt the user to select a file
   var input = document.createElement('input')
   input.type = 'file'
 
   input.onchange = e => {
+    //  User has selected a file
     fileAttachment = e.target.files[0]
     if (fileAttachment == null) {
       //  User cancelled the attachment selection
       return
     } else if (fileAttachment.size > MAX_ATTACHMENT_FILE_SIZE) {
+      //  User file was too large.  1MB is an artificial limit imposed by this demo.
+      //  Actual PubNub limit is 5MB (soft limit), which can be increased by contacting support.
+      //  https://www.pubnub.com/docs/general/setup/limits#files
       errorMessage('Your file should be under 1MB')
       return
     } else if (
@@ -816,16 +821,15 @@ function messageInputAttachment () {
         fileAttachment.type == 'image/gif'
       )
     ) {
+      //  This demo is limited to image files, to keep things simple.  This is not a limitation of PubNub
       errorMessage('Please choose a JPG, PNG or GIF file')
       return
     } else {
       //  Attachment seems valid, read it in and show a resized version
-
       var reader = new FileReader()
       reader.readAsDataURL(fileAttachment)
       reader.onload = async readerEvent => {
         var content = readerEvent.target.result
-
         const img = new Image()
         img.src = content
         img.onload = async () => {
@@ -837,6 +841,8 @@ function messageInputAttachment () {
             content = await compressImage(content, newWidth, 200)
           }
 
+          //  Bit of a cheat but the easiest way to display the message is to just set it as the message
+          //  input box's background.  In a production app, your UX would be far superior!
           document.getElementById('input-message').style.backgroundImage =
             'url(' + content + ')'
           document.getElementById('input-message')
@@ -850,6 +856,7 @@ function messageInputAttachment () {
   input.click()
 }
 
+//  If the user has attached an image, make the input box larger so we can see it at a sensible size
 function messageBoxHasImage (hasImage) {
   const msgInput = document.getElementById('input-message');
   if (hasImage) {
@@ -861,6 +868,7 @@ function messageBoxHasImage (hasImage) {
   }
 }
 
+//  Resize the image to display it in the preview.  This does not resize the image sent to PubNub
 async function compressImage (src, newX, newY) {
   return new Promise((res, rej) => {
     const img = new Image()
@@ -878,6 +886,8 @@ async function compressImage (src, newX, newY) {
   })
 }
 
+//  Uploading a file can take some time, depending on your connection.  Provide
+//  feedback to the user.
 function messageSendingInProgress (inProgress) {
   if (inProgress) {
     isMessageSendingInProgress = true
@@ -888,12 +898,12 @@ function messageSendingInProgress (inProgress) {
   }
 }
 
+//  User has pressed the send button or pressed return in the input field.
 async function messageInputSend () {
   var messageInput = document.getElementById('input-message')
   var messageText = messageInput.value
   if (isMessageSendingInProgress) {
     //  Prevent duplicate sends
-    //  In Production, you would want to show a loading cursor here
     console.log('send alredy in progress')
     return
   }
@@ -902,17 +912,24 @@ async function messageInputSend () {
   if (messageInput.style.backgroundImage != '' && fileAttachment != null) {
     //  Message contains an image, upload it to PubNub
     //  With large images, it would be far better to perform the upload asynchronously
+    //  but this demo keeps things simple
     try {
-      //  The image is OK, upload it to PubNub
+      //  Upload the file using the PubNub file API
       const uploadedFile = await pubnub.sendFile({
         channel: channel,
         file: fileAttachment
       })
+      //  Once the file is uploaded, get the URL of the file, stored in PubNub storage.
+      //  In production, you would use Access Manager to ensure that only authorized users have access to 
+      //  desired files. 
       fileUrl = await pubnub.getFileUrl({
         channel: channel,
         id: uploadedFile.id,
         name: uploadedFile.name
       })
+      //  Images in this demo are moderated.  Moderation will delete images deemed inappropriate and is implemented
+      //  using PubNub functions.  In production, you might want to save the image for record keeping purposes rather than
+      //  just deleting it.
       if (!(await imageExists(fileUrl))) {
         errorMessage('Image moderation failed and has been deleted')
         fileUrl = null
@@ -924,6 +941,7 @@ async function messageInputSend () {
   }
   if (messageText !== '' || fileUrl !== null || currentLocation !== null) {
     try {
+      //  Publish the message to PubNub.  Message text plus the URL of any file attachment, which will be null if there is no attachment
       await pubnub.publish({
         channel: channel,
         storeInHistory: true,

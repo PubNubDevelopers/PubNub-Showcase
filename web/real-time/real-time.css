@@ -1,0 +1,48 @@
+body {
+    display: flex;
+    flex-flow: column;
+    height: 100vh
+}
+
+a {
+    text-decoration: none;
+}
+
+.stream-selection {
+    background-color: #FFFFFF;
+}
+
+.stream-option {
+    font-size: large;
+    padding-bottom: 3px;
+    padding-top: 3px;
+}
+
+.rt-message-container {
+    padding-bottom:5px;
+}
+
+.rt-title {
+    font-weight: 600;
+    font-style: italic;
+    padding-right: 5px;
+}
+
+.rt-sub-title {
+    font-weight: 600;
+}
+
+.message-list {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    overflow: scroll;
+    flex-direction: column-reverse
+}
+
+.message-list-contents {
+    width: 100%;
+    flex-direction: column;
+    display: flex;
+}
+

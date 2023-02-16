@@ -3,6 +3,7 @@
  * For notes about transitioning between this demo and a production app, see chat.js.
  */
 
+//  Handler for the PubNub message event
 async function messageReceived (messageObj) {
   try {
     if (messageObj.channel != channel) {
@@ -12,11 +13,12 @@ async function messageReceived (messageObj) {
     }
     if (messageObj.message.message == null)
     {
-      //  The message does not have any text associated with it (for example, it is a file)
+      //  The message does not have any text associated with it (for example, it is a file
+      //  which has trigged this function as a result of pubnub.sendFile())
       return
     }
 
-    //  If we don't have the information about the message sender cached, retrieve that from objects
+    //  If we don't have the information about the message sender cached, retrieve that from objects and update our cache
     if (channelMembers[messageObj.publisher] == null) {
       try {
         const result = await getUUIDMetaData(messageObj.publisher)
@@ -28,10 +30,7 @@ async function messageReceived (messageObj) {
           )
         }
       } catch (e) {
-        console
-          .log
-          //  Lookup of unknown uuid failed - they probably logged out and cleared objects: '
-          ()
+        //  Lookup of unknown uuid failed - they probably logged out and cleared objects
       }
     }
 
@@ -45,15 +44,19 @@ async function messageReceived (messageObj) {
       ) {
         messageIsRead = true
       }
+      //  The sent and received messages have slightly different styling, ergo different HTML
       messageDiv = createMessageSent(messageObj, messageIsRead)
+      //  Add right-click and long press handler to the message.
       addContextHandler(messageDiv, onContextHandler)
     } else {
+      //  The sent and received messages have slightly different styling, ergo different HTML
       messageDiv = createMessageReceived(messageObj)
+      //  Add right-click and long press handler to the message.
       addContextHandler(messageDiv, onContextHandler)
 
       //  Add a message action that we have read the message, if one does not already exist.
-      //  This is very simplistic, once any user has read the message in the group, the message is marked as read
-      //  In production, you will want to have separate read receipts for each individual
+      //  This is very simplistic, once ANY user in the recipient group has read the message, the message is marked as read
+      //  In production, you will want to have separate read receipts for each individual in the group
       if (messageObj.actions == null || messageObj.actions.read == null) {
         //  We did not find a read message action for our message, add one
         pubnub.addMessageAction({
@@ -74,9 +77,9 @@ async function messageReceived (messageObj) {
     }
     document.getElementById('messageListContents').appendChild(messageDiv)
 
+    //  DCC
     scrollChatToEnd()
 
-    //  todo create long press handler for this message
   } catch (e) {
     console.log('Exception during message reception: ' + e)
   }
@@ -85,6 +88,7 @@ async function messageReceived (messageObj) {
 //////////////////////
 //  Generate the HTML for message objects
 
+//  HTML for messages we have sent ourselves
 function createMessageSent (messageObj, messageIsRead) {
   var readIcon = 'bi-check'
   if (messageIsRead) {
@@ -134,6 +138,7 @@ function createMessageSent (messageObj, messageIsRead) {
   return newMsg
 }
 
+//  HTML for messages we have received
 function createMessageReceived (messageObj) {
   var profileUrl = '../img/avatar/placeholder.png'
   var name = 'pending...'
@@ -163,6 +168,7 @@ function createMessageReceived (messageObj) {
   return newMsg
 }
 
+//  Wrapper function to cater for whether the message had an associated image
 function messageContents(messageData)
 {
   if (messageData.attachment != null)
@@ -179,6 +185,8 @@ function messageContents(messageData)
 //////////////////////
 //  Mesasge count logic
 
+//  Use the pubnub.messageCounts() API to determine how many unread messages there are in each channel
+//  that were received prior to us subscribing to the channel.
 async function updateMessageCountFirstLoad () {
   var lastLoadTimestamp = sessionStorage.getItem('chatLastLoadTimestamp')
   if (lastLoadTimestamp == null) {
@@ -201,10 +209,11 @@ async function updateMessageCountFirstLoad () {
 }
 
 function incrementChannelUnreadCounter (channel) {
-  //  Just use the span text to track the current value and incremenet it (indicated by -1)
+  //  Just use the span text to track the current value and increment it (indicated by -1)
   setChannelUnreadCounter(channel, -1)
 }
 
+//  Update unread message indicator for the specified channel
 function setChannelUnreadCounter (channel, count) {
   try {
     channel = channel.replace(pubnub.getUserId(), '')
@@ -230,6 +239,7 @@ function setChannelUnreadCounter (channel, count) {
   }
 }
 
+//  Convert PubNub timetoken to a human readable date
 function convertTimetokenToDate (timetoken) {
   var timestamp = new Date(timetoken / 10000)
   return (

@@ -77,9 +77,6 @@ async function messageReceived (messageObj) {
     }
     document.getElementById('messageListContents').appendChild(messageDiv)
 
-    //  DCC
-    scrollChatToEnd()
-
   } catch (e) {
     console.log('Exception during message reception: ' + e)
   }

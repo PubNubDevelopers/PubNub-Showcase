@@ -256,28 +256,6 @@ async function loadChat () {
   updatePresenceInfoFirstLoad()
 }
 
-//  DCC
-//  Should be able to get rid of this with better use of flexbox
-function repositionMessageList () {
-  //  Position the message list
-  var top = document.getElementById('header').offsetHeight
-  var bottom = document.getElementById('bottomNav').offsetHeight
-  var messageListDiv = document.getElementById('messageList')
-  messageListDiv.style.top = top
-  messageListDiv.style.bottom = bottom
-
-  var emojiPicker = document.getElementById('emojiPicker')
-  var navbarBottom = document.getElementById('bottomNav').offsetHeight
-  emojiPicker.style.bottom = navbarBottom
-}
-
-//  Always show the newest message
-function scrollChatToEnd () {
-  var messageListDiv = document.getElementById('messageList')
-  messageListDiv.scrollTop = messageListDiv.scrollHeight
-}
-
-
 //  Very large method to handle all the logic of populating the chat window with the chat
 //  associated with the specified channel
 async function populateChatWindow (channelName) {
@@ -335,10 +313,6 @@ async function populateChatWindow (channelName) {
 
     //  The current channel members are shown in the right hand pane
     updateInfoPane()
-
-    //  Account for header potentially growing with group name.  Should be able to remove this with a better use of flexbox
-    //  DCC
-    repositionMessageList()
 
     //  Load channel history
     const history = await pubnub.fetchMessages({

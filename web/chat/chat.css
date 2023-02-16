@@ -1,18 +1,23 @@
-.header {
-    position: fixed;
-    top: 0
+body {
+    display: flex;
+    flex-flow: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
+
 .message-list {
-    position:absolute;
-    top:0px;
-    bottom:0px;
-    overflow:scroll
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    overflow: scroll;
+    flex-direction: column-reverse
 }
 
 .message-list-contents {
-    width:100%;
-    flex-direction:column
+    width: 100%;
+    flex-direction: column;
+    display: flex;
 }
 
 .user-list {
@@ -164,9 +169,10 @@
 }
 
 .emoji-picker {
-    z-index:1;
-    position:absolute;
-    visibility:hidden
+    z-index: 1;
+    bottom: 150px;
+    position: absolute;
+    visibility: hidden
 }
 
 #chatInformation {

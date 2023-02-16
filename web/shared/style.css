@@ -24,7 +24,6 @@ body {
 .bottom-nav-item {
     background: var(--demo-primary);
     color: var(--demo-text-white);
-    font-weight: bold;
     font-size: 1.5em;
     text-align: center;
     padding: 5px;

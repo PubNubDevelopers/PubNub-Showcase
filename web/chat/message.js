@@ -165,14 +165,27 @@ function createMessageReceived (messageObj) {
 
 function messageContents(messageData)
 {
-  if (messageData.attachment != null)
-  {
-    //  There was an image attachment with the message
-    var imageRender = "<img src='" + messageData.attachment + "' height='200'><br>"
-    return imageRender + messageData.message
+  try{
+    if (messageData.attachment != null)
+    {
+      //  There was an image attachment with the message
+      var imageRender = "<img src='" + messageData.attachment + "' height='200'><br>"
+      return imageRender + messageData.message
+    }
+    else if (messageData.currentLocation != null){
+      var lat = messageData.currentLocation.lat;
+      var lng = messageData.currentLocation.lng;
+      var url = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=6&size=200x200&scale=1.5&key=AIzaSyDyl7ItKt5viBBju5Rwsqwrii5soyWUzp0`;
+
+      var imageRender = "<img src='" + url + "' height='200'><br>"
+      return imageRender + messageData.message;
+    }
+    else{
+      return messageData.message
+    }
   }
-  else{
-    return messageData.message
+  catch(e){
+    console.log("Error: " + e);
   }
 }
 

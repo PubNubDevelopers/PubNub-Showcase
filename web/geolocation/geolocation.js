@@ -39,6 +39,8 @@ var map = null;
 var mark = [];
 // Decoder for lat lng positioning
 var geocoder = null;
+// Track current location
+var currentLocation = null;
 
 /*
 .########.##.....##.##....##..######..########.####..#######..##....##..######.
@@ -70,6 +72,7 @@ async function initialize () {
     loadLastLocations();
     initalizeMapSearch();
     findLocation();
+    initiateShare();
 }
 
 function initPubNubUserToChannelMembers(){
@@ -131,6 +134,10 @@ async function showPosition(position) {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
     };
+    currentLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+    }
     map.setCenter(pos);
     map.setZoom(3);
     const decode = await geocoder.geocode({ location: pos });
@@ -158,6 +165,10 @@ async function showPosition(position) {
 }
 
 function showNewPosition(position) {
+    currentLocation = {
+        lat: position.geometry.location.lat(),
+        lng: position.geometry.location.lng(),
+    }
     pubnub.publish({
         channel: geoChannel,
         message: {
@@ -380,8 +391,6 @@ async function loadLastLocations() {
 
 var redraw = function(payload) {
     if (payload.channel == geoChannel) {
-        console.log(channelMembers);
-        console.log(payload);
         var img = channelMembers[payload.message.uuid].profileUrl;
         const image = {
             url: img,
@@ -471,18 +480,11 @@ function displayPosition(payload){
         scaledSize: new google.maps.Size(30, 30),
     };
 
-    let shape = {
-        coords: [25, 25, 25],
-        type: 'circle'
-    };
-
     mark[payload.uuid] = new google.maps.Marker({
         position: loc,
         map: map,
         icon: image,
         animation: google.maps.Animation.DROP,
-        shape: shape,
-        optimized: true,
         label: {
             text: payload.message.name,
             color: "#000000",
@@ -510,12 +512,18 @@ function displayPosition(payload){
     mark[payload.uuid].setMap(map);
 }
 
-// function toggleBounce(marker) {
-//     if (marker.getAnimation() != null) {
-//         marker.setAnimation(null);
-//     } else {
-//         marker.setAnimation(google.maps.Animation.BOUNCE);
-//     }
-// }
+function initiateShare(){
+    var shareButton = document.getElementById("share-button");
+    shareButton.addEventListener('click', () => {
+        console.log("Button Clicked");
+        if(currentLocation != null && currentLocation.lng != null && currentLocation.lat != null){
+            console.log("Setting Item");
+            localStorage.setItem('current-location-lat', currentLocation.lat);
+            localStorage.setItem("current-location-lng", currentLocation.lng);
+            localStorage.setItem('current-location-formatted-address', lastLocation);
+            window.location.href = '../chat/chat.html';
+        }
+    })
+}
 
 

@@ -1,11 +1,6 @@
 
 async function messageReceived(payload){
-	console.log("Received Message");
 	if(payload.channel.includes(pubnub.getUUID())){
-		console.log("Channel Includes UUID");
-		console.log(mark);
-		console.log(payload);
-		console.log(payload.publisher);
 		if(mark.hasOwnProperty(payload.publisher)){
 			console.log("Mark has Property");
 			// Show Message

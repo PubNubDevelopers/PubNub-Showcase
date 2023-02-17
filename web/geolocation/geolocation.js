@@ -39,6 +39,10 @@ var map = null;
 var mark = [];
 // Decoder for lat lng positioning
 var geocoder = null;
+// Track current location
+var currentLocation = null;
+// Location that was previously shared
+var sharedLocation = null;
 
 /*
 .########.##.....##.##....##..######..########.####..#######..##....##..######.
@@ -70,6 +74,7 @@ async function initialize () {
     loadLastLocations();
     initalizeMapSearch();
     findLocation();
+    initiateShare();
 }
 
 function initPubNubUserToChannelMembers(){
@@ -128,6 +133,10 @@ async function showPosition(position) {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
     };
+    currentLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+    };
     map.setCenter(pos);
     map.setZoom(3);
     const decode = await geocoder.geocode({ location: pos });
@@ -155,6 +164,10 @@ async function showPosition(position) {
 }
 
 function showNewPosition(position) {
+    currentLocation = {
+        lat: position.geometry.location.lat(),
+        lng: position.geometry.location.lng(),
+    };
     pubnub.publish({
         channel: geoChannel,
         message: {
@@ -491,6 +504,32 @@ function displayPosition(payload){
 
 
     mark[payload.uuid].setMap(map);
+}
+
+function initiateShare(){
+    var shareButton = document.getElementById("share-button");
+    shareButton.addEventListener('click', () => {
+        console.log("Publishing");
+        if(currentLocation != null && currentLocation.lng != null && currentLocation.lat != null){
+            if(sharedLocation != currentLocation){
+                sharedLocation = currentLocation;
+                var url = `https://maps.googleapis.com/maps/api/staticmap?center=${currentLocation.lat},${currentLocation.lng}&zoom=6&size=200x200&scale=1.5&key=AIzaSyDyl7ItKt5viBBju5Rwsqwrii5soyWUzp0`;
+                pubnub.publish({
+                    channel: 'Public.location-chat',
+                    storeInHistory: true,
+                    message: {
+                        message: `Hello, my location is ${lastLocation}`,
+                        attachment: url
+                    }
+                });
+                // Navigate to chat
+                window.location.href = '../chat/chat.html';
+            }
+        }
+        else{
+            alert('Please select a location')
+        }
+    })
 }
 
 

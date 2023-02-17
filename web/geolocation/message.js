@@ -24,9 +24,9 @@ async function messageReceived(payload){
 				travelHistory[payload.timetoken] = payload.message.address;
 				var div = document.createElement("div");
 				div.classList.add("card");
-				div.appendChild(document.createTextNode(payload.message.address));
+				div.prepend(document.createTextNode(payload.message.address));
 				var ul = document.getElementById("history-list");
-				ul.appendChild(div);
+				ul.prepend(div);
 			}
 			redraw(payload);
 		}

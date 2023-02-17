@@ -347,10 +347,12 @@ async function loadLastLocations() {
         channels: [geoChannel],
         count: 100,
         includeUUID: true,
-        includeMessageActions: true
+        includeMessageActions: true,
     });
+    console.log(history);
     if (history.channels[geoChannel] != null) {
-        for (const historicalMsg of history.channels[geoChannel]) {
+        for(var i = history.channels[geoChannel].length - 1; i >= 0; i--) {
+            historicalMsg = history.channels[geoChannel][i];
             historicalMsg.publisher = historicalMsg.uuid;
             if(historicalMsg.message && historicalMsg.message.address && historicalMsg.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(historicalMsg.timetoken)){
                 if(lastLocation == null){

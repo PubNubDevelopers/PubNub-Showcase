@@ -63,7 +63,7 @@ async function initialize () {
     pubnub = createPubNubObject();
     await getUserMetadataSelf();
     initMap();
-    pubnub.subscribe({channels: [geoChannel], withPresence: true});
+    pubnub.subscribe({channels: ['DM.*', geoChannel], withPresence: true});
     await populateChannelMembers();
     initPubNubUserToChannelMembers();
     await activatePubNubListener();
@@ -73,9 +73,6 @@ async function initialize () {
 }
 
 function initPubNubUserToChannelMembers(){
-    console.log(me.name);
-    console.log(me.profileUrl);
-    console.log(pubnub.getUUID());
     channelMembers[pubnub.getUUID()] = {
         name: me.name,
         profileUrl: me.profileUrl
@@ -172,20 +169,8 @@ function showNewPosition(position) {
 async function activatePubNubListener(){
     pnListener = pubnub.addListener({
         message: (payload) => {
-            try{
-                if(payload.message && payload.message.address && payload.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(payload.timetoken)){
-                    travelHistory[payload.timetoken] = payload.message.address;
-                    var div = document.createElement("div");
-                    div.classList.add("card");
-                    div.appendChild(document.createTextNode(payload.message.address));
-                    var ul = document.getElementById("history-list");
-                    ul.appendChild(div);
-                }
-                redraw(payload);
-            }
-            catch(e){
-                console.log(e);
-            }
+            console.log("RECEIVED");
+            messageReceived(payload);
         },
         objects: async objectEvent => {
             if (
@@ -380,8 +365,6 @@ async function loadLastLocations() {
 
 var redraw = function(payload) {
     if (payload.channel == geoChannel) {
-        console.log(channelMembers);
-        console.log(payload);
         var img = channelMembers[payload.message.uuid].profileUrl;
         const image = {
             url: img,
@@ -504,18 +487,10 @@ function displayPosition(payload){
                 infowindow.close();
             });
         };
-    })(content,infowindow));
+    })(content, infowindow));
 
 
     mark[payload.uuid].setMap(map);
 }
-
-// function toggleBounce(marker) {
-//     if (marker.getAnimation() != null) {
-//         marker.setAnimation(null);
-//     } else {
-//         marker.setAnimation(google.maps.Animation.BOUNCE);
-//     }
-// }
 
 

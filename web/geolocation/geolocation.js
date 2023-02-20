@@ -1,3 +1,5 @@
+
+
 /*
 ..######...#######..##....##..######..########
 .##....##.##.....##.###...##.##....##....##...
@@ -182,7 +184,6 @@ function showNewPosition(position) {
 async function activatePubNubListener(){
     pnListener = pubnub.addListener({
         message: (payload) => {
-            console.log("RECEIVED");
             messageReceived(payload);
         },
         objects: async objectEvent => {
@@ -349,7 +350,6 @@ async function loadLastLocations() {
         includeUUID: true,
         includeMessageActions: true,
     });
-    console.log(history);
     if (history.channels[geoChannel] != null) {
         for(var i = history.channels[geoChannel].length - 1; i >= 0; i--) {
             historicalMsg = history.channels[geoChannel][i];
@@ -378,140 +378,9 @@ async function loadLastLocations() {
     }
 }
 
-var redraw = function(payload) {
-    if (payload.channel == geoChannel) {
-        var img = channelMembers[payload.message.uuid].profileUrl;
-        const image = {
-            url: img,
-            scaledSize: new google.maps.Size(30, 30),
-        };
-        var lat = payload.message.lat;
-        var lng = payload.message.lng;
-        var uuid = payload.message.uuid;
-        var displayName = payload.message.name;
-        var lastseen = new Date(payload.timetoken.substring(0, 10)*1000);
-        loc = new google.maps.LatLng(lat, lng);
-            if (mark[uuid] && mark[uuid].setMap) {
-                mark[uuid].setMap(null);
-            }
-            mark[uuid] = new google.maps.Marker({
-                position:loc,
-                map:map,
-                icon: image,
-                animation: google.maps.Animation.DROP,
-                label: {
-                    text: displayName,
-                    color: "#000000",
-                }
-            });
-
-            var content = "Name: " + displayName + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + lat +  '<br>' + "Long: " + lng +  '<br>';
-
-            var infowindow = new google.maps.InfoWindow();
-
-            var markdata = mark[uuid];
-
-            google.maps.event.addListener(mark[uuid], 'click', (function(markdata,content,infowindow){
-                return function() {
-                    infowindow.setContent(content);
-                    infowindow.open(map,markdata);
-                    google.maps.event.addListener(map,'click', function(){
-                        infowindow.close();
-                    });
-                };
-            })(markdata,content,infowindow));
-
-        mark[uuid].setMap(map);
-    }
-};
-
-function initalizeMapSearch(){
-    // Initialize Map Search
-    const card = document.getElementById("pac-card");
-    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
-    const input = document.getElementById("pac-input");
-    const autocomplete = new google.maps.places.Autocomplete(input);
-    const southwest = { lat: 5.6108, lng: 136.589326 };
-    const northeast = { lat: 61.179287, lng: 2.64325 };
-    const newBounds = new google.maps.LatLngBounds(southwest, northeast);
-    autocomplete.setBounds(newBounds);
-    var infowindow = new google.maps.InfoWindow();
-    const infowindowContent = document.getElementById("infowindow-content");
-    infowindow.setContent(infowindowContent);
-    geocoder = new google.maps.Geocoder();
-
-
-    autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        if(lastLocation == place.formatted_address){
-            return;
-        }
-        lastLocation = place.formatted_address;
-        if (!place.geometry || !place.geometry.location) {
-            // User entered the name of a Place that was not suggested and
-            // pressed the Enter key, or the Place Details request failed.
-            window.alert("No details available for input: '" + place.name + "'");
-            return;
-        }
-
-        map.setCenter(place.geometry.location);
-        map.setZoom(3);
-
-        showNewPosition(place);
-    });
-}
-
-function displayPosition(payload){
-    loc = new google.maps.LatLng(payload.message.lat, payload.message.lng);
-    var img = channelMembers[payload.uuid].profileUrl;
-    const image = {
-        url: img,
-        scaledSize: new google.maps.Size(30, 30),
-    };
-
-    let shape = {
-        coords: [25, 25, 25],
-        type: 'circle'
-    };
-
-    mark[payload.uuid] = new google.maps.Marker({
-        position: loc,
-        map: map,
-        icon: image,
-        animation: google.maps.Animation.DROP,
-        shape: shape,
-        optimized: true,
-        label: {
-            text: payload.message.name,
-            color: "#000000",
-        }
-    });
-
-    var lastseen = new Date(payload.timetoken / 10000000);
-
-    var content = "Name: " + payload.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + payload.message.lat +  '<br>' + "Long: " + payload.message.lng;
-
-    var infowindow = new google.maps.InfoWindow();
-
-    google.maps.event.addListener(mark[payload.uuid], 'click', (function(content,infowindow){
-        return function() {
-            // toggleBounce(mark[payload.uuid]);
-            infowindow.setContent(content);
-            infowindow.open(map, mark[payload.uuid]);
-            google.maps.event.addListener(map,'click', function(){
-                infowindow.close();
-            });
-        };
-    })(content, infowindow));
-
-
-    mark[payload.uuid].setMap(map);
-}
-
 function initiateShare(){
     var shareButton = document.getElementById("share-button");
     shareButton.addEventListener('click', () => {
-        console.log("Publishing");
         if(currentLocation != null && currentLocation.lng != null && currentLocation.lat != null){
             if(sharedLocation != currentLocation){
                 sharedLocation = currentLocation;

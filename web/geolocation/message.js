@@ -2,7 +2,6 @@
 async function messageReceived(payload){
 	if(payload.channel.includes(pubnub.getUUID())){
 		if(mark.hasOwnProperty(payload.publisher)){
-			console.log("Mark has Property");
 			// Show Message
 			try{
 				var infoMessage = "<b>Message delivered via PubNub</b> <br></br>";
@@ -28,7 +27,7 @@ async function messageReceived(payload){
 				var ul = document.getElementById("history-list");
 				ul.prepend(div);
 			}
-			redraw(payload);
+			displayPosition(payload);
 		}
 		catch(e){
 			console.log(e);

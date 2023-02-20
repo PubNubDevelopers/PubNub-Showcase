@@ -1,27 +1,13 @@
-
-
-/*
-..######...#######..##....##..######..########
-.##....##.##.....##.###...##.##....##....##...
-.##.......##.....##.####..##.##..........##...
-.##.......##.....##.##.##.##..######.....##...
-.##.......##.....##.##..####.......##....##...
-.##....##.##.....##.##...###.##....##....##...
-..######...#######..##....##..######.....##...
+/**
+* - With PubNub you can implement any real-time solution possible.
+* - In this code base, we will explore how you would update real-time Geolocation events and redraw users’ locations on Google Maps.
 */
 
-var geoChannel = "GeoChannel"; // Channel
-const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
+// This channel receives updates (lat, lng) on user posiitions
+var GEO_CHANNEL = "GeoChannel";
 
-/*
-..######..########....###....########.########
-.##....##....##......##.##......##....##......
-.##..........##.....##...##.....##....##......
-..######.....##....##.....##....##....######..
-.......##....##....#########....##....##......
-.##....##....##....##.....##....##....##......
-..######.....##....##.....##....##....########
-*/
+// If the updated position is older then 24 hours old ignore the update
+const IGNORE_USER_AFTER_THIS_DURATION = 24
 
 //  Connection to the PubNub API
 var pubnub = null;
@@ -46,39 +32,43 @@ var currentLocation = null;
 // Location that was previously shared
 var sharedLocation = null;
 
-/*
-.########.##.....##.##....##..######..########.####..#######..##....##..######.
-.##.......##.....##.###...##.##....##....##.....##..##.....##.###...##.##....##
-.##.......##.....##.####..##.##..........##.....##..##.....##.####..##.##......
-.######...##.....##.##.##.##.##..........##.....##..##.....##.##.##.##..######.
-.##.......##.....##.##..####.##..........##.....##..##.....##.##..####.......##
-.##.......##.....##.##...###.##....##....##.....##..##.....##.##...###.##....##
-.##........#######..##....##..######.....##....####..#######..##....##..######.
-*/
-
 window.addEventListener('beforeunload', function () {
     pubnub.unsubscribeAll()
 })
 
+// Called on page load
 async function initialize () {
     // Declarations
     channelMembers = {};
     displayedMembers = {};
     travelHistory = {};
-    // Intialize PubNub Object
-    pubnub = createPubNubObject();
-    await getUserMetadataSelf();
+
+    // Display Google Maps
     initMap();
-    pubnub.subscribe({channels: ['DM.*', geoChannel], withPresence: true});
-    await populateChannelMembers();
-    initPubNubUserToChannelMembers();
-    await activatePubNubListener();
-    loadLastLocations();
-    initalizeMapSearch();
-    findLocation();
-    initiateShare();
+
+    //  PubNub object - connection with the PubNub infrastructure
+    pubnub = createPubNubObject();
+    await getUserMetadataSelf(); // Populate own metadata for locaition pop-up
+    await populateChannelMembers(); // Populate channel members so we can access any metadata for users in the GEO_CHANNEL
+    initPubNubUserToChannelMembers(); // Add own metadata in channelMembers variable
+    await activatePubNubListener(); // Listen to channels GEO_CHANNEL and DM.* for any updates
+    loadLastLocations(); // Populate history of updates in the GEO_CHANNEL
+
+    //  Subscribing to all possible channels we will want to know about.
+    //  Need to know about GEO_CHANNEL and DM.* channels so we can update positions on the map, well displaying direct messages on the map when received
+    //  Using the recommended naming convention:
+    //  Public.<name> for public groups
+    //  Private.<name> for private groups
+    //  DM.A&B for direct messages between two users
+    pubnub.subscribe({channels: ['DM.*', GEO_CHANNEL], withPresence: true}); // Subscribe
+
+    // Initialize Map Listeners
+    initalizeMapSearch(); // Initalize Place search
+    findLocation(); // Find Current Location Button
+    initiateShare(); // Share Location Button
 }
 
+// Add login user MetaData to the channelMembers map
 function initPubNubUserToChannelMembers(){
     channelMembers[pubnub.getUUID()] = {
         name: me.name,
@@ -93,14 +83,13 @@ async function getUserMetadataSelf () {
         uuid: pubnub.getUUID()
     })
         me = result.data;
-        // document.getElementById('currentUser').innerText = me.name + ' (You)'
-        // document.getElementById('avatar').src = me.profileUrl
     } catch (e) {
-      //  Some error retrieving our own meta data - probably the objects were deleted, therefore log off (possible duplicate tab)
+        //  Some error retrieving our own meta data - probably the objects were deleted, therefore log off (possible duplicate tab)
         location.href = '../index.html'
     }
 }
 
+// Display Google Maps canvas
 function initMap(){
     var myLatlng = new google.maps.LatLng(37.7749,122.4194);
     map = new google.maps.Map(document.getElementById('map-canvas'), {
@@ -109,6 +98,7 @@ function initMap(){
     });
 }
 
+// Get MetaData for a new user that has joined the channel
 async function getUUIDMetaData (userId) {
     const result = await pubnub.objects.getUUIDMetadata({
         uuid: userId
@@ -116,7 +106,7 @@ async function getUUIDMetaData (userId) {
     return result
 }
 
-// Get either the current location or the location input
+// Get the current location for a user
 function findLocation(){
     const position = document.getElementById("enter-button");
     position.addEventListener('click', () => {
@@ -129,19 +119,21 @@ function findLocation(){
     })
 }
 
-// Add position as a channel member
+// Decode the current location position and publish it to PubNub
+// Positions when published are in the form lat, and lng
 async function showPosition(position) {
-    const pos = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-    };
+    // Get coordinates from position object
     currentLocation = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
     };
-    map.setCenter(pos);
+
+    // Zoom map in and center location
+    map.setCenter(currentLocation);
     map.setZoom(3);
-    const decode = await geocoder.geocode({ location: pos });
+
+    // Decode position address using Google Maps Geocode
+    const decode = await geocoder.geocode({ location: currentLocation });
     var formatted_address;
     try{
         formatted_address = decode.results[0].formatted_address;
@@ -152,9 +144,13 @@ async function showPosition(position) {
     if(lastLocation == formatted_address){
         return;
     }
+
+    // Set lastLocation if user decides to share the locaiton next
     lastLocation = formatted_address;
+
+    // Publish the new location to PubNub, including lat, lng, address, and metadata
     pubnub.publish({
-        channel: geoChannel,
+        channel: GEO_CHANNEL,
         message: {
             uuid:pubnub.getUUID(),
             name: me.name,
@@ -165,13 +161,15 @@ async function showPosition(position) {
     });
 }
 
+// Publish a searched position to PubNub
+// Positions when published are in the form lat, and lng
 function showNewPosition(position) {
     currentLocation = {
         lat: position.geometry.location.lat(),
         lng: position.geometry.location.lng(),
     };
     pubnub.publish({
-        channel: geoChannel,
+        channel: GEO_CHANNEL,
         message: {
         uuid: pubnub.getUUID(),
         name: me.name,
@@ -181,6 +179,7 @@ function showNewPosition(position) {
     }});
 }
 
+// Listen to PubNub events (message events, object events)
 async function activatePubNubListener(){
     pnListener = pubnub.addListener({
         message: (payload) => {
@@ -258,9 +257,11 @@ async function activatePubNubListener(){
     })
 }
 
+//  Get the meta data for other users in the GEO_CHANNEL.  This will be stored locally for efficiency.
+// If we see a new user after the GeoLocaiton Demo is loaded, that user's data will be loaded dynamically as needed
 async function populateChannelMembers(){
     const result = await pubnub.objects.getChannelMembers({
-        channel: geoChannel,
+        channel: GEO_CHANNEL,
         sort: { updated: 'desc' },
         include: {
             UUIDFields: true
@@ -286,6 +287,7 @@ async function populateChannelMembers(){
         }
     }
 
+    // If channelMembers doesn't contain login users metadata
     if(!channelMembers.hasOwnProperty(pubnub.getUUID())){
         setChannelMember();
     }
@@ -308,9 +310,10 @@ function addUserToCurrentChannel (userId, name, profileUrl) {
     }
 }
 
+// If the login user is new to the channel set the users meta data using PubNub Objects so it can be later received
 async function setChannelMember(){
     await pubnub.objects.setChannelMembers({
-        channel: geoChannel,
+        channel: GEO_CHANNEL,
         uuids: [
             pubnub.getUUID(),
             {
@@ -330,6 +333,7 @@ async function setChannelMember(){
     });
 }
 
+// Track which users have currently been displayed on the map
 function addToDisplayedUsers(userId){
     displayedMembers[userId] = true;
 }
@@ -343,23 +347,30 @@ function removeUserFromGeoChannel (userId) {
 
 /// Populates the map with the last locations seen in the channel
 async function loadLastLocations() {
+    // Refresh travelHistory
     travelHistory = {};
+
+    // Get the last 100 GEO_CHANNEL updates/messages
     const history = await pubnub.fetchMessages({
-        channels: [geoChannel],
+        channels: [GEO_CHANNEL],
         count: 100,
         includeUUID: true,
         includeMessageActions: true,
     });
-    if (history.channels[geoChannel] != null) {
-        for(var i = history.channels[geoChannel].length - 1; i >= 0; i--) {
-            historicalMsg = history.channels[geoChannel][i];
+
+    // Only populate history for the GEO_CHANNEL
+    if (history.channels[GEO_CHANNEL] != null) {
+        for(var i = history.channels[GEO_CHANNEL].length - 1; i >= 0; i--) {
+            historicalMsg = history.channels[GEO_CHANNEL][i];
             historicalMsg.publisher = historicalMsg.uuid;
             if(historicalMsg.message && historicalMsg.message.address && historicalMsg.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(historicalMsg.timetoken)){
                 if(lastLocation == null){
                     lastLocation = "Last Location";
-                    // Display position on the map
+                    // Display the users position on the map
                     displayPosition(historicalMsg);
                 }
+
+                // Add location to history list
                 travelHistory[historicalMsg.timetoken] = historicalMsg.message.address;
                 var div = document.createElement("div");
                 div.classList.add("card");
@@ -370,7 +381,7 @@ async function loadLastLocations() {
             if (channelMembers[historicalMsg.uuid] != null && !(displayedMembers.hasOwnProperty(historicalMsg.uuid))) {
                 addToDisplayedUsers(historicalMsg.uuid);
                 if (historicalMsg.message && historicalMsg.message.uuid != pubnub.getUUID()) {
-                    // Display position on the map
+                    // Display other users last position on the map
                     displayPosition(historicalMsg);
                 }
             }
@@ -378,13 +389,19 @@ async function loadLastLocations() {
     }
 }
 
+// Listen to the share button to publish a recent location in the Public.location-chat channel
+// This location will be able to be seen in chat demo under location updates in the menu
 function initiateShare(){
     var shareButton = document.getElementById("share-button");
     shareButton.addEventListener('click', () => {
         if(currentLocation != null && currentLocation.lng != null && currentLocation.lat != null){
             if(sharedLocation != currentLocation){
                 sharedLocation = currentLocation;
+
+                // Configure static google maps link
                 var url = `https://maps.googleapis.com/maps/api/staticmap?center=${currentLocation.lat},${currentLocation.lng}&zoom=6&size=200x200&scale=1.5&key=AIzaSyDyl7ItKt5viBBju5Rwsqwrii5soyWUzp0`;
+
+                // Publish static google maps link to the location updates chat
                 pubnub.publish({
                     channel: 'Public.location-chat',
                     storeInHistory: true,

@@ -1,7 +1,8 @@
+// This file Initializes searching locations using the Google Maps Place API
+// Displays positions using Markers in Google Maps
 
-
+// Initalize Map search using the Place API, Configure Geocoder.
 function initalizeMapSearch(){
-  // Initialize Map Search
   const card = document.getElementById("pac-card");
   map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
   const input = document.getElementById("pac-input");
@@ -21,7 +22,9 @@ function initalizeMapSearch(){
       if(lastLocation == place.formatted_address){
           return;
       }
+      // Set last location
       lastLocation = place.formatted_address;
+
       if (!place.geometry || !place.geometry.location) {
           // User entered the name of a Place that was not suggested and
           // pressed the Enter key, or the Place Details request failed.
@@ -29,13 +32,16 @@ function initalizeMapSearch(){
           return;
       }
 
+      // Configure map settings
       map.setCenter(place.geometry.location);
       map.setZoom(3);
 
+      // Publish new position to PubNub
       showNewPosition(place);
   });
 }
 
+// Display
 function displayPosition(payload){
   loc = new google.maps.LatLng(payload.message.lat, payload.message.lng);
   var img = channelMembers[payload.message.uuid].profileUrl;

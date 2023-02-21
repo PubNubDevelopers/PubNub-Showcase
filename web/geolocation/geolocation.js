@@ -417,6 +417,7 @@ function initiateShare(){
                         attachment: url
                     }
                 });
+                sessionStorage.setItem('activeChatChannel', 'Public.location-chat');
                 // Navigate to chat
                 window.location.href = '../chat/chat.html';
             }

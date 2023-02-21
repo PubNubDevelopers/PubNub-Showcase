@@ -8,14 +8,14 @@
 async function messageReceived(payload){
 	// If the channel indicates it is a direct message
 	if(payload.channel.includes(pubnub.getUUID())){
-		if(mark.hasOwnProperty(payload.publisher)){
+		if(mark.hasOwnProperty(pubnub.getUUID())){
 			// Show Message in a popup bubble above users marker
 			try{
 				var infoMessage = "<b>Message delivered via PubNub</b> <br></br>";
 				infoMessage += messageContents(payload.message);
 				var infowindow = new google.maps.InfoWindow();
 				infowindow.setContent(infoMessage);
-				infowindow.open(map, mark[payload.publisher]);
+				infowindow.open(map, mark[pubnub.getUUID()]);
 				await timeout(5);
 				infowindow.close();
 			}

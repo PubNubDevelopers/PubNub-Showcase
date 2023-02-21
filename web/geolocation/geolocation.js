@@ -48,11 +48,6 @@ async function initialize () {
 
     //  PubNub object - connection with the PubNub infrastructure
     pubnub = createPubNubObject();
-    await getUserMetadataSelf(); // Populate own metadata for locaition pop-up
-    await populateChannelMembers(); // Populate channel members so we can access any metadata for users in the GEO_CHANNEL
-    initPubNubUserToChannelMembers(); // Add own metadata in channelMembers variable
-    await activatePubNubListener(); // Listen to channels GEO_CHANNEL and DM.* for any updates
-    loadLastLocations(); // Populate history of updates in the GEO_CHANNEL
 
     //  Subscribing to all possible channels we will want to know about.
     //  Need to know about GEO_CHANNEL and DM.* channels so we can update positions on the map, well displaying direct messages on the map when received
@@ -61,6 +56,14 @@ async function initialize () {
     //  Private.<name> for private groups
     //  DM.A&B for direct messages between two users
     pubnub.subscribe({channels: ['DM.*', GEO_CHANNEL], withPresence: true}); // Subscribe
+
+    await getUserMetadataSelf(); // Populate own metadata for locaition pop-up
+    await populateChannelMembers(); // Populate channel members so we can access any metadata for users in the GEO_CHANNEL
+    initPubNubUserToChannelMembers(); // Add own metadata in channelMembers variable
+    await activatePubNubListener(); // Listen to channels GEO_CHANNEL and DM.* for any updates
+    await loadLastLocations(); // Populate history of updates in the GEO_CHANNEL
+
+
 
     // Initialize Map Listeners
     initalizeMapSearch(); // Initalize Place search
@@ -349,6 +352,10 @@ function removeUserFromGeoChannel (userId) {
 async function loadLastLocations() {
     // Refresh travelHistory
     travelHistory = {};
+
+    // Remove HTML Elements
+    var ul = document.getElementById("history-list");
+    while(ul.firstChild) ul.removeChild(ul.firstChild);
 
     // Get the last 100 GEO_CHANNEL updates/messages
     const history = await pubnub.fetchMessages({

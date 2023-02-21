@@ -43,45 +43,50 @@ function initalizeMapSearch(){
 
 // Display
 function displayPosition(payload){
-  loc = new google.maps.LatLng(payload.message.lat, payload.message.lng);
-  var img = channelMembers[payload.message.uuid].profileUrl;
-  const image = {
-      url: img,
-      scaledSize: new google.maps.Size(30, 30),
-  };
+  try{
+    loc = new google.maps.LatLng(payload.message.lat, payload.message.lng);
+    var img = channelMembers[payload.message.uuid].profileUrl;
+    const image = {
+        url: img,
+        scaledSize: new google.maps.Size(30, 30),
+    };
 
-  if (mark[payload.message.uuid] && mark[payload.message.uuid].setMap) {
-      mark[payload.message.uuid].setMap(null);
+    if (mark[payload.message.uuid] && mark[payload.message.uuid].setMap) {
+        mark[payload.message.uuid].setMap(null);
+    }
+    mark[payload.message.uuid] = new google.maps.Marker({
+        position: loc,
+        map: map,
+        icon: image,
+        animation: google.maps.Animation.DROP,
+        optimized: true,
+        label: {
+            text: payload.message.name,
+            color: "#000000",
+        }
+    });
+
+    var lastseen = new Date(payload.timetoken / 10000000);
+
+    var content = "Name: " + payload.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + payload.message.lat +  '<br>' + "Long: " + payload.message.lng;
+
+    var infowindow = new google.maps.InfoWindow();
+
+    google.maps.event.addListener(mark[payload.message.uuid], 'click', (function(content,infowindow){
+        return function() {
+            // toggleBounce(mark[payload.uuid]);
+            infowindow.setContent(content);
+            infowindow.open(map, mark[payload.uuid]);
+            google.maps.event.addListener(map,'click', function(){
+                infowindow.close();
+            });
+        };
+    })(content, infowindow));
+
+
+    mark[payload.message.uuid].setMap(map);
   }
-  mark[payload.message.uuid] = new google.maps.Marker({
-      position: loc,
-      map: map,
-      icon: image,
-      animation: google.maps.Animation.DROP,
-      optimized: true,
-      label: {
-          text: payload.message.name,
-          color: "#000000",
-      }
-  });
-
-  var lastseen = new Date(payload.timetoken / 10000000);
-
-  var content = "Name: " + payload.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + payload.message.lat +  '<br>' + "Long: " + payload.message.lng;
-
-  var infowindow = new google.maps.InfoWindow();
-
-  google.maps.event.addListener(mark[payload.uuid], 'click', (function(content,infowindow){
-      return function() {
-          // toggleBounce(mark[payload.uuid]);
-          infowindow.setContent(content);
-          infowindow.open(map, mark[payload.uuid]);
-          google.maps.event.addListener(map,'click', function(){
-              infowindow.close();
-          });
-      };
-  })(content, infowindow));
-
-
-  mark[payload.message.uuid].setMap(map);
+  catch(e){
+    console.log(e);
+  }
 }

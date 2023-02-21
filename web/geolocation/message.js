@@ -11,7 +11,7 @@ async function messageReceived(payload){
 		if(mark.hasOwnProperty(pubnub.getUUID())){
 			// Show Message in a popup bubble above users marker
 			try{
-				var infoMessage = "<b>Message delivered via PubNub</b> <br></br>";
+				var infoMessage = "<img src='../pn_small.png'> <b>Message delivered via PubNub</b> <br></br>";
 				infoMessage += messageContents(payload.message);
 				var infowindow = new google.maps.InfoWindow();
 				infowindow.setContent(infoMessage);

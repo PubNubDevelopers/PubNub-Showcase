@@ -362,7 +362,6 @@ async function loadLastLocations() {
         channels: [GEO_CHANNEL],
         count: 100,
         includeUUID: true,
-        includeMessageActions: true,
     });
 
     // Only populate history for the GEO_CHANNEL
@@ -421,9 +420,6 @@ function initiateShare(){
                 // Navigate to chat
                 window.location.href = '../chat/chat.html';
             }
-        }
-        else{
-            alert('Please select a location')
         }
     })
 }

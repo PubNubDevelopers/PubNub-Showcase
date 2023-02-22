@@ -329,7 +329,7 @@ async function setChannelMember(){
         ]
     })
     .then((resp) => {
-        console.log(resp);
+        //console.log(resp);
     })
     .catch((err) => {
         console.log(err);
@@ -416,8 +416,6 @@ function initiateShare(){
                         attachment: url
                     }
                 });
-
-                await timeout(1);
 
                 sessionStorage.setItem('activeChatChannel', 'Public.location-chat');
                 // Navigate to chat

@@ -325,9 +325,9 @@ async function populateChatWindow (channelName) {
       for (const historicalMsg of history.channels[channelName]) {
         historicalMsg.publisher = historicalMsg.uuid
 
-        if (channelMembers[historicalMsg.uuid] != null) {
+        if (channelMembers[historicalMsg.uuid] != null || historicalMsg.uuid == pubnub.getUserId()) {
           //  Only show past messages from users who didn't log out
-          messageReceived(historicalMsg)
+          await messageReceived(historicalMsg)
           //  Update the historically loaded messages based on message actions
           if (
             historicalMsg.actions != null &&

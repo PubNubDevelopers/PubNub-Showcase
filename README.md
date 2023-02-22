@@ -11,9 +11,9 @@ A hosted version of this demo can be found at **https://pubnubdevelopers.github.
 | Demo | Description | PubNub APIs used |
 | ---- | --- | ---------------- |
 | Chat | Uses the PubNub SDK to show how a chat application could be implemented, with features such as group messaging, typing indicators, message reactions, unread message counts and presence indicators. |  [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe), [Presence](https://www.pubnub.com/docs/sdks/javascript/api-reference/presence), [Persistence](https://www.pubnub.com/docs/sdks/javascript/api-reference/storage-and-playback) (for message history), [Objects](https://www.pubnub.com/docs/sdks/javascript/api-reference/objects), [Files](https://www.pubnub.com/docs/sdks/javascript/api-reference/files), [Message Actions](https://www.pubnub.com/docs/sdks/javascript/api-reference/message-actions)  (reactions & read indicators), [Functions](https://www.pubnub.com/docs/general/serverless/functions/overview) (for Text and Image moderation)  |
-| Virtual Events | Shows how PubNub can make a high-occupancy virtual event interactive, with polls and live chat | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe) |
+| Virtual Events | Shows how PubNub can make a high-occupancy virtual event interactive, with polls and live chat | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe)  (for polls and chat) |
 | Geolocation | Share your location or the location of any asset securely over PubNub | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe), [Objects](https://www.pubnub.com/docs/sdks/javascript/api-reference/objects) |
-| Collaboration | Real-time collaboration is demonstrated with a whiteboard app based the existing [standalone collaboration demo](https://www.pubnub.com/demos/codoodler-collaboration-demo/) | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe), [User State](https://www.pubnub.com/docs/sdks/javascript/api-reference/presence#user-state) |
+| Collaboration | Real-time collaboration is demonstrated with a whiteboard app based the existing [standalone collaboration demo](https://www.pubnub.com/demos/codoodler-collaboration-demo/) | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe)  (for drawing), [User State](https://www.pubnub.com/docs/sdks/javascript/api-reference/presence#user-state) (for cursor position) |
 | IoT | Control IoT devices and infrastructure as well as see your device state using PubNub | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe) |
 | Real-Time Streaming | Generate, process and deliver streaming data to any number of subscribers.  Based on the [standalone real-time data streaming demo](https://www.pubnub.com/demos/real-time-data-streaming/) | [Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe) |
 
@@ -58,7 +58,7 @@ To run this project yourself you will need a PubNub account and (optionally) you
 
 1. Clone the repository
 
-1. Under the `shared` folder, open `keys.js` and add your keys here, replacing the existing placeholder keys.
+1. Under the `shared` folder, open `keys.js` and add your keys here, replacing the existing placeholder data.
 
 ## Contributing
 Please fork the repository if you'd like to contribute. Pull requests are always welcome. 

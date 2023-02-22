@@ -405,7 +405,7 @@ function initiateShare(){
                 sharedLocation = currentLocation;
 
                 // Configure static google maps link
-                var url = `https://maps.googleapis.com/maps/api/staticmap?center=${currentLocation.lat},${currentLocation.lng}&zoom=6&size=200x200&scale=1.5&key=AIzaSyDyl7ItKt5viBBju5Rwsqwrii5soyWUzp0`;
+                var url = `https://maps.googleapis.com/maps/api/staticmap?center=${currentLocation.lat},${currentLocation.lng}&zoom=6&size=200x200&scale=1.5&key=${geo_key}`;
 
                 // Publish static google maps link to the location updates chat
                 await pubnub.publish({

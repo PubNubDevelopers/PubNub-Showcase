@@ -399,7 +399,7 @@ async function loadLastLocations() {
 // This location will be able to be seen in chat demo under location updates in the menu
 function initiateShare(){
     var shareButton = document.getElementById("share-button");
-    shareButton.addEventListener('click', () => {
+    shareButton.addEventListener('click', async () => {
         if(currentLocation != null && currentLocation.lng != null && currentLocation.lat != null){
             if(sharedLocation != currentLocation){
                 sharedLocation = currentLocation;
@@ -408,7 +408,7 @@ function initiateShare(){
                 var url = `https://maps.googleapis.com/maps/api/staticmap?center=${currentLocation.lat},${currentLocation.lng}&zoom=6&size=200x200&scale=1.5&key=AIzaSyDyl7ItKt5viBBju5Rwsqwrii5soyWUzp0`;
 
                 // Publish static google maps link to the location updates chat
-                pubnub.publish({
+                await pubnub.publish({
                     channel: 'Public.location-chat',
                     storeInHistory: true,
                     message: {
@@ -416,6 +416,9 @@ function initiateShare(){
                         attachment: url
                     }
                 });
+
+                await timeout(1);
+
                 sessionStorage.setItem('activeChatChannel', 'Public.location-chat');
                 // Navigate to chat
                 window.location.href = '../chat/chat.html';

@@ -69,23 +69,25 @@
 
                 </div>
             </div>
+
+            <div id="emojiPicker" class="mx-2 emoji-picker" style="bottom:150px">
+
+            </div>
+        
+                    <div class="d-flex flex-row py-2 message-input-bar">
+                <i id='emoji-pick' class="bi bi-emoji-smile align-self-center message-input-icon mx-2"
+                    onclick="messageInputEmoji()"></i>
+                <input id="input-message" class="message-input" placeholder="Message" />
+                <i class="bi bi-send align-self-center message-input-icon mx-2" onclick="messageInputSend()"></i>
+                <i class="bi bi-clipboard-data align-self-center message-input-icon mx-2" onclick="togglePoll()"></i>
+            </div>
+    
         </div>
     </div>
 
-
-    <div id="emojiPicker" class="mx-2 emoji-picker" style="bottom:150px">
-
-    </div>
 
     <nav id="bottomNav" class="navbar p-0" style="min-height:fit-content">
 
-        <div class="d-flex flex-row py-2 message-input-bar">
-            <i id='emoji-pick' class="bi bi-emoji-smile align-self-center message-input-icon mx-2"
-                onclick="messageInputEmoji()"></i>
-            <input id="input-message" class="message-input" placeholder="Message" />
-            <i class="bi bi-send align-self-center message-input-icon mx-2" onclick="messageInputSend()"></i>
-            <i class="bi bi-clipboard-data align-self-center message-input-icon mx-2" onclick="togglePoll()"></i>
-        </div>
 
 
 

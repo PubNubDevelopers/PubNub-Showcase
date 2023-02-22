@@ -55,7 +55,7 @@ a {
     display: flex;
 }
 
-@media screen and ( max-width: 500px ) { 
+@media screen and ( max-width: 576px ) { 
     .main-container { flex-flow: column; }
   }
 

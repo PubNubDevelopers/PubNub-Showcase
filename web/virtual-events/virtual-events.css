@@ -33,7 +33,7 @@ iframe {
     flex-grow: 1;
 }
 
-@media screen and ( max-width: 500px ) { 
+@media screen and ( max-width: 576px ) { 
     .main-container { flex-flow: column; }
     .live-stream {flex-grow: 0;}
   }

@@ -16,6 +16,11 @@ body {
     color: #33687B;
 }
 
+.map-style {
+    width:100%;
+    height:100%;
+}
+
 .new-location-padding {
     padding: 4px 16px;
 }

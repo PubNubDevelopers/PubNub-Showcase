@@ -8,6 +8,14 @@ a {
     text-decoration: none;
 }
 
+.main-container {
+    display: flex;
+    flex-flow: row;
+    height: 100vh;
+    overflow: scroll;
+}
+
+
 .stream-selection {
     background-color: #FFFFFF;
 }
@@ -37,7 +45,8 @@ a {
     flex: 1;
     flex-wrap: wrap;
     overflow: scroll;
-    flex-direction: column-reverse
+    flex-direction: column-reverse;
+    width:100%;
 }
 
 .message-list-contents {
@@ -45,4 +54,9 @@ a {
     flex-direction: column;
     display: flex;
 }
+
+@media screen and ( max-width: 500px ) { 
+    .main-container { flex-flow: column; }
+  }
+
 

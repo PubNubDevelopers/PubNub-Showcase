@@ -33,43 +33,48 @@
 
 <BODY onload="loadVirtualEvents()">
 
-    <div id="liveStream" class="live-stream">
-        <iframe src="https://www.youtube.com/embed/YaJbc7s1ROg?&autoplay=1&mute=1&start=18"
-            title="Node.js WebSocket Programming Tutorial with JavaScript" frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"></iframe>
-    </div>
+    <div class="main-container">
+        <div id="liveStream" class="live-stream">
+            <iframe src="https://www.youtube.com/embed/YaJbc7s1ROg?&autoplay=1&mute=1&start=18"
+                title="Node.js WebSocket Programming Tutorial with JavaScript" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"></iframe>
+        </div>
 
-    <div id='messageList' class="message-list">
+        <div class="rhs">
 
-        <div id='messageListContents' class="px-2 message-list-contents">
+            <div id="poll-container" class="container" style="margin:0px;display:none">
 
+                <div class="row">
+                    <div class="">
+                        <span id="poll-question">Poll Question</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class=""><input class="form-check-input" type="radio" name="pollOptions"
+                            id="poll-option1-radio" data-opt="0" onchange="pollOptionSelected(this);"><span id="poll-option1"
+                            class="option-label">Option 1</span>&nbsp;(<span id="poll-option1-pct">0</span>%)</div>
+                    <div class=""><input class="form-check-input" type="radio" name="pollOptions"
+                            id="poll-option2-radio" data-opt="1" onchange="pollOptionSelected(this);"><span id="poll-option2"
+                            class="option-label">Option 2</span>&nbsp;(<span id="poll-option2-pct">0</span>%)</div>
+                    <div class=""><input class="form-check-input" type="radio" name="pollOptions"
+                            id="poll-option3-radio" data-opt="2" onchange="pollOptionSelected(this);"><span id="poll-option3"
+                            class="option-label">Option 3</span>&nbsp;(<span id="poll-option3-pct">0</span>%)</div>
+                </div>
+            </div>
+        
+        
+            <div id='messageList' class="message-list">
+
+                <div id='messageListContents' class="px-2 message-list-contents">
+
+                </div>
+            </div>
         </div>
     </div>
-
 
 
     <div id="emojiPicker" class="mx-2 emoji-picker" style="bottom:150px">
 
-    </div>
-
-    <div id="poll-container" class="container" style="margin:0px;display:none">
-
-        <div class="row">
-            <div class="col-lg-12">
-                <span id="poll-question">Poll Question</span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-4"><input class="form-check-input" type="radio" name="pollOptions"
-                    id="poll-option1-radio" data-opt="0" onchange="pollOptionSelected(this);"><span id="poll-option1"
-                    class="option-label">Option 1</span>&nbsp;(<span id="poll-option1-pct">0</span>%)</div>
-            <div class="col-lg-4"><input class="form-check-input" type="radio" name="pollOptions"
-                    id="poll-option2-radio" data-opt="1" onchange="pollOptionSelected(this);"><span id="poll-option2"
-                    class="option-label">Option 2</span>&nbsp;(<span id="poll-option2-pct">0</span>%)</div>
-            <div class="col-lg-4"><input class="form-check-input" type="radio" name="pollOptions"
-                    id="poll-option3-radio" data-opt="2" onchange="pollOptionSelected(this);"><span id="poll-option3"
-                    class="option-label">Option 3</span>&nbsp;(<span id="poll-option3-pct">0</span>%)</div>
-        </div>
     </div>
 
     <nav id="bottomNav" class="navbar p-0" style="min-height:fit-content">

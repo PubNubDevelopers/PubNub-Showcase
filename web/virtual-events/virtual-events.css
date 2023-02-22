@@ -9,19 +9,41 @@ iframe {
     width: 100%;
 }
 
+.main-container {
+    display: flex;
+    flex-flow: row;
+    height: 100vh;
+    overflow: scroll;
+}
+
+.rhs {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    flex-wrap: wrap;
+    overflow: scroll;
+    min-width: 250px;
+}
+
 .live-stream {
     display: flex;
     flex-direction: row;
     justify-content: center;
     min-height: 35%;
+    flex-grow: 1;
 }
+
+@media screen and ( max-width: 500px ) { 
+    .main-container { flex-flow: column; }
+    .live-stream {flex-grow: 0;}
+  }
 
 .message-list {
     display: flex;
     flex: 1;
     flex-wrap: wrap;
     overflow: scroll;
-    flex-direction: column-reverse
+    flex-direction: column-reverse;
 }
 
 .message-list-contents {
@@ -66,8 +88,6 @@ iframe {
 }
 
 
-
-
 .poll-container {
     background-color: #FFFFFF;
     width: 100%;
@@ -75,23 +95,6 @@ iframe {
     flex-direction: row;*/
     align-items: center;
     display:block;
-}
-
-.poll-question-column {
-    /*display: flex;
-    flex-direction: column;
-    flex-grow: 1*/
-}
-
-.poll-options-column {
-    /*display: flex;
-    flex-direction: column;
-    flex-grow: 1*/
-}
-
-.poll-options-row {
-    /*display: flex;
-    flex-direction: row*/
 }
 
 .option-label {

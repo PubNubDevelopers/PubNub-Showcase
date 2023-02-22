@@ -35,44 +35,64 @@
         <h1 id='heading' class="display-4 text-center">Real-Time Data Streaming</h1>
     </div>
 
-    <div id='messageList' class="message-list">
+    <div class="main-container">
+        <div id='messageList' class="message-list">
 
-        <div id='messageListContents' class="px-2 message-list-contents">
+            <div id='messageListContents' class="px-2 message-list-contents">
 
-        </div>
-    </div>
-
-    <div id="pick-stream" class="container-fluid stream-selection">
-
-        <div class="row ">
-            <div class="col-lg-3 stream-option">Choose Stream: </div>
-            <div class="col-lg-3 stream-option">
-                <nobr>
-                    <input class="form-check-input" type="checkbox" id="twitter" onchange="streamSelected(this);">
-                    <label class="form-check-label" for="twitter">
-                        <i class="bi bi-twitter"></i> Twitter Posts (Live)
-                    </label>
-                </nobr>
-            </div>
-            <div class="col-lg-3 stream-option">
-                <nobr>
-                    <input class="form-check-input" type="checkbox" id="wikipedia" onchange="streamSelected(this);">
-                    <label class="form-check-label" for="wikipedia">
-                        <i class="bi bi-wikipedia"></i> Wikipedia Updates (Live)
-                    </label>
-                </nobr>
-            </div>
-            <div class="col-lg-3 stream-option">
-                <nobr>
-                    <input class="form-check-input" type="checkbox" id="sensors" onchange="streamSelected(this);"
-                        checked>
-                    <label class="form-check-label" for="sensors">
-                        <i class="bi bi-thermometer-half"></i> Simulated Streams
-                    </label>
-                </nobr>
             </div>
         </div>
+
+        <div class="rhs">
+
+            <div id="pick-stream" class="container-fluid stream-selection">
+
+                <div class="row">
+                    <div class="stream-option">Choose Stream: </div>
+                </div>
+                <div class="row">
+                    <div class="stream-option">
+                        <nobr>
+                            <input class="form-check-input" type="checkbox" id="twitter"
+                                onchange="streamSelected(this);">
+                            <label class="form-check-label" for="twitter">
+                                <i class="bi bi-twitter"></i> Twitter Posts (Live)
+                            </label>
+                        </nobr>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="stream-option">
+                        <nobr>
+                            <input class="form-check-input" type="checkbox" id="wikipedia"
+                                onchange="streamSelected(this);">
+                            <label class="form-check-label" for="wikipedia">
+                                <i class="bi bi-wikipedia"></i> Wikipedia Updates (Live)
+                            </label>
+                        </nobr>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="stream-option">
+                        <nobr>
+                            <input class="form-check-input" type="checkbox" id="sensors"
+                                onchange="streamSelected(this);" checked>
+                            <label class="form-check-label" for="sensors">
+                                <i class="bi bi-thermometer-half"></i> Simulated Streams
+                            </label>
+                        </nobr>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    </div>
+
+
+
+
 
     <nav id="bottomNav" class="navbar p-0" style="min-height:fit-content">
 

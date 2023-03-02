@@ -1,12 +1,25 @@
 var pubnub = null
 var user_avatar = ''
+var selectedCustomAvatar = null
+var loginModal = null;
 const num_avatars = 20
 const num_avatars_to_display = 5
 const MAX_AVATAR_FILE_SIZE = 1024 * 1024 * 1
-function loadLogin () {
-  sessionStorage.clear()
+
+async function load () {
+  if (!(await testForLoggedInUser()))
+  {
+    showLogin()
+  }
+}
+
+function showLogin () {
   if (!testPubNubKeys()) {
-    document.getElementById('noKeysAlert').style.display = 'block'
+    showLoginMsg(
+      'Cannot find PubNub keys. Please specify your PubNub keys in keys.js.',
+      true,
+      false
+    )
   } else {
     try {
       pubnub = createPubNubObject()
@@ -14,6 +27,16 @@ function loadLogin () {
       console.log(e)
     }
   }
+
+  document.getElementById('navbar').classList.add('blurred')
+  document.getElementById('title').classList.add('blurred')
+  document.getElementById('showcaseGrid').classList.add('blurred')
+
+  loginModal = new bootstrap.Modal(document.getElementById('loginModal'), {
+    keyboard: false,
+    backdrop: 'static'
+  })
+  loginModal.show()
 
   //  Avatar logic
   var random_array = Array.from({ length: num_avatars }, (x, i) => i)
@@ -42,9 +65,19 @@ function loadLogin () {
         //  Enable login button
         document.getElementById('btnLogin').classList.remove('disabled')
       }
-      nickname = document.getElementById('txtNickname').value
     })
   setTimeout(setEnableButtonState, 1)
+}
+
+function hideLogin()
+{
+  document.getElementById('navbar').classList.remove('blurred')
+  document.getElementById('title').classList.remove('blurred')
+  document.getElementById('showcaseGrid').classList.remove('blurred')
+  if (loginModal !== null)
+  {
+    loginModal.hide();
+  }
 }
 
 function shuffle (array) {
@@ -59,20 +92,6 @@ function shuffle (array) {
       array[top] = tmp
     }
   return array
-}
-
-async function login (form) {
-  var nickname = document.getElementById('txtNickname').value
-  var avatarUrl = user_avatar
-  sessionStorage.setItem('nickname', nickname)
-  sessionStorage.setItem('avatarUrl', avatarUrl)
-  await pubnub.objects.setUUIDMetadata({
-    data: {
-      name: nickname,
-      profileUrl: avatarUrl
-    }
-  })
-  form.submit()
 }
 
 function setEnableButtonState () {
@@ -90,17 +109,72 @@ function selectedAvatar (avatarId, source) {
 
   var id = 'avatar-' + avatarId
   var avatar = document.getElementById(id)
-  for (var i = 0; i < num_avatars_to_display; i++) {
+  for (var i = 0; (i < num_avatars_to_display + 1); i++) {
     var tempId = 'avatar-' + i
     if (tempId != id)
-      document.getElementById(tempId).classList.remove('selected-avatar')
+      document.getElementById(tempId).classList.remove('avatar-selected')
   }
-  avatar.classList.add('selected-avatar')
+  avatar.classList.add('avatar-selected')
+}
+
+function selectCustomAvatar () {
+  var input = document.createElement('input')
+  input.type = 'file'
+  input.onchange = async e => {
+    selectedCustomAvatar = e.target.files[0]
+
+    if (customAvatarChecks(selectedCustomAvatar)) {
+      document.getElementById('imageToUploadName').innerText =
+        selectedCustomAvatar.name
+
+      // setting up the reader
+      var reader = new FileReader()
+      reader.readAsDataURL(selectedCustomAvatar, 'UTF-8')
+
+      reader.onload = readerEvent => {
+        var content = readerEvent.target.result // this is the content!
+        document.getElementById('imageToUpload').src = '' + content + ''
+      }
+
+      document.getElementById('imageUploadPane').style.display = 'flex'
+      document.getElementById('btnUpload').classList.remove('disabled')
+    }
+    else
+    {
+      selectedCustomAvatar = null;
+      cancelSelectedImage();
+    }
+  }
+  input.click()
+}
+
+function cancelSelectedImage() {
+  document.getElementById('imageUploadPane').style.display = 'none'
+  document.getElementById('btnUpload').classList.add('disabled')
+}
+
+function customAvatarChecks (avatarFile) {
+  if (avatarFile == null) {
+    showLoginMsg('You have not chosen a custom avatar file', true, true)
+    return false
+  } else if (avatarFile.size > MAX_AVATAR_FILE_SIZE) {
+    showLoginMsg('Your avatar should be under 1MB', true, true)
+    return false
+  } else if (
+    !(
+      avatarFile.type == 'image/png' ||
+      avatarFile.type == 'image/jpeg' ||
+      avatarFile.type == 'image/gif'
+    )
+  ) {
+    showLoginMsg('Please choose a JPG, PNG or GIF file', true, true)
+    return false
+  }
+  return true
 }
 
 async function uploadCustomAvatar () {
-  var customAvatar = document.getElementById('customAvatarPicker').files[0]
-  if (customAvatarChecks(customAvatar)) {
+  var customAvatar = selectedCustomAvatar
     uploadInProgress(true)
     try {
       //  The image is OK, upload it to PubNub
@@ -115,53 +189,85 @@ async function uploadCustomAvatar () {
       })
       if (await imageExists(fileUrl)) {
         //  Upload was successful, replace the first avatar with our custom avatar
-        var avatar = document.getElementById('avatar-0')
+        var avatar = document.getElementById('avatar-5')
         avatar.src = fileUrl
-        selectedAvatar(0, avatar.src)
+        selectedAvatar(5, avatar.src)
       } else {
         //  The Image moderation function (PubNub function) will delete any image which does not pass moderation
-        errorMessage(
-          'Image Moderation Failed.  Please select a different image'
+        showLoginMsg(
+          'Image Moderation Failed.  Please select a different image', true, true
         )
       }
       uploadInProgress(false)
+      showLoginMsg("Image upload completed", false, true)
     } catch (err) {
-      errorMessage('Error uploading custom avatar')
+      showLoginMsg('Error uploading custom avatar', true, true)
       console.log('Error uploading custom avatar: ' + err)
       uploadInProgress(false)
     }
-  }
 }
 
-function uploadInProgress(inProgress)
-{
-  var spinner = document.getElementById('spinner');
-  if (inProgress)
-  {
+function uploadInProgress (inProgress) {
+  var spinner = document.getElementById('imageUploadSpinner')
+  var imageCancelIcon = document.getElementById('imageUploadCancel')
+  if (inProgress) {
+    imageCancelIcon.style.display = 'none'
     spinner.style.display = 'inline-block'
-  }
-  else
-  {
+  } else {
+    imageCancelIcon.style.display = 'flex'
     spinner.style.display = 'none'
   }
 }
 
-function customAvatarChecks (avatarFile) {
-  if (avatarFile == null) {
-    errorMessage('You have not chosen a custom avatar file')
-    return false
-  } else if (avatarFile.size > MAX_AVATAR_FILE_SIZE) {
-    errorMessage('Your avatar should be under 1MB')
-    return false
-  } else if (
-    !(
-      avatarFile.type == 'image/png' ||
-      avatarFile.type == 'image/jpeg' ||
-      avatarFile.type == 'image/gif'
-    )
-  ) {
-    errorMessage('Please choose a JPG, PNG or GIF file')
-    return false
+async function login () {
+  var nickname = document.getElementById('txtNickname').value
+  var avatarUrl = user_avatar
+  sessionStorage.setItem('nickname', nickname)
+  sessionStorage.setItem('avatarUrl', avatarUrl)
+  const result = await pubnub.objects.setUUIDMetadata({
+    data: {
+      name: nickname,
+      profileUrl: avatarUrl
+    }
+  })
+  hideLogin();
+}
+
+
+
+function showLoginMsg (msg, isError, shouldFade) {
+  document.getElementById('login-message').style.display = 'block'
+  if (isError) {
+    document
+      .getElementById('login-message')
+      .classList.add('login-message-error')
+    document
+      .getElementById('login-message')
+      .classList.remove('login-message-success')
+    document
+      .getElementById('login-message-icon')
+      .classList.add('login-message-icon-error')
+    document
+      .getElementById('login-message-icon')
+      .classList.remove('login-message-icon-success')
+  } else {
+    document
+      .getElementById('login-message')
+      .classList.remove('login-message-error')
+    document
+      .getElementById('login-message')
+      .classList.add('login-message-success')
+    document
+      .getElementById('login-message-icon')
+      .classList.remove('login-message-icon-error')
+    document
+      .getElementById('login-message-icon')
+      .classList.add('login-message-icon-success')
   }
-  return true
+  document.getElementById('login-message-text').innerText = msg
+  if (shouldFade) {
+    setTimeout(function () {
+      document.getElementById('login-message').style.display = 'none'
+    }, 3000)
+  }
 }

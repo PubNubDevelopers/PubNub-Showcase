@@ -1,22 +1,3 @@
-function launchApp (app) {
-  console.log('launching ' + app)
-  if (app === 'chat') {
-    window.location.href = './chat/chat.html'
-  } else if (app === '../chat') {
-    window.location.href = '../chat/chat.html'
-  } else if (app === 'virtual_events') {
-    window.location.href = '../virtual-events/virtual-events.html'
-  } else if (app === 'geolocation') {
-    window.location.href = '../geolocation/geolocation.html'
-  } else if(app === 'iot'){
-    window.location.href = "../iot/iot.html";
-  }else if(app === 'real_time'){
-    window.location.href = "../real-time/real-time.html";
-  }else if(app === 'collaboration'){
-    window.location.href = "../collaboration/collaboration.html";
-  }
-}
-
 /////////////////////////
 //  Emoji logic
 
@@ -51,10 +32,32 @@ async function imageExists (url) {
   })
 }
 
-function errorMessage (message) {
-  const toastLiveExample = document.getElementById('liveToast')
-  const toastBody = document.getElementById('toast-body')
-  toastBody.innerHTML = message
-  const toast = new bootstrap.Toast(toastLiveExample)
-  toast.show()
+
+
+async function testForLoggedInUser() {
+  //  Do we have an existing login?
+  var savedUUID = null
+  try {
+    savedUUID = sessionStorage.getItem('userId')
+  } catch (err) {
+    console.log('Session storage is unavailable')
+    alert('This demo requires session storage')
+  }
+  //  If there is a previous login, check it is still valid
+  if (savedUUID != null) {
+    try {
+      pubnub = createPubNubObject()
+      const userInfo = await pubnub.objects.getUUIDMetadata(savedUUID)
+      //  There is a valid user associated with this login
+      return true
+    } catch (ex) {
+      //  There is no PubNub user data associated with the login.
+      sessionStorage.clear();
+      return false;
+    }
+  } else {
+    //  The user has not yet logged in
+    return false
+  }
+  return true
 }

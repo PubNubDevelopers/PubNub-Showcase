@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!--  Fonts -->
-    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
@@ -18,88 +17,133 @@
     <link rel="stylesheet" href="./shared/style.css" />
     <link rel="stylesheet" href="./index.css" />
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
-    <script type='text/javascript'>
-        var pn = null; 
-    </script>
     <script src="./shared/keys.js"></script>
     <script src="./shared/pubnub_setup.js"></script>
     <script src="./shared/shared.js"></script>
     <script src="./index.js"></script>
 </HEAD>
 
-<BODY onload="loadLogin()">
+<BODY onload="load()">
+    <div class="red-ellipse-bkd"></div>
 
-    <div class="container-fluid mb-3 p-2 app-header">
-        <h1 class="display-4 fw-bold text-center">PubNub Showcase</h1>
-    </div>
-
-    <div class="p-3">
-        <!-- Shown if no PubNub keys found in setup.js -->
-        <div class="container alert alert-danger alert-dismissible fade show" style="display:none" id="noKeysAlert"
-            role="alert">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <strong>Cannot find PubNub keys.</strong> Please specify your PubNub keys in keys.js.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="container-fluid p-0">
+        <div class="container-fluid mb-3 p-2">
+            <h1 id="title" class="app-header heading-1">Showcase App</h1>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <H3>Choose a Nickname and Avatar</H3>
-            </div>
-            <div class="card-body">
-                <form action="./discover/discover.html" onsubmit="login(this); return false;">
-                    <div class="mb-3">
-                        <H3><label for="txtNickname" class="form-label">Nickname</label></H3>
-                        <input type="text" class="form-control" id="txtNickname" maxlength="30"
-                            placeholder="Enter a nickname" autofocus required />
-                    </div>
+        <div id="showcaseGrid" class="showcase-grid" style="cursor: pointer;">
 
-                    <div class="mb-3">
-                        <H3><label class="form-label">Avatar</label></H3>
+            <a href="./chat/chat.html" class="showcase-tile">
+                <img src="./img/icons/icon-chat.png" class="showcase-image">
+                <div class="heading-2">Chat</div>
+                <div class="text-body-2">Group Chat / 1:1 / Presence / Typing indicator / Emoji reaction / Read
+                    indicator / Send attachment / Unread message indicator / Files / Moderation</div>
+            </a>
+            <a href="./geolocation/geolocation.html" class="showcase-tile">
+                <img src="./img/icons/icon-geolocation.png" class="showcase-image">
+                <div class="heading-2">Geolocation</div>
+                <div class="text-body-2">Publish / Subscribe / Overlay on map / Share location</div>
+            </a>
+            <a href="./iot/iot.html" class="showcase-tile">
+                <img src="./img/icons/icon-iot.png" class="showcase-image">
+                <div class="heading-2">IoT</div>
+                <div class="text-body-2">Subscribe to sensor data / Monitor sensor values / Recieve sensor alerts</div>
+            </a>
+            <a href="./collaboration/collaboration.html" class="showcase-tile">
+                <img src="./img/icons/icon-collaboration.png" class="showcase-image">
+                <div class="heading-2">Collaboration</div>
+                <div class="text-body-2">Interactive whiteboard / Publish messages to draw / User state (cursor
+                    position)</div>
+                </a>
+            <a href="./virtual-events/virtual-events.html" class="showcase-tile">
+                <img src="./img/icons/icon-virtual-events.png" class="showcase-image">
+                <div class="heading-2">Virtual Events</div>
+                <div class="text-body-2">Experience a shared live event / Chat with host / React to stream / Polls /
+                    Moderation</div>
+                </a>
+            <a href="./real-time/real-time.html" class="showcase-tile">
+                <img src="./img/icons/icon-realtime-streaming.png" class="showcase-image">
+                <div class="heading-2">Real-Time Streaming</div>
+                <div class="text-body-2">Subscribe to data streams / Stream data</div>
+            </a>
 
-                        <img src="" class="avatar" onclick="selectedAvatar(0, src);" id="avatar-0">
-
-                        <img src="" class="avatar" onclick="selectedAvatar(1, src);" id="avatar-1">
-
-                        <img src="" class="avatar" onclick="selectedAvatar(2, src);" id="avatar-2">
-
-                        <img src="" class="avatar" onclick="selectedAvatar(3, src);" id="avatar-3">
-
-                        <img src="" class="avatar" onclick="selectedAvatar(4, src);" id="avatar-4">
-
-                        <br><br>
-
-                        <H4><label for="customAvatarPicker" class="form-label">Choose custom avatar</label></H4>
-                        <input class="form-control" type="file" id="customAvatarPicker">
-
-
-                    </div>
-            </div>
-            <div class="card-footer text-muted">
-                <a href="#" class="btn btn-pn btn-pn-clear" onclick="uploadCustomAvatar();">Upload custom avatar
-                    <div class="spinner-border align-self-center mx-2" id="spinner" style="display:none" role="status">
-                    </div></a>
-
-                <input type="submit" class="btn btn-pn disabled" id="btnLogin" value="Login" style="float:right" />
-                </form>
-            </div>
         </div>
+
+        <div class="blue-ellipse-bkd"></div>
+
+        <nav id="navbar" class="navbar fixed-bottom p-0">
+            <div class="navbar-container">
+                <a class="nav-link bottom-nav-item bottom-nav-selected" href="javascript:launchApp('./index.html');">
+                    <img class="navbar-icon" src="./img/navbar/home.png">
+                    <span class="text-caption navbar-text">Home</span></a>
+                <a class="nav-link bottom-nav-item" href="./index.html">
+                    <img class="navbar-icon" src="./img/navbar/discover.png">
+                    <span class="text-caption navbar-text">Discover</span></a>
+                <a class="nav-link bottom-nav-item" href="./admin/admin.html">
+                    <img class="navbar-icon" src="./img/navbar/profile.png">
+                    <span class="text-caption navbar-text">Profile</span></a>
+            </div>
+        </nav>
     </div>
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="liveToast" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="toast-body">
+    <!--  Modal: Log in screen -->
+    <div class="modal" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content login-modal">
+                <div id="login-message" class="text-label login-message login-message-success hidden">
+                    <img id="login-message-icon" class="login-message-icon login-message-icon-success">
+                    <span id="login-message-text">Hello</span>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+                <div class="heading-3 login-modal-heading">
+                    Choose a <b>Nickname</b> and <b>Avatar</b>
+                </div>
+                <div>
+                    <label for="txtNickname" class="text-label">Nickname<span class="red-asterisk">*</span></label>
+                    <input type="text" class="form-control pn-text-field" id="txtNickname" maxlength="30"
+                        placeholder="Enter a nickname" autofocus required />
+                </div>
+                <div>
+                    <span class="text-label">Avatar<span class="red-asterisk">*</span></span><br>
+                    <div class="login-modal-avatars">
+                        <img src="./img/avatar/placeholder.png" class="avatar" onclick="selectedAvatar(0, src);"
+                            id="avatar-0">
+                        <img src="./img/avatar/placeholder.png" class="avatar" onclick="selectedAvatar(1, src);"
+                            id="avatar-1">
+                        <img src="./img/avatar/placeholder.png" class="avatar" onclick="selectedAvatar(2, src);"
+                            id="avatar-2">
+                        <img src="./img/avatar/placeholder.png" class="avatar" onclick="selectedAvatar(3, src);"
+                            id="avatar-3">
+                        <img src="./img/avatar/placeholder.png" class="avatar" onclick="selectedAvatar(4, src);"
+                            id="avatar-4">
+                        <img src="./img/avatar/placeholder.png" class="avatar hidden" onclick="selectedAvatar(5, src);"
+                            id="avatar-5">
+                    </div>
+                </div>
+                <div class="text-body-2">
+                    <img src="./img/icons/upload.png" width="16" height="16" onclick="selectCustomAvatar()"
+                        style="cursor: pointer;"> <a href="javascript:selectCustomAvatar();">Choose custom avatar</a>
+                    <div id="imageUploadPane" class="hidden">
+                        <div id="imageToUploadDetail">
+                            <img id="imageToUpload" src="./img/avatar/001.png" style="display:none">
+                            <span id="imageToUploadName">My Image.png</span>
+                            <div id="imageUploadCancelDiv" onclick="cancelSelectedImage();">
+                                <span id="imageUploadSpinner" class="spinner-border spinner-border-sm"
+                                    style="display:none" role="status" aria-hidden="true"></span>
+                                <img id="imageUploadCancel" src="./img/icons/cancel.png">
+                            </div>
+                        </div>
+
+                        <input type="submit" class="btn pn-btn pn-btn-white disabled" id="btnUpload" value="Upload"
+                            onclick="uploadCustomAvatar()">
+
+                    </div>
+                </div>
+                <div>
+                    <input type="submit" class="btn pn-btn disabled" id="btnLogin" value="Login" onclick="login()" />
+                </div>
             </div>
         </div>
     </div>
-
-
-
-
 
 </BODY>
 

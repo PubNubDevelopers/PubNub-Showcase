@@ -62,9 +62,8 @@
 #imageUploadPane {
     width: 100%;
     margin-top: 16px;
-    /**display:flex;*/
+    display:flex;
     flex-direction: row;
-    display:none;
 }
 
 .red-ellipse-bkd {
@@ -122,6 +121,10 @@
     align-self: center;
     max-height: 10px;
     max-width: 10px;
+}
+
+.hidden {
+    display:none !important;
 }
 
 #btnLogin {

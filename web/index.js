@@ -52,19 +52,7 @@ function showLogin () {
   document
     .getElementById('txtNickname')
     .addEventListener('keyup', function (e) {
-      if (
-        document.getElementById('txtNickname').value.length == 0 &&
-        !document.getElementById('btnLogin').classList.contains('disabled')
-      ) {
-        //  Disable login button
-        document.getElementById('btnLogin').classList.add('disabled')
-      } else if (
-        document.getElementById('txtNickname').value.length > 0 &&
-        document.getElementById('btnLogin').classList.contains('disabled')
-      ) {
-        //  Enable login button
-        document.getElementById('btnLogin').classList.remove('disabled')
-      }
+      setEnableButtonState();
     })
   setTimeout(setEnableButtonState, 1)
 }
@@ -96,12 +84,27 @@ function shuffle (array) {
 
 function setEnableButtonState () {
   if (
-    document.getElementById('txtNickname').value.length > 0 &&
-    document.getElementById('btnLogin').classList.contains('disabled')
+    document.getElementById('txtNickname').value.length == 0
+  ) {
+    //  Disable login button
+    document.getElementById('btnLogin').classList.add('disabled')
+  }
+  else if (!document.getElementById('avatar-5').classList.contains('hidden'))
+  {
+    //  Enable login button
+    document.getElementById('btnLogin').classList.remove('disabled')
+  }
+  else if (!document.getElementById('imageUploadPane').classList.contains('hidden')) {
+    //  Disable login button
+    document.getElementById('btnLogin').classList.add('disabled')
+  } 
+  else if (
+    document.getElementById('txtNickname').value.length > 0
   ) {
     //  Enable login button
     document.getElementById('btnLogin').classList.remove('disabled')
   }
+
 }
 
 function selectedAvatar (avatarId, source) {
@@ -136,8 +139,9 @@ function selectCustomAvatar () {
         document.getElementById('imageToUpload').src = '' + content + ''
       }
 
-      document.getElementById('imageUploadPane').style.display = 'flex'
+      document.getElementById('imageUploadPane').classList.remove('hidden')
       document.getElementById('btnUpload').classList.remove('disabled')
+      setEnableButtonState()
     }
     else
     {
@@ -149,8 +153,9 @@ function selectCustomAvatar () {
 }
 
 function cancelSelectedImage() {
-  document.getElementById('imageUploadPane').style.display = 'none'
+  document.getElementById('imageUploadPane').classList.add('hidden')
   document.getElementById('btnUpload').classList.add('disabled')
+  setEnableButtonState()
 }
 
 function customAvatarChecks (avatarFile) {
@@ -190,8 +195,10 @@ async function uploadCustomAvatar () {
       if (await imageExists(fileUrl)) {
         //  Upload was successful, replace the first avatar with our custom avatar
         var avatar = document.getElementById('avatar-5')
+        avatar.classList.remove('hidden')
         avatar.src = fileUrl
         selectedAvatar(5, avatar.src)
+        setEnableButtonState()
       } else {
         //  The Image moderation function (PubNub function) will delete any image which does not pass moderation
         showLoginMsg(

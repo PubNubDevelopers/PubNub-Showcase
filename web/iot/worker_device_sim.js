@@ -1,3 +1,13 @@
+/**
+* - This file simulates the IoT devices through different model functions.
+* - The device simulators will listen for setting updates through PubNub messages
+* - When a PubNub message is received will configure it's settings accordingly and send the new pre-defined signals
+* - This file has no relation to the rest or the repo and can be hosted by itself. All communication between this file and the repo is done through PubNub.
+* - It can even be hosted on your local host and the demo will still work if the simulation.js is update with the new URL parameter for where it is hosted (Ex: Localhost:8080).
+* - For Demo purposes we wanted it to run on your computer without additional set-up which is why there is currently a work around solution
+*/
+
+
 function worker_node(){
   const SensorType = {
     TermostatTemperature: 'Thermostat Temperature',
@@ -61,6 +71,8 @@ function worker_node(){
           uuid: id,
           listenToBrowserNetworkEvents: false //  Allows us to call the PubNub SDK from a web worker
         })
+
+        // Listen for status (provisioning) and message (setting) updates from PubNub
         await localPubNub.addListener({
           status: async () => {
             this.postMessage({
@@ -81,11 +93,13 @@ function worker_node(){
           }
         });
 
+        // Subscribe to the specific device channel that will warn you when a device needs to be updated
         await localPubNub.subscribe({
           channels: [deviceChannelName],
           withPresence: false
         });
 
+        // Create device simulator
         deviceSimulator = new DeviceSimulator(
           defaultDeviceName,
           type,

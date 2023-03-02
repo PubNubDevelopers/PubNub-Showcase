@@ -1,4 +1,10 @@
 
+/**
+* - With PubNub you can implement any real-time solution possible.
+* - In this code base, we will explore how you would use PubNub to communicate over PubNub Signals with IoT Devices.
+* - This file deals with all the sending and receiving of information to and from the devices
+*/
+
 //  Connection to the PubNub API
 var pubnub = null
 // List of IoT Devices and their readings
@@ -51,6 +57,8 @@ function activatePubNubListener(){
   });
 }
 
+// Consistent updates are received by the IoT devices through signals
+// This will handle displaying those changes visibially on the dashboard
 function SignalReceivedHandler(payload){
   console.log("SIGNAL RECEIVED");
   try{
@@ -73,6 +81,7 @@ function SignalReceivedHandler(payload){
   updateValue(payload.publisher);
 }
 
+// Alerts/Status updates are sent through messages from the IoT Devices
 function handleMessageHandler(payload){;
   try{
     var statusBadge = document.getElementById(`deviceStatus${payload.publisher}`);
@@ -167,6 +176,7 @@ function setToggleAccessible(to, from) {
 
 }
 
+// When setting changes are made to the configurations of the continuous IoT devices
 function setAlarmSettings(from, to, deviceId){
   alarmSettings[deviceId] = {
     from: from,
@@ -176,12 +186,14 @@ function setAlarmSettings(from, to, deviceId){
   saveButton.style.visibility = 'visible';
 }
 
+// When setting changes are made to the configurations of the discrete IoT devices
 function setValue(value, deviceId){
   valueSettings[deviceId] = value;
   saveButton = document.getElementById(`saveButton${deviceId}`);
   saveButton.style.visibility = 'visible';
 }
 
+// Communicates with the IoT devices to send the new setting configurations
 function saveSettings(deviceId){
   saveButton = document.getElementById(`saveButton${deviceId}`);
   saveButton.style.visibility = 'hidden';
@@ -199,6 +211,7 @@ function saveSettings(deviceId){
   }
 }
 
+// Communicates with the IoT device to either turn the device off or back on
 function changeDeviceState(on, deviceId){
   try{
     pubnub.publish({

@@ -1,7 +1,11 @@
+
+// Display the IoT dahsboard element visibilly onto the screen
+// Configures two types of devices discrete and continuous with different setting configurations
 function addRegisteredDevice (deviceId) {
 
   var wrap = document.getElementById('registeredDevicesList');
 
+  // Create Continuous Device Element
   if(iotDevices[deviceId].alarmSettings != undefined){
     wrap.appendChild(getContinuousDeviceElement(deviceId));
     alarmSettings[deviceId] = {
@@ -23,6 +27,7 @@ function addRegisteredDevice (deviceId) {
 
     document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => saveSettings(deviceId));
   }
+  // Create Discrete Device Element
   else{
     wrap.appendChild(getDiscreteDeviceElement(deviceId));
     const slider = document.getElementById(`singleSlider${deviceId}`);
@@ -34,6 +39,7 @@ function addRegisteredDevice (deviceId) {
   }
 }
 
+// Create Continuous IoT Device Dashboard Element through HTML injection
 function getContinuousDeviceElement(deviceID){
   var section = document.createElement('section');
   section.innerHTML = `
@@ -107,6 +113,7 @@ function getContinuousDeviceElement(deviceID){
   return section;
 }
 
+// Create Discrete IoT Device Dashboard Element through HTML injection
 function getDiscreteDeviceElement(deviceID){
   var section = document.createElement('section');
   section.innerHTML = `

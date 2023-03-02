@@ -33,7 +33,7 @@ async function initialize () {
   //  Public.<name> for public groups
   //  Private.<name> for private groups
   //  DM.A&B for direct messages between two users
-  pubnub.subscribe({channels: ["device.*", `Private.${pubnub.getUserId()}-iot`], withPresence: true}); // Subscribe
+  pubnub.subscribe({channels: ["device.*"], withPresence: true}); // Subscribe
 }
 
 // Listen to PubNub events (message events, object events)
@@ -60,7 +60,6 @@ function activatePubNubListener(){
 // Consistent updates are received by the IoT devices through signals
 // This will handle displaying those changes visibially on the dashboard
 function SignalReceivedHandler(payload){
-  console.log("SIGNAL RECEIVED");
   try{
     iotDevices[payload.publisher].sensorName = payload.message.sensor_type;
     iotDevices[payload.publisher].sensorUnit = payload.message.sensor_units;

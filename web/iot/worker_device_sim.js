@@ -42,7 +42,7 @@ function worker_node(){
     var localPubNub
 
     onmessage = async function (args) {
-      //  Initialization / provisioning has been implemented this way to more closely resemble how provisioning will work in production - see ReadMe for more details.
+      //  Initialization / provisioning has been implemented this way to more closely resemble how provisioning will work in production.
       if (args.data.action === 'init') {
         UUID = args.data.params.UUID;
         id = args.data.params.id;

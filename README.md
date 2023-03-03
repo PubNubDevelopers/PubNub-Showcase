@@ -6,6 +6,8 @@
 
 A hosted version of this demo can be found at **[https://pubnubdevelopers.github.io/PubNub-Showcase/web/](https://pubnubdevelopers.github.io/PubNub-Showcase/web/index.html)**
 
+![Screenshot](https://raw.githubusercontent.com/PubNubDevelopers/PubNub-Showcase/main/media/landing.png)
+
 ## Features of the Showcase and PubNub APIs used
 
 | Demo | Description | PubNub APIs used |

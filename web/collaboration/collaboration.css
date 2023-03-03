@@ -8,7 +8,7 @@
 
 body {
     margin: 0em;
-    background-color: var(--color-canvas-background);
+    background-color: var(--color-background-default);
 }
 
 .app-header {
@@ -16,14 +16,27 @@ body {
     z-index: 1;
 }
 
+.pn-btn-white:focus {
+    box-shadow: 0px 0px 0px 0px var(--color-background), 0px 0px 0px 0px var(--color-background);
+}
+
 #nameInput {
     display:none;
 }
 
-#clearCanvas {
-    left: 20px;
-    pointer-events: none;
-    cursor: none;
+#clearSelfCanvasButton {
+    width:fit-content;
+    margin-top: 16px;
+}
+
+#clearBtnBin {
+    margin-right: 15px;
+}
+
+.clearCanvasButton {
+    position:absolute;
+    left: 16px;
+    z-index:1;
 }
 
 #clearAllCanvas {

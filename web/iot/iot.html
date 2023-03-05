@@ -32,20 +32,25 @@
       <h1 id='heading' class="display-4 fw-bold text-center">IoT Home</h1>
       <H3 id='header-subheading' class="text-center"> </H3>
     </div>
-    <div style="margin-bottom: 100px;">
+    <div>
       <div class="quick_activity_wrap" id="registeredDevicesList">
 
       </div>
     </div>
-    <nav class="navbar fixed-bottom p-0">
-      <div class="container-fluid p-0">
-          <a class="nav-link flex-grow-1 bottom-nav-item" href="javascript:launchApp('../chat');"><i
-                  class="bi bi-chat-left p-1"></i><br>Chat</a>
-          <a class="nav-link flex-grow-1 bottom-nav-item" href="./discover.html"><i
-                  class="bi bi-search-heart p-1"></i><br>Discover</a>
-          <a class="nav-link flex-grow-1 bottom-nav-item" href="../admin/admin.html"><i
-                  class="bi bi-person-circle p-1"></i><br>Me</a>
-      </div>
-  </nav>
+    <div class="blue-ellipse-bkd"></div>
+
+        <nav id="navbar" class="navbar fixed-bottom p-0">
+            <div class="navbar-container">
+                <a class="nav-link bottom-nav-item" href="../index.html">
+                    <img class="navbar-icon" src="../img/navbar/home.png">
+                    <span class="text-caption navbar-text">Home</span></a>
+                <a class="nav-link bottom-nav-item bottom-nav-selected" href="../index.html">
+                    <img class="navbar-icon" src="../img/navbar/discover.png">
+                    <span class="text-caption navbar-text">Discover</span></a>
+                <a class="nav-link bottom-nav-item" href="../admin/admin.html">
+                    <img class="navbar-icon" src="../img/navbar/profile.png">
+                    <span class="text-caption navbar-text">Profile</span></a>
+            </div>
+        </nav>
   </body>
 </html>

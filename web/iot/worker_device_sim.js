@@ -56,6 +56,7 @@ function worker_node(){
           values: {
             channelName: deviceChannelName,
             deviceId: id,
+            type: type,
             deviceName: defaultDeviceName,
             alarmSettings: alarmSettings,
             setValue: setValue
@@ -65,12 +66,21 @@ function worker_node(){
       else if (args.data.action === 'finalizeProvisioning') {
         var subKey = args.data.params.sub
         var pubKey = args.data.params.pub
+        var url = args.data.params.url
         localPubNub = new PubNub({
           publishKey: pubKey,
           subscribeKey: subKey,
           uuid: id,
           listenToBrowserNetworkEvents: false //  Allows us to call the PubNub SDK from a web worker
-        })
+        });
+
+        // Create Simulator Metadata
+        await localPubNub.objects.setUUIDMetadata({
+          data: {
+            name: defaultDeviceName,
+            profileUrl: url
+          }
+        });
 
         // Listen for status (provisioning) and message (setting) updates from PubNub
         await localPubNub.addListener({

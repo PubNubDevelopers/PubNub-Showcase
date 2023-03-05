@@ -33,7 +33,7 @@ async function initialize () {
   //  Public.<name> for public groups
   //  Private.<name> for private groups
   //  DM.A&B for direct messages between two users
-  pubnub.subscribe({channels: ["device.*"], withPresence: true}); // Subscribe
+  pubnub.subscribe({channels: ["device.*", `Private.${pubnub.getUserId()}-iot`], withPresence: true}); // Subscribe
 }
 
 // Listen to PubNub events (message events, object events)

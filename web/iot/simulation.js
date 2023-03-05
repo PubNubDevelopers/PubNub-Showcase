@@ -113,7 +113,8 @@ async function initializeSimulators () {
 
 async function createSimulator (args) {
   return new Promise((resolve, reject) => {
-    var simulatorTask = new Worker(URL.createObjectURL(new Blob(["("+worker_node.toString()+")()"], {type: 'text/javascript'})));;
+    var simulatorTask = new Worker(URL.createObjectURL(new Blob(["("+worker_node.toString()+")()"], {type: 'text/javascript'}))); // Try this for running locally
+    // var simulatorTask = new Worker(worker_node); Try this on GitHub Web Pages
 
     simulatorTask.onmessage = async function (event) {
       if (event.data.command === 'provisionDevice') {

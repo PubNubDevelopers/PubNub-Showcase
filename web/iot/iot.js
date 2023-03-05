@@ -61,16 +61,18 @@ function activatePubNubListener(){
 // This will handle displaying those changes visibially on the dashboard
 function SignalReceivedHandler(payload){
   try{
-    iotDevices[payload.publisher].sensorName = payload.message.sensor_type;
-    iotDevices[payload.publisher].sensorUnit = payload.message.sensor_units;
-    var value = payload.message.sensor_value;
-    if(typeof value === "number"){
-      iotDevices[payload.publisher].sensorValue = Math.round(
-        (payload.message.sensor_value + Number.EPSILON) * 100
-      ) / 100;
-    }
-    else{
-      iotDevices[payload.publisher].sensorValue = value;
+    if(iotDevices.hasOwnProperty(payload.publisher)){
+      iotDevices[payload.publisher].sensorName = payload.message.sensor_type;
+      iotDevices[payload.publisher].sensorUnit = payload.message.sensor_units;
+      var value = payload.message.sensor_value;
+      if(typeof value === "number"){
+        iotDevices[payload.publisher].sensorValue = Math.round(
+          (payload.message.sensor_value + Number.EPSILON) * 100
+        ) / 100;
+      }
+      else{
+        iotDevices[payload.publisher].sensorValue = value;
+      }
     }
   }
   catch(e){

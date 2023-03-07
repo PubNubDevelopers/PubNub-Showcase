@@ -1,18 +1,4 @@
 :root {
-    /**
-    The following named colours will be deleted
-    */
-    --pubnub-color-navy: #161C2D;
-    --pubnub-color-cherry: #CD2026;
-    --pubnub-color-white: #FFFFFF;
-    --pubnub-color-seafoam: #72A9AD;
-    --pubnub-color-teal: #306270;
-    --pubnub-color-brick: #9A1A1E;
-    --demo-primary: var(--pubnub-color-brick);
-    --demo-secondary: var(--pubnub-color-seafoam);
-    --demo-text-white: var(--pubnub-color-white);
-    /** END colours that will be deleted */
-
     --color-background: #FFFFFF;
     --color-button-dark-text: #FAFAFA;
     --color-background-dark-text: #E5E5E5;
@@ -29,11 +15,13 @@
     --color-navbar-background-hover: #1E293B;
     --color-navbar-background: #161C2D;
     --color-background-alert-success: #ECFDF5;
+    --color-background-alert-info: #EFF6FF;
     --color-icon-alert-success: #22C55E;
     --color-icon-alert-text-success: #047857;
     --color-background-alert-error: #FEF2F2;
     --color-icon-alert-error: #F04349;
     --color-icon-alert-text-error: #BA1B21;
+    --color-icon-alert-text-info: #1D4ED8;
     --color-asterisk: #CD2026;
     --color-text-link: #065B6A;
     --color-backdrop: #000000;
@@ -85,7 +73,7 @@ a:hover {
 .heading-2 {
     font-family: 'Poppins';
     font-style: normal;
-    font-weight: 800;
+    font-weight: 600;
     font-size: 2.25rem;
     line-height: 2.5rem;
     letter-spacing: -0.025em;
@@ -152,7 +140,7 @@ a:hover {
 }
 
 .hidden {
-    display: none
+    display: none;
 }
 
 .navbar {
@@ -227,7 +215,7 @@ a:hover {
 }
 
 .pn-text-field:focus {
-    border: 2px solid var(--color-teal);
+    outline: 2px solid var(--color-teal);
     border-radius: 6px;
 }
 
@@ -246,6 +234,7 @@ a:hover {
 .pn-btn:hover {
     color: var(--color-button-dark-text);
     background: var(--color-button-white-text);
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .pn-btn:focus {
@@ -261,12 +250,14 @@ a:hover {
 .pn-btn-white {
     color: var(--color-button-white-text);
     background: var(--color-background);
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--color-button-white-border);
 }
 
 .pn-btn-white:hover {
     color: var(--color-button-white-text);
     background: var(--color-background-default);
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--color-button-white-border);
 }
 
@@ -297,24 +288,12 @@ a:hover {
 }
 
 .message-input {
-    border: 1px solid #D4D4D4;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-    border-radius: 6px;
     padding: 8px 12px;
-    color: var(--color-text-heading);
-    background: var(--color-background);
-    caret-color: auto;
     width: 100%;
     background-repeat: no-repeat;
     background-position: right;
     margin-top: 8px;
     margin-bottom: 8px;
-}
-
-.message-input:focus {
-    /*outline: none !important;*/
-    outline: 2px solid var(--color-teal);
-    border-radius: 6px;
 }
 
 .message-emoji {
@@ -373,61 +352,11 @@ a:hover {
     filter: blur(10px);
 }
 
-
-/** BELOW HERE ARE STYLES FROM BEFORE UX INPUT */
-
-.message-input-icon {
-    font-size: xx-large;
-    cursor: pointer;
-}
-
-
 .bottom-nav-item:hover {
-    color: var(--demo-text-white);
+    color: var(--color-background);
 }
 
 .bottom-nav-item:visited {
-    color: var(--demo-text-white);
+    color: var(--color-background);
 }
 
-
-
-.btn-pn {
-    background: var(--demo-secondary);
-    border-radius: 8px;
-    padding: 16px 16px;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 24px;
-    color: #000000;
-}
-
-.btn-pn-small {
-    border-radius: 8px;
-    padding: 8px 8px;
-    font-style: normal;
-    font-size: 14px;
-    line-height: 14px;
-}
-
-.btn-pn-clear {
-    background: var(--demo-text-white);
-    border: 1px solid #33687B;
-    color: #33687B;
-}
-
-
-.btn-pn:hover {
-    background: #155c76;
-    color: var(--demo-text-white);
-}
-
-.btn-pn-clear:hover {
-    background: #155c76;
-    color: var(--demo-text-white);
-}
-
-
-.card-header {
-    background-color: var(--demo-secondary);
-}

@@ -15,15 +15,20 @@ a {
     overflow: scroll;
 }
 
+.form-check-label {
+    margin-left: 12px;
+}
 
 .stream-selection {
-    background-color: #FFFFFF;
+    background-color: var(--color-background);
+    margin: 16px;
+    padding: 24px;
+    border: 1px solid var( --color-background-text-secondary);
+    border-radius: 6px;
 }
 
 .stream-option {
-    font-size: large;
-    padding-bottom: 3px;
-    padding-top: 3px;
+    margin-top: 28px;
 }
 
 .rt-message-container {
@@ -53,9 +58,16 @@ a {
     width: 100%;
     flex-direction: column;
     display: flex;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 @media screen and ( max-width: 576px ) { 
+    body {
+        height: 50vh;
+        min-height: -webkit-fill-available;
+        min-height: -moz-available;
+    }
     .main-container { flex-flow: column; }
   }
 

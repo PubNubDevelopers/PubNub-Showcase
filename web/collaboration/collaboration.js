@@ -74,6 +74,7 @@ async function loadCollaboration () {
   }
   developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a collaborative drawing application.")
   developerMessage("This demo uses a combination of publish / subscribe messages as well as the setState presence API to exchange drawing data and mouse positions respectively")
+  developerMessage("You might see some visual quirks if collaborating between a desktop and mobile user but this is NOT a limitation of PubNub, only a limitation of this demo")
 }
 
 //  This function has no purpose within the showcase app, colours are all handled by CSS

@@ -15,11 +15,11 @@
  * such, Signals are ideal for this kind of collaboration use case but be aware of the rate
  * at which your client can consume data - this demo uses Messages so updates can be chunked together and sent 10 at a
  * time, this reduces the client load since it has to handle fewer messages per second when people are drawing but
- * will come with an increased cost.   
+ * will come with an increased cost.
  * (Note that If you are very rapidly dragging your mouse across the screen, you can
  * still overwhelm the browser, so you might choose a larger batch size if you expect to send rapid updates over
- * a browser.)  
- * Messages vs. Signals is an architectural choice, based on your desired performance, 
+ * a browser.)
+ * Messages vs. Signals is an architectural choice, based on your desired performance,
  * it would obviously be possible to throttle the rate of updates or make
  * the drawings less granular if needed.  PubNub is NOT a bottleneck for the collaboration use case, for full
  * details on PubNub publish and subscribe rate limits, please see https://www.pubnub.com/docs/general/setup/limits
@@ -29,7 +29,7 @@
  * If order guarantee is required then a sequence number can be added to each message which can then be
  * reconstituted by the receiver, however you can assume with high confidence that messages
  * will be kept in order provided the publish rate is slower than the consumption rate by the receiver.
- * This demo does not make any attempt to ensure the order of messages is correct, though this 
+ * This demo does not make any attempt to ensure the order of messages is correct, though this
  * should not be an issue in normal use.
  * - Presence
  * Although the showcase variant of this demo does not show the number of online users present, the
@@ -58,6 +58,16 @@ const PENCIL_SPRITE_Y_ADJUST = 80 //  Pencil icon
 
 // PubNub Connection Object, this is provided by the common showcase functionality
 pubnub = createPubNubObject()
+
+async function loadCollaboration () {
+  if (!(await testForLoggedInUser()))
+  {
+    //  User is not logged in, return them to the index
+    window.location.href = '../index.html';
+  }
+  developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a collaborative drawing application.")
+  developerMessage("This demo uses a combination of publish / subscribe messages as well as the setState presence API to exchange drawing data and mouse positions respectively")
+}
 
 //  This function has no purpose within the showcase app, colours are all handled by CSS
 function setRandomSpriteColor () {

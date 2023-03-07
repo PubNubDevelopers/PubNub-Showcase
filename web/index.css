@@ -49,20 +49,20 @@
 }
 
 .login-modal-avatars {
-    display:flex;
+    display: flex;
     flex-direction: row;
     width: 100%;
     margin-top: 5px;
     gap: 16px;
     justify-content: flex-start;
     flex-wrap: wrap;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 #imageUploadPane {
     width: 100%;
     margin-top: 16px;
-    display:flex;
+    display: flex;
     flex-direction: row;
 }
 
@@ -74,26 +74,11 @@
     filter: blur(200px);
 }
 
-
-@media screen and (max-width: 576px) {
-    .showcase-grid {
-        grid-template-columns: repeat(1, 1fr);
-    }
-    .login-modal {
-        padding: 16px;
-    }
-    #imageUploadPane {
-        flex-direction: column;
-        gap: 16px;
-    }
-}
-
-
 #imageToUploadDetail {
     /**flex:1;*/
-    display:flex;
-    padding:5px;
-    align-items:center;
+    display: flex;
+    padding: 5px;
+    align-items: center;
     width: 100%;
     margin-right: 16px;
     border-radius: 6px;
@@ -124,7 +109,7 @@
 }
 
 .hidden {
-    display:none !important;
+    display: none !important;
 }
 
 #btnLogin {
@@ -132,12 +117,20 @@
 }
 
 .login-message {
-    position:absolute;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     border-radius: 6px;
     padding: 16px;
+}
+
+.login-message-bottom {
+    font-weight: 300;
+    left: 0;
+    width: 100%;
+    border-radius: 6px;
+    padding: 8px;
 }
 
 .login-message-error {
@@ -150,6 +143,11 @@
     background-color: var(--color-background-alert-success);
 }
 
+.login-message-info {
+    color: var(--color-icon-alert-text-info);
+    background-color: var(--color-background-alert-info);
+}
+
 .login-message-icon {
     width: 16px;
     height: 16px;
@@ -157,9 +155,32 @@
 }
 
 .login-message-icon-error {
-    content:url(./img/icons/x.png)
+    content: url(./img/icons/x.png)
 }
 
 .login-message-icon-success {
-    content:url(./img/icons/tick.png)
+    content: url(./img/icons/tick.png)
+}
+
+.login-message-icon-info {
+    content: url(./img/icons/i.png)
+}
+
+@media screen and (max-width: 576px) {
+    .showcase-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .login-modal {
+        padding: 16px;
+    }
+
+    #imageUploadPane {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .login-message-bottom {
+        display: none;
+    }
 }

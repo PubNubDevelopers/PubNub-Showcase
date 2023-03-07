@@ -11,6 +11,9 @@ async function load () {
   {
     showLogin()
   }
+
+  developerMessage('This demo uses an example UI but your app would use its own UX, invoking the PubNub SDK --> You are NOT locked to a specific UI');
+  developerMessage('Your username and avatar URL are stored in PubNub Objects');
 }
 
 function showLogin () {

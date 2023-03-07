@@ -40,6 +40,13 @@
  * In summary:
  * Cursor position and user name are tracked using setState(), part of PubNub presence
  * The canvas drawing is exchanged between all users using PubNub Messages (see earlier notes about Signals)
+ * NOTES ON MOBILE:
+ * This collaboration application will work on mobile but there are some quirks:
+ * - When drawing with another user who has a larger canvas, for example the other user has a desktop, you may
+ *   see the position of the colours change as the canvas expands to account for the other user's drawing
+ * - Your name and cursor position are not shown on mobile but the other user, if they are on desktop, will
+ *   see your name only in the initial mouse position - it will not move.  This is specific to a desktop user
+ *   viewing a mouse user.
  */
 
 //  The following variables configure the collaboration application to work within the showcase app

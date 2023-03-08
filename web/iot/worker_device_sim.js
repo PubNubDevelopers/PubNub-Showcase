@@ -28,7 +28,7 @@ function worker_node(){
 
   if ('function' === typeof importScripts) {
     const window = null
-    importScripts('https://cdn.pubnub.com/sdk/javascript/pubnub.7.0.1.min.js')
+    importScripts('https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js')
 
     var UUID
     var deviceSimulator
@@ -81,6 +81,23 @@ function worker_node(){
             profileUrl: url
           }
         });
+
+        await localPubNub.objects.setChannelMembers({
+          channel: `Private.${UUID}-iot`,
+          uuids: [
+            localPubNub.getUUID(),
+              {
+                  id: localPubNub.getUUID(),
+                  custom: {
+                      name: defaultDeviceName,
+                      profileUrl: url
+                  }
+              }
+          ]
+      })
+      .catch((err) => {
+          console.log(err);
+      });
 
         // Listen for status (provisioning) and message (setting) updates from PubNub
         await localPubNub.addListener({

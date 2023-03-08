@@ -100,6 +100,7 @@ function initPolls () {
 //  and handled on your server (see comments at the top of this file) 
 async function loadHistoricPollVotes () {
   try {
+    developerMessage("Polls are a very common use case for PubNub implementations.  Most commonly the business logic will reside on the server but for transparency, this demo shows the process client side.  See the code comments for more detail.")
     const history = await pubnub.fetchMessages({
       channels: [POLLS_CHANNEL_NAME],
       count: 100

@@ -1,7 +1,7 @@
 body {
     display: flex;
     flex-flow: column;
-    height: 100vh
+    height: 100vh;
 }
 
 iframe {
@@ -23,6 +23,8 @@ iframe {
     flex-wrap: wrap;
     overflow: scroll;
     min-width: 250px;
+    background: var(--color-background-section);
+    padding-bottom: 8px;
 }
 
 .live-stream {
@@ -33,23 +35,22 @@ iframe {
     flex-grow: 1;
 }
 
-@media screen and ( max-width: 576px ) { 
-    .main-container { flex-flow: column; }
-    .live-stream {flex-grow: 0;}
-  }
-
 .message-list {
     display: flex;
     flex: 1;
     flex-wrap: wrap;
     overflow: scroll;
-    flex-direction: column-reverse;
+    flex-direction: column;
+    margin-top: 8px;
 }
 
 .message-list-contents {
     width: 100%;
     flex-direction: column;
+    /*overflow:scroll;*/
     display: flex;
+    padding-left: 16px;
+    padding-right: 8px;
 }
 
 .ve-message-container {
@@ -69,16 +70,12 @@ iframe {
 .ve-nickname {
     display: flex;
     white-space: nowrap;
-    font-size: 0.875em;
-    font-weight: 900;
     margin-right: 5px;
     margin-bottom: 5px;
-    color: var(--pubnub-color-navy);
 }
 
 .ve-nickname-you {
-    display: flex;
-    color: var(--pubnub-color-brick);
+    font-weight: 600;
 }
 
 .ve-message {
@@ -89,16 +86,43 @@ iframe {
 
 
 .poll-container {
-    background-color: #FFFFFF;
-    width: 100%;
-    /*display: flex;
-    flex-direction: row;*/
-    align-items: center;
-    display:block;
+    background: var(--color-background);
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-top: 8px;
+    padding: 24px;
+    display: block;
+    border: 1px solid var(--color-background-text-secondary);
+    border-radius: 6px;
+}
+
+.poll-option {
+    margin-top: 28px;
+}
+
+@media screen and (max-width: 576px) {
+    body {
+        height: 50vh;
+        min-height: -webkit-fill-available;
+        min-height: -moz-available;
+    }
+    
+    .main-container {
+        flex-flow: column;
+    }
+
+    .live-stream {
+        flex-grow: 0;
+    }
+
+    .poll-container {
+        position: fixed;
+        bottom: 150px;
+    }
 }
 
 .option-label {
-    padding-left: 5px;
+    padding-left: 12px;
 }
 
 .emoji-picker {

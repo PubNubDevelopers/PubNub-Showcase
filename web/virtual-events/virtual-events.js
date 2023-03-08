@@ -90,6 +90,7 @@ async function messageInputSend () {
         this is an uncommon use case for virtual events with a *very high* quantity of messages.  The avatar and name is sent
         along with the message, to make it easier to retrieve this data at the other end. 
         */
+        developerMessage("PubNub will be able to cope with whatever speed you can publish messages to the network, but you should consider how fast your users will be able to read or interact with your messages")
       await pubnub.publish({
         channel: VIRTUAL_EVENT_CHANNEL,
         storeInHistory: false,  //  In this app, we don't persist virtual events chat messages
@@ -110,12 +111,13 @@ async function messageInputSend () {
 //  A chat message is received (this also handles messages we send ourselves to keep the logic consistent)
 function messageReceived (messageObj) {
   var messageDiv = createMessage(messageObj, messageObj.publisher == me.id)
-  var messageListDiv = document.getElementById('messageListContents')
-  
-  if (messageListDiv.children.length >= MAX_MESSAGES_SHOWN_PER_CHAT) {
-    messageListDiv.removeChild(messageListDiv.children[0])
+  var messageListContents = document.getElementById('messageListContents')
+  if (messageListContents.children.length >= MAX_MESSAGES_SHOWN_PER_CHAT) {
+    messageListContents.removeChild(messageListContents.children[0])
   }
-  document.getElementById('messageListContents').appendChild(messageDiv)
+  var messageList = document.getElementById('messageList')
+  messageListContents.appendChild(messageDiv)
+  messageList.scrollTop = messageList.scrollHeight;
 }
 
 //////////////////////
@@ -143,4 +145,17 @@ function createMessage (messageObj, fromSelf) {
     messageObj.message.message +
     '</div>'
   return newMsg
+}
+
+function imgPollHover(isHover)
+{
+  var pollIcon = document.getElementById('imgPoll')
+  if (isHover)
+  {
+    pollIcon.src = '../img/icons/poll-hover.png'
+  }
+  else
+  {
+    pollIcon.src = '../img/icons/poll.png'
+  }
 }

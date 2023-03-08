@@ -11,8 +11,14 @@ body {
     background-color: var(--color-background-default);
 }
 
+#bottomNav {
+    bottom: 0px;
+    position: absolute;
+    width: 100%;
+}
+
 .app-header {
-    position:relative;
+    position: relative;
     z-index: 1;
 }
 
@@ -21,11 +27,11 @@ body {
 }
 
 #nameInput {
-    display:none;
+    display: none;
 }
 
 #clearSelfCanvasButton {
-    width:fit-content;
+    width: fit-content;
     margin-top: 16px;
 }
 
@@ -34,43 +40,56 @@ body {
 }
 
 .clearCanvasButton {
-    position:absolute;
+    position: absolute;
     left: 16px;
-    z-index:1;
+    z-index: 1;
 }
 
 #clearAllCanvas {
-    display:none;
+    display: none;
     left: 20px;
     bottom: 150px;
 }
 
 #colorSwatch {
-    height:100%;
+    height: 100%;
     left: 36px;
     position: fixed;
     top: 0;
     align-items: center;
-    display:flex;
+    display: flex;
     flex-direction: column;
-    row-gap: 48px; 
-    pointer-events:none;
+    row-gap: 48px;
+    pointer-events: none;
     cursor: none;
 }
 
-input[type=radio]:checked + label::after {
-	content: '';
-	position: absolute;
-	left: -16px;
+input[type=radio]:checked+label::after {
+    content: '';
+    position: absolute;
+    left: -16px;
     top: -16px;
     border-left: 4px solid var(--color-pen-3);
     height: 80px;
 }
 
-label[for=color01] {background: var(--color-pen-1);margin-top:auto;}
-label[for=color02] {background: var(--color-pen-2);}
-label[for=color03] {background: var(--color-pen-3);}
-label[for=color04] {background: var(--color-pen-4);margin-bottom:auto;}
+label[for=color01] {
+    background: var(--color-pen-1);
+    margin-top: auto;
+}
+
+label[for=color02] {
+    background: var(--color-pen-2);
+}
+
+label[for=color03] {
+    background: var(--color-pen-3);
+}
+
+label[for=color04] {
+    background: var(--color-pen-4);
+    margin-bottom: auto;
+}
 
 .bubblePresence {
     display: inline-block;
@@ -78,12 +97,12 @@ label[for=color04] {background: var(--color-pen-4);margin-bottom:auto;}
 }
 
 .bubble {
-    display:none;
+    display: none;
 }
 
 #sprite-container {
     left: 20px;
-    right:20px;
+    right: 20px;
 }
 
 .sprite {
@@ -109,15 +128,18 @@ label[for=color04] {background: var(--color-pen-4);margin-bottom:auto;}
 
 @media screen and (max-width: 600px) {
     .sprite {
-        visibility:hidden;
+        visibility: hidden;
     }
+
     #colorSwatch {
         bottom: 15px;
     }
+
     #clearAllCanvas {
         bottom: 75px;
     }
+
     #name {
-        display:none;
+        display: none;
     }
 }

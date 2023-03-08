@@ -14,7 +14,7 @@ const pollQuestions = [
         question: "What other topics should we cover?",
         option1: "Mobile development",
         option2: "Web development",
-        option3: "Native development (Windows)",
+        option3: "Native development",
     },
     {
         question: "How long have you used PubNub?",

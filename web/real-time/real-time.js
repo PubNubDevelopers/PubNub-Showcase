@@ -16,7 +16,13 @@ var messageListDiv
 var messageListContainer
 
 //  Called on page load
-function loadRealTime () {
+async function loadRealTime () {
+  if (!(await testForLoggedInUser()))
+  {
+    //  User is not logged in, return them to the index
+    window.location.href = '../index.html';
+  }
+  
   messageListDiv = document.getElementById('messageListContents')
   messageListContainer = document.getElementById('messageList')
   //  Unlike the other demos in this showcase application, the Real-time demo uses existing PubNub
@@ -43,6 +49,7 @@ function loadRealTime () {
 //  Handler for when the 'select streams' checkbox is ticked.
 //  Streams are stored in a JSON object, keyed on the stream name (twitter, e.t.c.) 
 function streamSelected (elem) {
+  developerMessage('Each stream subscribes to a different PubNub instance (& channel) which is publishing the data');
   if (elem.checked) {
     streams[elem.id].pubnub.subscribe({ channels: streams[elem.id].channels })
   } else {

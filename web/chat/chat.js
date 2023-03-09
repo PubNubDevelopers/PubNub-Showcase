@@ -395,6 +395,7 @@ async function getUserMetaDataOthers () {
     //  Populate the Direct 1:1 Chat list with people you can chat with
     for (var i = users.data.length - 1; i >= 0; i--) {
       if (users.data[i].id == pubnub.getUserId()) continue
+      if (users.data[i].id.includes("sim_")) continue
       var lastUpdated = new Date(users.data[i].updated)
       //  Do not show users who logged in more than 24 hours ago.  To avoid stale data in the demo - you probably would not do this in production
       var cutoff = new Date()

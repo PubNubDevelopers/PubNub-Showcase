@@ -131,7 +131,8 @@ async function createSimulator (args) {
             name: deviceName,
             channelName: channelName,
             alarmSettings: alarmSettings,
-            setValue: setValue
+            setValue: setValue,
+            worker: simulatorTask
           }
           // Add Device to HTML
           addRegisteredDevice(deviceId)

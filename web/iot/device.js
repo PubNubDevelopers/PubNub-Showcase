@@ -18,7 +18,6 @@ function addRegisteredDevice (deviceId) {
     const toSlider = document.getElementById(`toSlider${deviceId}`);
     const fromInput = document.getElementById(`fromInput${deviceId}`);
     const toInput = document.getElementById(`toInput${deviceId}`);
-    setToggleAccessible(toSlider, fromSlider);
     slider.oninput = () => controlSlider(slider, deviceId);
     fromSlider.oninput = () => controlFromSlider(fromSlider, toSlider, fromInput, deviceId);
     toSlider.oninput = () => controlToSlider(fromSlider, toSlider, toInput, deviceId);

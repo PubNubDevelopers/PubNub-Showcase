@@ -65,12 +65,16 @@ function worker_node(){
       else if (args.data.action === 'finalizeProvisioning') {
         var subKey = args.data.params.sub
         var pubKey = args.data.params.pub
+        var url = args.data.params.url
         localPubNub = new PubNub({
           publishKey: pubKey,
           subscribeKey: subKey,
           uuid: id,
           listenToBrowserNetworkEvents: false //  Allows us to call the PubNub SDK from a web worker
         })
+
+        // Set MetaData and Channel Members for each sim
+        await setMetaData(url);
 
         // Listen for status (provisioning) and message (setting) updates from PubNub
         await localPubNub.addListener({
@@ -355,6 +359,40 @@ function worker_node(){
           return `The ${defaultDeviceName} has been rearmed`;
         }
       }
+    }
+  }
+  // Set the UUID MetaData for the device simulators
+  // Set channel members for the IOT Channel in Chat
+  async function setMetaData(url){
+    try{
+      // Create Simulator Metadata
+        await localPubNub.objects.setUUIDMetadata({
+          data: {
+            name: defaultDeviceName,
+            profileUrl: url
+          }
+        });
+
+        await localPubNub.objects.setChannelMembers({
+          channel: `Private.${UUID}-iot`,
+          uuids: [
+            localPubNub.getUUID(),
+              {
+                  id: localPubNub.getUUID(),
+                  custom: {
+                      name: defaultDeviceName,
+                      profileUrl: url
+                  }
+              }
+          ]
+      })
+      .catch((err) => {
+          console.log(err);
+      });
+    }
+    catch(e){
+      console.log("Failed to set sim metadata");
+      console.log(e);
     }
   }
 }

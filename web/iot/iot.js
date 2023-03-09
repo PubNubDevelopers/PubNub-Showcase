@@ -14,6 +14,14 @@ var alarmSettings = null;
 // Current Values for temperature settings
 var valueSettings = null;
 
+// Enable navigation prompt
+window.onbeforeunload = function() {
+  pubnub.objects.removeChannelMembers({
+    channel: `Private.${pubnub.getUUID()}-iot`,
+    uuids: Object.keys(iotDevices)
+  });
+};
+
 // Called on page load
 async function initialize () {
 

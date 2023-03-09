@@ -1,5 +1,16 @@
 body {
-    font-family: 'Poppins';
+    display: flex;
+    flex-flow: column;
+    height: 50vh;
+    min-height: -webkit-fill-available;
+    min-height: -moz-available;
+    overflow: hidden;
+}
+
+.geolocation-container {
+    display: flex;
+    flex-grow: 1;
+    overflow: scroll;
 }
 
 .custom-bubble {

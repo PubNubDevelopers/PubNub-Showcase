@@ -33,7 +33,7 @@
             <div class="red-ellipse-bkd"></div>
         </div>
     
-            <div class="row" style="padding-left: 50px; padding-right: 50px;">
+            <div class="row geolocation-container" style="padding-left: 50px; padding-right: 50px;">
             <div class="col">
                 <!--<h1>GEO Track App - Real-time Locating Service</h1>-->
                 <br>
@@ -47,19 +47,7 @@
                         <div id="map-canvas" class="map-style"></div>
                     </div>
                 </div>
-                <nav id="bottomNav" class="navbar fixed-bottom p-0" style="min-height:fit-content">
-                    <div class="navbar-container">
-                        <a class="nav-link bottom-nav-item" href="../index.html">
-                            <img class="navbar-icon" src="../img/navbar/home.png">
-                            <span class="text-caption navbar-text">Home</span></a>
-                        <a class="nav-link bottom-nav-item" href="../index.html">
-                            <img class="navbar-icon" src="../img/navbar/discover.png">
-                            <span class="text-caption navbar-text">Discover</span></a>
-                        <a class="nav-link bottom-nav-item" href="../admin/admin.html">
-                            <img class="navbar-icon" src="../img/navbar/profile.png">
-                            <span class="text-caption navbar-text">Profile</span></a>
-                    </div>
-                </nav>
+
                         </div>
             <div class="d-flex flex-column custom-bubble" style="margin-top: 16px;">
                 <h1 style="padding-left: 4px; padding-top: 16px;">Enter a New Location</h1>
@@ -86,6 +74,52 @@
                 </div>
             </div>
         </div>
+
+        <nav id="bottomNav" class="navbar">
+
+            <div id="carousel" class="carousel-parent" style="display:none">
+                <div class="carousel">
+                    <a href="../chat/chat.html" class="carousel-tile">
+                        <img src="../img/icons/icon-chat.png" class="carousel-image">
+                        <div class="emphasised-body carousel-name">Chat</div>
+                    </a>
+                    <a href="../geolocation/geolocation.html" class="carousel-tile">
+                        <img src="../img/icons/icon-geolocation.png" class="carousel-image">
+                        <div class="emphasised-body carousel-name">Geolocation</div>
+                    </a>
+                    <a href="../iot/iot.html" class="carousel-tile">
+                        <img src="../img/icons/icon-iot.png" class="carousel-image">
+                        <div class="emphasised-body carousel-name">IoT</div>
+                    </a>
+                    <a href="../collaboration/collaboration.html" class="carousel-tile">
+                        <img src="../img/icons/icon-collaboration.png" class="carousel-image">
+                        <div class="emphasised-body carousel-name">Collaboration</div>
+                    </a>
+                    <a href="../virtual-events/virtual-events.html" class="carousel-tile">
+                        <img src="../img/icons/icon-virtual-events.png" class="carousel-image">
+                        <div class="emphasised-body carousel-name">Virtual Events</div>
+                    </a>
+                    <a href="../real-time/real-time.html" class="carousel-tile">
+                        <img src="../img/icons/icon-realtime-streaming.png" class="carousel-image">
+                        <div class="emphasised-body carousel-name">Real-Time Streaming</div>
+                    </a>
+                </div>
+            </div>
+    
+    
+            <div class="navbar-container">
+                <a class="nav-link bottom-nav-item" href="../index.html">
+                    <img class="navbar-icon" src="../img/navbar/home.png">
+                    <span class="text-caption navbar-text">Home</span></a>
+                    <a id="nav-discover" class="nav-link bottom-nav-item" style="cursor:pointer"
+                    onclick="javascript:toggleShowcase()">
+                    <img class="navbar-icon" src="../img/navbar/discover.png">
+                    <span class="text-caption navbar-text">Discover</span></a>
+                            <a class="nav-link bottom-nav-item" href="../admin/admin.html">
+                    <img class="navbar-icon" src="../img/navbar/profile.png">
+                    <span class="text-caption navbar-text">Profile</span></a>
+            </div>
+        </nav>
         <script>
              //  Map
             var jsElem = window.document.createElement('script');

@@ -56,6 +56,7 @@ function worker_node(){
           values: {
             channelName: deviceChannelName,
             deviceId: id,
+            type: type,
             deviceName: defaultDeviceName,
             alarmSettings: alarmSettings,
             setValue: setValue

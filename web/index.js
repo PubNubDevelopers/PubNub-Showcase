@@ -31,7 +31,7 @@ function showLogin () {
     }
   }
 
-  document.getElementById('navbar').classList.add('blurred')
+  document.getElementById('bottomNav').classList.add('blurred')
   document.getElementById('title').classList.add('blurred')
   document.getElementById('showcaseGrid').classList.add('blurred')
 
@@ -62,7 +62,7 @@ function showLogin () {
 
 function hideLogin()
 {
-  document.getElementById('navbar').classList.remove('blurred')
+  document.getElementById('bottomNav').classList.remove('blurred')
   document.getElementById('title').classList.remove('blurred')
   document.getElementById('showcaseGrid').classList.remove('blurred')
   if (loginModal !== null)
@@ -202,6 +202,7 @@ async function uploadCustomAvatar () {
         avatar.src = fileUrl
         selectedAvatar(5, avatar.src)
         setEnableButtonState()
+        showLoginMsg("Image upload completed", false, true)
       } else {
         //  The Image moderation function (PubNub function) will delete any image which does not pass moderation
         showLoginMsg(
@@ -209,7 +210,6 @@ async function uploadCustomAvatar () {
         )
       }
       uploadInProgress(false)
-      showLoginMsg("Image upload completed", false, true)
     } catch (err) {
       showLoginMsg('Error uploading custom avatar', true, true)
       console.log('Error uploading custom avatar: ' + err)

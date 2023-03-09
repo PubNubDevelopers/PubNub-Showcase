@@ -13,8 +13,8 @@
         crossorigin="anonymous"></script>
 
     <link rel="icon" href="./favicon.ico" />
-    <link rel="stylesheet" href="./shared/style.css" />
     <link rel="stylesheet" href="./index.css" />
+    <link rel="stylesheet" href="./shared/style.css" />
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <script src="./shared/keys.js"></script>
     <script src="./shared/pubnub_setup.js"></script>
@@ -25,8 +25,8 @@
 <BODY onload="load()">
     <div class="red-ellipse-bkd"></div>
 
-    <div class="container-fluid p-0">
-        <div class="container-fluid mb-3 p-2">
+    <div class="index-container">
+        <div class="">
             <h1 id="title" class="app-header heading-1">Showcase App</h1>
         </div>
 
@@ -53,13 +53,13 @@
                 <div class="heading-2">Collaboration</div>
                 <div class="text-body-2">Interactive whiteboard / Publish messages to draw / User state (cursor
                     position)</div>
-                </a>
+            </a>
             <a href="./virtual-events/virtual-events.html" class="showcase-tile">
                 <img src="./img/icons/icon-virtual-events.png" class="showcase-image">
                 <div class="heading-2">Virtual Events</div>
                 <div class="text-body-2">Experience a shared live event / Chat with host / React to stream / Polls /
                     Moderation</div>
-                </a>
+            </a>
             <a href="./real-time/real-time.html" class="showcase-tile">
                 <img src="./img/icons/icon-realtime-streaming.png" class="showcase-image">
                 <div class="heading-2">Real-Time Streaming</div>
@@ -69,21 +69,52 @@
         </div>
 
         <div class="blue-ellipse-bkd"></div>
-
-        <nav id="navbar" class="navbar fixed-bottom p-0">
-            <div class="navbar-container">
-                <a class="nav-link bottom-nav-item bottom-nav-selected" href="./index.html">
-                    <img class="navbar-icon" src="./img/navbar/home.png">
-                    <span class="text-caption navbar-text">Home</span></a>
-                <a class="nav-link bottom-nav-item" href="./index.html">
-                    <img class="navbar-icon" src="./img/navbar/discover.png">
-                    <span class="text-caption navbar-text">Discover</span></a>
-                <a class="nav-link bottom-nav-item" href="./admin/admin.html">
-                    <img class="navbar-icon" src="./img/navbar/profile.png">
-                    <span class="text-caption navbar-text">Profile</span></a>
-            </div>
-        </nav>
     </div>
+
+    <nav id="bottomNav" class="navbar">
+
+        <div id="carousel" class="carousel-parent" style="display:none">
+            <div class="carousel">
+                <a href="./chat/chat.html" class="carousel-tile">
+                    <img src="./img/icons/icon-chat.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Chat</div>
+                </a>
+                <a href="./geolocation/geolocation.html" class="carousel-tile">
+                    <img src="./img/icons/icon-geolocation.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Geolocation</div>
+                </a>
+                <a href="./iot/iot.html" class="carousel-tile">
+                    <img src="./img/icons/icon-iot.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">IoT</div>
+                </a>
+                <a href="./collaboration/collaboration.html" class="carousel-tile">
+                    <img src="./img/icons/icon-collaboration.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Collaboration</div>
+                </a>
+                <a href="./virtual-events/virtual-events.html" class="carousel-tile">
+                    <img src="./img/icons/icon-virtual-events.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Virtual Events</div>
+                </a>
+                <a href="./real-time/real-time.html" class="carousel-tile">
+                    <img src="./img/icons/icon-realtime-streaming.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Real-Time Streaming</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="navbar-container">
+            <a class="nav-link bottom-nav-item bottom-nav-selected" href="./index.html">
+                <img class="navbar-icon" src="./img/navbar/home.png">
+                <span class="text-caption navbar-text">Home</span></a>
+            <a id="nav-discover" class="nav-link bottom-nav-item" style="cursor:pointer"
+                onclick="javascript:toggleShowcase()">
+                <img class="navbar-icon" src="./img/navbar/discover.png">
+                <span class="text-caption navbar-text">Discover</span></a>
+            <a class="nav-link bottom-nav-item" href="./admin/admin.html">
+                <img class="navbar-icon" src="./img/navbar/profile.png">
+                <span class="text-caption navbar-text">Profile</span></a>
+        </div>
+    </nav>
 
     <!--  Modal: Log in screen -->
     <div class="modal" id="loginModal" tabindex="-1">
@@ -143,7 +174,8 @@
 
                 <div id="developer-note" class="text-label login-message-bottom login-message-info">
                     <img id="developer-note-icon" class="login-message-icon login-message-icon-info">
-                    <span id="login-message-text"><b>Developers:</b> Enable the browser JavaScript console for implementation details</span>
+                    <span id="login-message-text"><b>Developers:</b> Enable the browser JavaScript console for
+                        implementation details</span>
                 </div>
 
             </div>

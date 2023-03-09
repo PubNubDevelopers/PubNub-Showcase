@@ -6,6 +6,7 @@ function loadAdmin () {
   getUserIdentifier()
   getUserMetadata()
   getUserGroups()
+  developerMessage("If you log out, the event will be detected by the Objects API, meaning other users can detect the logout and update themselves accordingly")
 }
 
 function getUserIdentifier () {
@@ -21,7 +22,7 @@ async function getUserMetadata () {
     document.getElementById('lblName').innerHTML = result.data.name
     document.getElementById('avatar').src = result.data.profileUrl
     var d = new Date(result.data.updated)
-    document.getElementById('lastModifiedDate').innerHTML =
+    document.getElementById('lblFirstLogin').innerHTML =
       d.toLocaleDateString() + ' at ' + d.toLocaleTimeString()
   } catch (e) {
     console.log(e)
@@ -29,6 +30,7 @@ async function getUserMetadata () {
 }
 
 async function getUserGroups () {
+  developerMessage("The PubNub Objects API can return who the members of each channel are")
   const publicChannels = await pubnub.objects.getMemberships({
     uuid: pubnub.getUserId(),
     filter: "channel.id LIKE 'Public.*'"
@@ -38,31 +40,32 @@ async function getUserGroups () {
     filter: "channel.id LIKE 'Private.*'"
   })
   if (publicChannels != null && publicChannels.data.length > 0) {
-    var html = 'Total groups: ' + publicChannels.data.length + "<BR><UL>"
+    document.getElementById('totalPublicGroups').innerHTML = 'Total ' + publicChannels.data.length;
+    var html = ""
     for (var i = 0; i < publicChannels.data.length; i++) {
       html += "<LI>" + publicChannels.data[i].channel.id
     }
     html+= "</UL>"
-    document.getElementById('groupMemberships').innerHTML = html;
+    document.getElementById('publicGroupsList').innerHTML = html;
   }
   else {
-    document.getElementById('groupMemberships').innerHTML = "None"
+    document.getElementById('totalPublicGroups').innerHTML = "None"
   }
   if (privateChannels != null && privateChannels.data.length > 0) {
-    var html = 'Total groups: ' + privateChannels.data.length + "<BR><UL>"
+    document.getElementById('totalPrivateGroups').innerHTML = 'Total ' + privateChannels.data.length
+    var html = ""
     for (var i = 0; i < privateChannels.data.length; i++) {
       html += "<LI>" + privateChannels.data[i].channel.id
     }
     html+= "</UL>"
-    document.getElementById('groupMembershipsPrivate').innerHTML = html;
+    document.getElementById('privateGroupsList').innerHTML = html;
   }
   else {
-    document.getElementById('groupMembershipsPrivate').innerHTML = "None"
+    document.getElementById('totalPrivateGroups').innerHTML = "None"
   }
 }
 
 async function logout () {
-  console.log('Logging Out')
   const res = await pubnub.objects.removeUUIDMetadata({
     uuid: pubnub.getUserId()
   })
@@ -84,5 +87,6 @@ async function logout () {
     })
   }
 
+  sessionStorage.clear()
   location.href = '../index.html'
 }

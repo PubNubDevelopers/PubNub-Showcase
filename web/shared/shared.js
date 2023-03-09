@@ -71,3 +71,20 @@ function developerMessage (message) {
     console.info('%cPN Showcase:' + '%c ' + message, style1, style2)
   }
 }
+
+function toggleShowcase() {
+  document.getElementById('bottomNav').classList.add
+
+  if (document.getElementById('carousel').style.display == 'none') {
+      //  Show carousel
+      document.getElementById('bottomNav').classList.add('navbar-custom')
+      document.getElementById('carousel').style.display = 'block'
+      document.getElementById('nav-discover').classList.add('bottom-nav-selected')
+  }
+  else {
+      //  Show carousel
+      document.getElementById('bottomNav').classList.remove('navbar-custom')
+      document.getElementById('carousel').style.display = 'none'
+      document.getElementById('nav-discover').classList.remove('bottom-nav-selected')
+  }
+}

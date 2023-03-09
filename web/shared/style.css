@@ -173,6 +173,7 @@ a:hover {
     padding-left: 30px;
     padding-right: 30px;
     padding-top: 5px;
+    border-bottom: 1px solid var(--color-navbar-background);
 }
 
 .bottom-nav-item:hover {
@@ -352,4 +353,46 @@ a:hover {
     filter: blur(10px);
 }
 
+.carousel-parent {
+    width: 100%;
+}
 
+.carousel {
+    display:flex;
+    flex-direction: row;
+    overflow: scroll;
+    gap: 16px;
+    padding: 24px;
+    margin-bottom: 8px;
+    background: var(--color-background-text-secondary);
+}
+
+.navbar-custom {
+    padding-top: 0px !important;
+    flex-direction: column;
+    height: auto !important;
+}
+
+.carousel-tile {
+    display: flex;
+    flex-direction: column;
+    justify-content:space-between;
+    background: var(--color-background);
+    border: 1px solid var(--color-background-text-secondary);
+    border-radius: 8px;
+    padding: 16px;
+    gap: 24px;
+}
+
+.carousel-tile:hover {
+    box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-image {
+    max-width: 64px;
+}
+
+.carousel-name {
+    white-space: nowrap;
+    min-width: 150px;
+}

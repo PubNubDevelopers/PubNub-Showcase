@@ -85,10 +85,13 @@
             </div>
 
             <div class="d-flex flex-row message-input-bar">
-                <div class="message-emoji" onclick="messageInputEmoji()"><img src="../img/icons/emoji.png" height="22"></div>
+                <div class="message-emoji" onclick="messageInputEmoji()"><img src="../img/icons/emoji.png" height="22">
+                </div>
                 <input id="input-message" class="text-body-2 pn-text-field message-input" placeholder="Message" />
-                <div class="message-emoji" onclick="messageInputSend()"><img src="../img/icons/send.png" height="22"></div>
-                <div class="message-emoji" onclick="togglePoll()" onmouseover="imgPollHover(true);" onmouseout="imgPollHover(false);"><img id='imgPoll' src="../img/icons/poll.png" height="22"></div>
+                <div class="message-emoji" onclick="messageInputSend()"><img src="../img/icons/send.png" height="22">
+                </div>
+                <div class="message-emoji" onclick="togglePoll()" onmouseover="imgPollHover(true);"
+                    onmouseout="imgPollHover(false);"><img id='imgPoll' src="../img/icons/poll.png" height="22"></div>
             </div>
 
         </div>
@@ -97,11 +100,41 @@
 
     <nav id="bottomNav" class="navbar">
 
+        <div id="carousel" class="carousel-parent" style="display:none">
+            <div class="carousel">
+                <a href="../chat/chat.html" class="carousel-tile">
+                    <img src="../img/icons/icon-chat.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Chat</div>
+                </a>
+                <a href="../geolocation/geolocation.html" class="carousel-tile">
+                    <img src="../img/icons/icon-geolocation.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Geolocation</div>
+                </a>
+                <a href="../iot/iot.html" class="carousel-tile">
+                    <img src="../img/icons/icon-iot.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">IoT</div>
+                </a>
+                <a href="../collaboration/collaboration.html" class="carousel-tile">
+                    <img src="../img/icons/icon-collaboration.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Collaboration</div>
+                </a>
+                <a href="../virtual-events/virtual-events.html" class="carousel-tile">
+                    <img src="../img/icons/icon-virtual-events.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Virtual Events</div>
+                </a>
+                <a href="../real-time/real-time.html" class="carousel-tile">
+                    <img src="../img/icons/icon-realtime-streaming.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Real-Time Streaming</div>
+                </a>
+            </div>
+        </div>
+
         <div class="navbar-container">
             <a class="nav-link bottom-nav-item" href="../index.html">
                 <img class="navbar-icon" src="../img/navbar/home.png">
                 <span class="text-caption navbar-text">Home</span></a>
-            <a class="nav-link bottom-nav-item" href="../index.html">
+            <a id="nav-discover" class="nav-link bottom-nav-item" style="cursor:pointer"
+                onclick="hidePoll();toggleShowcase();">
                 <img class="navbar-icon" src="../img/navbar/discover.png">
                 <span class="text-caption navbar-text">Discover</span></a>
             <a class="nav-link bottom-nav-item" href="../admin/admin.html">

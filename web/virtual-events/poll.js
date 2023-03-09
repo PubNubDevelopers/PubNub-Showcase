@@ -42,6 +42,13 @@ function togglePoll () {
   pollShown = !pollShown
 }
 
+function hidePoll() {
+  if (pollShown)
+  {
+    togglePoll()
+  }
+}
+
 //  Display the question on the UI, based on the hard-coded JSON object in poll-questions.js
 function populateNewQuestion (index) {
   document.getElementById('poll-option1-radio').disabled = false

@@ -142,4 +142,7 @@ label[for=color04] {
     #name {
         display: none;
     }
+    .red-ellipse-bkd {
+        display:none;
+    }
 }

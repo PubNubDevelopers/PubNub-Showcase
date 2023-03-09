@@ -119,6 +119,10 @@ iframe {
         position: fixed;
         bottom: 150px;
     }
+    
+    .red-ellipse-bkd {
+        display:none;
+    }
 }
 
 .option-label {

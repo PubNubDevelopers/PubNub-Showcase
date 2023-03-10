@@ -1,3 +1,18 @@
+body {
+  display: flex;
+  flex-flow: column;
+  height: 50vh;
+  min-height: -webkit-fill-available;
+  min-height: -moz-available;
+  overflow: hidden;
+}
+
+.iot-container {
+  display: flex;
+  flex-grow: 1;
+  overflow: scroll;
+}
+
 .quick_activity_wrap{
   margin: 10px;
   display: grid;

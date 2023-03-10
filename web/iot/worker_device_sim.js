@@ -115,6 +115,12 @@ function worker_node(){
       else if (args.data.action === 'start') {
         deviceSimulator.start();
       }
+      else if (args.data.action === 'close') {
+        await localPubNub.objects.removeUUIDMetadata({
+          uuid: id
+        })
+        self.close()
+      }
     }
   }
 

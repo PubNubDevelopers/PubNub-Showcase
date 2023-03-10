@@ -25,7 +25,7 @@ window.onbeforeunload = function() {
   // Terminate Web Workers
   for(key in iotDevices){
     try{
-      iotDevices[key].worker.terminate();
+      iotDevices[key].worker.postMessage({action: 'close'});
     }
     catch(e){
       console.log(e);

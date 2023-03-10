@@ -27,7 +27,7 @@
     <script src="../iot/worker_device_sim.js"></script>
 
   </HEAD>
-  <body onload="initialize()" id="body" class="col">
+  <body onload="initialize()" id="body">
     <div id="header" class="container-fluid p-2 header app-header">
       <h1 id='heading' class="display-4 fw-bold text-center">IoT Home</h1>
       <H3 id='header-subheading' class="text-center"> </H3>
@@ -37,14 +37,50 @@
 
       </div>
     </div>
-    <nav class="navbar fixed-bottom p-0">
-      <div class="container-fluid p-0">
-          <a class="nav-link flex-grow-1 bottom-nav-item" href="javascript:launchApp('../chat');"><i
-                  class="bi bi-chat-left p-1"></i><br>Chat</a>
-          <a class="nav-link flex-grow-1 bottom-nav-item" href="./discover.html"><i
-                  class="bi bi-search-heart p-1"></i><br>Discover</a>
-          <a class="nav-link flex-grow-1 bottom-nav-item" href="../admin/admin.html"><i
-                  class="bi bi-person-circle p-1"></i><br>Me</a>
+
+
+    <nav id="bottomNav" class="navbar">
+
+      <div id="carousel" class="carousel-parent" style="display:none">
+          <div class="carousel">
+              <a href="../chat/chat.html" class="carousel-tile">
+                  <img src="../img/icons/icon-chat.png" class="carousel-image">
+                  <div class="emphasised-body carousel-name">Chat</div>
+              </a>
+              <a href="../geolocation/geolocation.html" class="carousel-tile">
+                  <img src="../img/icons/icon-geolocation.png" class="carousel-image">
+                  <div class="emphasised-body carousel-name">Geolocation</div>
+              </a>
+              <a href="../iot/iot.html" class="carousel-tile">
+                  <img src="../img/icons/icon-iot.png" class="carousel-image">
+                  <div class="emphasised-body carousel-name">IoT</div>
+              </a>
+              <a href="../collaboration/collaboration.html" class="carousel-tile">
+                  <img src="../img/icons/icon-collaboration.png" class="carousel-image">
+                  <div class="emphasised-body carousel-name">Collaboration</div>
+              </a>
+              <a href="../virtual-events/virtual-events.html" class="carousel-tile">
+                  <img src="../img/icons/icon-virtual-events.png" class="carousel-image">
+                  <div class="emphasised-body carousel-name">Virtual Events</div>
+              </a>
+              <a href="../real-time/real-time.html" class="carousel-tile">
+                  <img src="../img/icons/icon-realtime-streaming.png" class="carousel-image">
+                  <div class="emphasised-body carousel-name">Real-Time Streaming</div>
+              </a>
+          </div>
+      </div>
+
+      <div class="navbar-container">
+          <a class="nav-link bottom-nav-item" href="../index.html">
+              <img class="navbar-icon" src="../img/navbar/home.png">
+              <span class="text-caption navbar-text">Home</span></a>
+          <a id="nav-discover" class="nav-link bottom-nav-item" style="cursor:pointer"
+              onclick="javascript:toggleShowcase()">
+              <img class="navbar-icon" src="../img/navbar/discover.png">
+              <span class="text-caption navbar-text">Discover</span></a>
+          <a class="nav-link bottom-nav-item bottom-nav-selected" href="../admin/admin.html">
+              <img class="navbar-icon" src="../img/navbar/profile.png">
+              <span class="text-caption navbar-text">Profile</span></a>
       </div>
   </nav>
   </body>

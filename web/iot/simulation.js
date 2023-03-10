@@ -124,6 +124,8 @@ async function createSimulator (args) {
         var deviceName = event.data.values.deviceName;
         var alarmSettings = event.data.values.hasOwnProperty("alarmSettings") ? event.data.values.alarmSettings : null;
         var setValue = event.data.values.hasOwnProperty("setValue") ? event.data.values.setValue : null;
+        var type = event.data.values.type;
+        var url = getFilePath(type);
         if (!iotDevices[deviceId]) {
           iotDevices[deviceId] = {
             online: 'yes',
@@ -131,14 +133,16 @@ async function createSimulator (args) {
             name: deviceName,
             channelName: channelName,
             alarmSettings: alarmSettings,
-            setValue: setValue
+            setValue: setValue,
+            worker: simulatorTask,
+            url: url
           }
           // Add Device to HTML
           addRegisteredDevice(deviceId)
         }
         simulatorTask.postMessage({
           action: 'finalizeProvisioning',
-          params: { sub: subscribe_key, pub: publish_key}
+          params: { sub: subscribe_key, pub: publish_key, url: url}
         })
       }
       else if (event.data.command === 'provisionComplete') {
@@ -158,4 +162,36 @@ async function createSimulator (args) {
       }
     })
   });
+}
+
+function getFilePath(type){
+  var url;
+  switch (type) {
+    case SensorType.FirdgeTemperature:
+      url = '../img/IoT/fridge.png';
+      break;
+    case SensorType.FreezerTemperature:
+      url = '../img/IoT/freezer_icon.png';
+      break;
+    case SensorType.AirConditioningTemperature:
+      url = '../img/IoT/air_conditioning.png';
+      break;
+    case SensorType.TermostatTemperature:
+      url = '../img/IoT/thermostat.png';
+      break;
+    case SensorType.BabySleep:
+      url = '../img/IoT/baby_crib.png';
+      break;
+    case SensorType.DoorBell:
+      url = '../img/IoT/door_icon.png';
+      break;
+    case SensorType.WindowAlarm:
+      url = '../img/IoT/window.png';
+      break;
+    default:
+      url = '../img/IoT/air_conditioning.png';
+      break;
+  }
+
+  return new URL(url, document.baseURI).href;
 }

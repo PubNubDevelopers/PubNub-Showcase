@@ -116,9 +116,6 @@ function worker_node(){
         deviceSimulator.start();
       }
       else if (args.data.action === 'close') {
-        await localPubNub.objects.removeUUIDMetadata({
-          uuid: id
-        })
         self.close()
       }
     }
@@ -371,35 +368,21 @@ function worker_node(){
   // Set the UUID MetaData for the device simulators
   // Set channel members for the IOT Channel in Chat
   async function setMetaData(url){
-    try{
-      // Create Simulator Metadata
-        await localPubNub.objects.setUUIDMetadata({
-          data: {
-            name: defaultDeviceName,
-            profileUrl: url
-          }
-        });
-
-        await localPubNub.objects.setChannelMembers({
-          channel: `Private.${UUID}-iot`,
-          uuids: [
-            localPubNub.getUUID(),
-              {
-                  id: localPubNub.getUUID(),
-                  custom: {
-                      name: defaultDeviceName,
-                      profileUrl: url
-                  }
+    await localPubNub.objects.setChannelMembers({
+      channel: `Private.${UUID}-iot`,
+      uuids: [
+        localPubNub.getUUID(),
+          {
+              id: localPubNub.getUUID(),
+              custom: {
+                  name: defaultDeviceName,
+                  profileUrl: url
               }
-          ]
-      })
-      .catch((err) => {
-          console.log(err);
-      });
-    }
-    catch(e){
-      console.log("Failed to set sim metadata");
-      console.log(e);
-    }
+          }
+        ]
+    })
+    .catch((err) => {
+        console.log(err);
+    });
   }
 }

@@ -16,12 +16,6 @@ var valueSettings = null;
 
 // Called when navigating away from iot
 window.onbeforeunload = function() {
-  // Remove Sim Channel Members
-  pubnub.objects.removeChannelMembers({
-    channel: `Private.${pubnub.getUUID()}-iot`,
-    uuids: Object.keys(iotDevices)
-  });
-
   // Terminate Web Workers
   for(key in iotDevices){
     try{

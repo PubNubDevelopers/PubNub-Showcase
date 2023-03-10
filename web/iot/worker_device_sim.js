@@ -368,6 +368,13 @@ function worker_node(){
   // Set the UUID MetaData for the device simulators
   // Set channel members for the IOT Channel in Chat
   async function setMetaData(url){
+    // Create Simulator Metadata
+    await localPubNub.objects.setUUIDMetadata({
+      data: {
+        name: defaultDeviceName,
+        profileUrl: url
+      }
+    });
     await localPubNub.objects.setChannelMembers({
       channel: `Private.${UUID}-iot`,
       uuids: [

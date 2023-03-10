@@ -14,6 +14,25 @@ var alarmSettings = null;
 // Current Values for temperature settings
 var valueSettings = null;
 
+// Called when navigating away from iot
+window.onbeforeunload = function() {
+  // Remove Sim Channel Members
+  pubnub.objects.removeChannelMembers({
+    channel: `Private.${pubnub.getUUID()}-iot`,
+    uuids: Object.keys(iotDevices)
+  });
+
+  // Terminate Web Workers
+  for(key in iotDevices){
+    try{
+      iotDevices[key].worker.terminate();
+    }
+    catch(e){
+      console.log(e);
+    }
+  }
+};
+
 // Called on page load
 async function initialize () {
 
@@ -33,7 +52,7 @@ async function initialize () {
   //  Public.<name> for public groups
   //  Private.<name> for private groups
   //  DM.A&B for direct messages between two users
-  pubnub.subscribe({channels: ["device.*"], withPresence: true}); // Subscribe
+  pubnub.subscribe({channels: ["device.*", `Private.${pubnub.getUUID()}-iot`], withPresence: true}); // Subscribe
 }
 
 // Listen to PubNub events (message events, object events)
@@ -61,23 +80,24 @@ function activatePubNubListener(){
 // This will handle displaying those changes visibially on the dashboard
 function SignalReceivedHandler(payload){
   try{
-    iotDevices[payload.publisher].sensorName = payload.message.sensor_type;
-    iotDevices[payload.publisher].sensorUnit = payload.message.sensor_units;
-    var value = payload.message.sensor_value;
-    if(typeof value === "number"){
-      iotDevices[payload.publisher].sensorValue = Math.round(
-        (payload.message.sensor_value + Number.EPSILON) * 100
-      ) / 100;
-    }
-    else{
-      iotDevices[payload.publisher].sensorValue = value;
+    if(iotDevices.hasOwnProperty(payload.publisher)){
+      iotDevices[payload.publisher].sensorName = payload.message.sensor_type;
+      iotDevices[payload.publisher].sensorUnit = payload.message.sensor_units;
+      var value = payload.message.sensor_value;
+      if(typeof value === "number"){
+        iotDevices[payload.publisher].sensorValue = Math.round(
+          (payload.message.sensor_value + Number.EPSILON) * 100
+        ) / 100;
+      }
+      else{
+        iotDevices[payload.publisher].sensorValue = value;
+      }
+      updateValue(payload.publisher);
     }
   }
   catch(e){
     console.log(e);
   }
-
-  updateValue(payload.publisher);
 }
 
 // Alerts/Status updates are sent through messages from the IoT Devices
@@ -119,7 +139,6 @@ function controlFromInput(fromSlider, fromInput, toInput, controlSlider, deviceI
 function controlToInput(toSlider, fromInput, toInput, controlSlider, deviceId) {
   const [from, to] = getParsed(fromInput, toInput);
   // fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
-  setToggleAccessible(toInput, fromInput);
   if (from <= to) {
       toSlider.value = to;
       toInput.value = to;
@@ -142,7 +161,6 @@ function controlFromSlider(fromSlider, toSlider, fromInput, deviceId) {
 
 function controlToSlider(fromSlider, toSlider, toInput, deviceId) {
   const [from, to] = getParsed(fromSlider, toSlider);
-  setToggleAccessible(toSlider, fromSlider);
   if (from <= to) {
     toSlider.value = to;
     toInput.value = to;
@@ -169,10 +187,6 @@ function controlSlider(slider, deviceId){
 function getParsedValue(currentValue){
   const value = parseInt(currentValue.value, 10);
   return value;
-}
-
-function setToggleAccessible(to, from) {
-
 }
 
 // When setting changes are made to the configurations of the continuous IoT devices
@@ -224,6 +238,8 @@ function changeDeviceState(on, deviceId){
     console.log("Failed to publish state");
   }
 }
+
+
 
 
 

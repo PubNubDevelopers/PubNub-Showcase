@@ -90,6 +90,15 @@ a:hover {
     color: var(--color-text-heading);
 }
 
+.heading-5{
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    color: var(--color-text-heading);
+}
+
 .text-body-1 {
     font-family: 'Poppins';
     font-style: normal;

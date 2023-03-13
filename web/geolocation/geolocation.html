@@ -32,29 +32,41 @@
             <H2 id='heading' class="demo-header heading-2">Geolocation</H2>
             <div class="red-ellipse-bkd"></div>
         </div>
-    
-            <div class="row geolocation-container" style="padding-left: 50px; padding-right: 50px;">
-            <div class="col">
+
+        <div class="main-container">
+            <div class="map-style">
                 <!--<h1>GEO Track App - Real-time Locating Service</h1>-->
-                <br>
-                <div class="row">
-                    <div class="col" >
-                    </div>
-                </div>
-                <br>
-                <div class="row">
                     <div id="map-canvas-div">
                         <div id="map-canvas" class="map-style"></div>
                     </div>
-                </div>
 
-                        </div>
-            <div class="d-flex flex-column custom-bubble" style="margin-top: 16px;">
-                <h1 style="padding-left: 4px; padding-top: 16px;">Enter a New Location</h1>
-                <div id="pac-container">
-                    <input style="width: 100%;" id="pac-input" type="text" placeholder="Enter location" />
                 </div>
-                <div id="infowindow-content" style="padding-left: 4px; height: 0px;">
+            <div class="rhs">
+                <div class="background-container enter-location-layout">
+                    <h1 class="heading-5">Enter a new location</h1>
+                    <div id="pac-container">
+                        <input id="pac-input" type="text" placeholder="Enter location" />
+                    </div>
+                    <div class="location-button-layout" id="enter-button">
+                        <img class="location-icon location-icon-style"/>
+                        <a class="location-button text-body-2">Use current location</a>
+                    </div>
+                    <div id="share-button" class="share-location-layout pn-btn">
+                            <img class="share-location-icon share-location-icon-style"/>
+                            <p>Share location in chat</p>
+                    </div>
+                    <div class="share-location-info-layout">
+                        <img class="info-icon info-icon-style">
+                        <p class="text-caption info-share-text-style">Other users in this app will be able to see the location you share, try it by opening a couple of tabs</p>
+                    </div>
+                </div>
+                <div class="background-container travel-histroy-layout">
+                    <h1 class="heading-5 travel-history-heading-layout">Travel history</h1>
+                    <ul id="history-list" class="travel-history-list-style">
+
+                    </ul>
+                </div>
+                <!-- <div id="infowindow-content" style="padding-left: 4px; height: 0px;">
                     <span id="place-name" class="title"></span><br />
                     <span id="place-address"></span>
                 </div>
@@ -71,7 +83,7 @@
                     <div id="share-button" class="text-box" style="flex: auto; width: 40%">
                         <a href="#" class="btn btn-white btn-animate" style="width: 100%">Share</a>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -105,8 +117,8 @@
                     </a>
                 </div>
             </div>
-    
-    
+
+
             <div class="navbar-container">
                 <a class="nav-link bottom-nav-item" href="../index.html">
                     <img class="navbar-icon" src="../img/navbar/home.png">

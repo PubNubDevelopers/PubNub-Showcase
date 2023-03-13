@@ -102,12 +102,6 @@ body {
     line-height: 24px;
 }
 
-#map-canvas-div {
-    height: 400px;
-    width: 100%;
-    display: flex;
-}
-
 #geo-channel-id {
     font-family: 'Poppins';
     font-style: normal;
@@ -195,31 +189,6 @@ body {
     }
 }
 
-/* Input */
-
-#pac-container input, #pac-container textarea {
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 0px;
-    margin-bottom: 10px;
-    width: 100%;
-    box-sizing: border-box;
-    color: #2C3E50;
-    font-size: 13px;
-}
-
-#pac-container input:focus, #pac-container textarea:focus {
-    -moz-box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-    box-shadow: none !important;
-    border: 1px solid #ee0979;
-    outline-width: 0;
-    transition: All 0.5s ease-in;
-    -webkit-transition: All 0.5s ease-in;
-    -moz-transition: All 0.5s ease-in;
-    -o-transition: All 0.5s ease-in;
-}
-
 /* Card */
 
 .card {
@@ -238,6 +207,205 @@ body {
 .card:hover{
     transform: scaleY(1.1);
     transform: translateY(-3px);
+}
+
+/* Page Layout */
+
+body {
+    display: flex;
+    flex-flow: column;
+    height: 100vh;
+}
+
+.main-container {
+    display: flex;
+    flex-flow: row;
+    height: 100vh;
+    overflow: scroll;
+    margin-left: 24px;
+    margin-right: 24px;
+}
+
+.map-style {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    min-height: 35%;
+    flex-grow: 1;
+    margin-top: 16px;
+    margin-bottom: 32px;
+}
+
+.rhs {
+    margin-left: 24px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 40%;
+}
+
+.background-container {
+    background: var(--color-background-section);
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+
+/* Page Layout Mobile */
+
+@media screen and (max-width: 576px) {
+    body {
+        height: 50vh;
+        min-height: -webkit-fill-available;
+        min-height: -moz-available;
+    }
+
+    .main-container {
+        flex-flow: column;
+    }
+
+    .map-style {
+        flex-grow: 0;
+    }
+
+    .rhs{
+        margin-left: 0px;
+    }
+
+    .enter-location-layout{
+        margin-top: 0px !important;
+    }
+}
+
+/* Map */
+
+#map-canvas-div {
+    height: 100%;
+    width: 100%;
+}
+
+/* Enter Location */
+
+.enter-location-layout{
+    margin-top: 32px;
+}
+
+/* Input */
+
+#pac-container input, #pac-container textarea {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    color: #525252;
+    font-size: 13px;
+}
+
+#pac-container input:focus, #pac-container textarea:focus {
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border: 1px solid #216F7B;
+    outline-width: 0;
+    transition: All 0.5s ease-in;
+    -webkit-transition: All 0.5s ease-in;
+    -moz-transition: All 0.5s ease-in;
+    -o-transition: All 0.5s ease-in;
+}
+
+/* Use Location Button */
+
+.location-button-layout{
+    display: flex;
+    flex-flow: row;
+    height: 44px;
+    padding: 9px 0px;
+    align-items: center;
+}
+
+.location-icon {
+    content: url(../img/icons/location.png)
+}
+
+.location-icon-style {
+    width: 20px;
+    height: 20px;
+}
+
+.location-button{
+    padding-left: 13;
+    color: var(--color-teal-700);
+}
+
+/* Share Location Button */
+
+.share-location-layout{
+    margin-top: 24px;
+    display: flex;
+    flex-flow: row;
+    height: 42px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    justify-content: center;
+}
+
+.share-location-button-outline{
+    height: 42px;
+}
+
+.share-location-icon {
+    content: url(../img/icons/share-light.png)
+}
+
+.share-location-icon-style {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    align-self: center;
+}
+
+/* Share Location Info */
+
+.share-location-info-layout{
+    margin-top: 16px;
+    height: 32px;
+    display: flex;
+    flex-flow: row;
+    justify-content: start;
+}
+
+.info-icon{
+    content: url('../img/icons/info-solid-grey-fill.png')
+}
+
+.info-icon-style{
+    width: 20px;
+    height: 20px;
+    margin-right: 14px;
+}
+
+.info-share-text-style{
+    color: var(--color-icon-text-secondary) !important;
+}
+
+/* Travel History */
+
+.travel-histroy-layout{
+    margin-top: 24px;
+    margin-bottom: 16px;
+}
+
+.travel-history-list-style{
+    height: 200px;
+    overflow: auto;
+    padding: 0px;
+}
+
+.travel-history-heading-layout{
+    margin-bottom: 20px;
 }
 
 

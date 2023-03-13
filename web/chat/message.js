@@ -31,9 +31,21 @@ async function messageReceived (messageObj) {
         
       } catch (e) {
         //  Lookup of unknown uuid failed - they probably logged out and cleared objects
-        messageObj.message.attachment = null
-        messageObj.message.message = 'User has logged out'
+        addUserToCurrentChannel(
+          messageObj.publisher,
+          "Unknown",
+          DEFAULT_AVATAR  
+        )
       }
+    }
+
+    if (channelMembers[messageObj.publisher].profileUrl == DEFAULT_AVATAR)
+    {
+      //  The 'users' array is still the master list of users we have in the system but for expediency
+      //  & to ensure things don't get out of sync, redact the message contents based on the channelMembers
+      //  array.
+      messageObj.message.attachment = null
+      messageObj.message.message = 'User has logged out'
     }
 
     var messageDiv = ''
@@ -215,7 +227,6 @@ function messageContents (messageData) {
     var imageRender =
       `<img class='temp-message-img temp-message-img-you' src='${messageData.attachment}'>` +
       `${messageData.message}`
-    //var imageRender = "<img src='" + messageData.attachment + "' height='200'><br>"
     return imageRender
   } else {
     return messageData.message

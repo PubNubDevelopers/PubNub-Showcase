@@ -11,8 +11,7 @@ async function messageReceived (messageObj) {
       incrementChannelUnreadCounter(messageObj.channel)
       return
     }
-    if (messageObj.message.message == null)
-    {
+    if (messageObj.message.message == null) {
       //  The message does not have any text associated with it (for example, it is a file
       //  which has trigged this function as a result of pubnub.sendFile())
       return
@@ -21,14 +20,15 @@ async function messageReceived (messageObj) {
     //  If we don't have the information about the message sender cached, retrieve that from objects and update our cache
     if (channelMembers[messageObj.publisher] == null) {
       try {
-        const result = await getUUIDMetaData(messageObj.publisher)
-        if (result != null) {
-          addUserToCurrentChannel(
-            messageObj.publisher,
-            result.data.name,
-            result.data.profileUrl
-          )
-        }
+        getUUIDMetaData(messageObj.publisher).then(result => {
+          if (result != null) {
+            addUserToCurrentChannel(
+              messageObj.publisher,
+              result.data.name,
+              result.data.profileUrl
+            )
+          }
+        })
       } catch (e) {
         //  Lookup of unknown uuid failed - they probably logged out and cleared objects
       }
@@ -46,12 +46,12 @@ async function messageReceived (messageObj) {
       }
       //  The sent and received messages have slightly different styling, ergo different HTML
       messageDiv = createMessageSent(messageObj, messageIsRead)
-      //  Add right-click and long press handler to the message.
+      //  Add click and long press handler to the message.
       addContextHandler(messageDiv, onContextHandler)
     } else {
       //  The sent and received messages have slightly different styling, ergo different HTML
       messageDiv = createMessageReceived(messageObj)
-      //  Add right-click and long press handler to the message.
+      //  Add click and long press handler to the message.
       addContextHandler(messageDiv, onContextHandler)
 
       //  Add a message action that we have read the message, if one does not already exist.
@@ -59,6 +59,9 @@ async function messageReceived (messageObj) {
       //  In production, you will want to have separate read receipts for each individual in the group
       if (messageObj.actions == null || messageObj.actions.read == null) {
         //  We did not find a read message action for our message, add one
+        developerMessage(
+          'PubNub message actions are ideal for send / delivered / read receipts'
+        )
         pubnub.addMessageAction({
           channel: channel,
           messageTimetoken: messageObj.timetoken,
@@ -75,8 +78,15 @@ async function messageReceived (messageObj) {
     if (messageListDiv.children.length >= MAX_MESSAGES_SHOWN_PER_CHAT) {
       messageListDiv.removeChild(messageListDiv.children[0])
     }
+
     document.getElementById('messageListContents').appendChild(messageDiv)
 
+    //  Event listener for the message reaction button
+    document
+      .getElementById('emoji-reactions-' + messageObj.timetoken)
+      .addEventListener('click', () => {
+        maAddEmojiReaction(messageObj.timetoken)
+      })
   } catch (e) {
     console.log('Exception during message reception: ' + e)
   }
@@ -87,9 +97,9 @@ async function messageReceived (messageObj) {
 
 //  HTML for messages we have sent ourselves
 function createMessageSent (messageObj, messageIsRead) {
-  var readIcon = 'bi-check'
+  var readSrc = '../img/icons/sent.png'
   if (messageIsRead) {
-    readIcon = 'bi-check-all'
+    readSrc = '../img/icons/read.png'
   }
   var profileUrl = '../img/avatar/placeholder.png'
   var name = 'pending...'
@@ -99,39 +109,43 @@ function createMessageSent (messageObj, messageIsRead) {
   }
   var newMsg = document.createElement('div')
   newMsg.id = messageObj.timetoken
-  newMsg.className = 'message message-you align-self-end'
-  newMsg.innerHTML =
-    ' \
-    ' +
-    messageContents(messageObj.message) +
-    " <div id='emoji-reactions-" +
-    messageObj.timetoken +
-    "' class='message-reaction' style='display:inline' data-actionid=''></div> \
-    <div class='message-you-avatar'> \
-        <div class='user-with-presence mx-2 message-you-avatar-contents'> \
-            <img src='" +
-    profileUrl +
-    "' class='chat-list-avatar'> \
-            <span id='pres-msg-" +
-    messageObj.timetoken +
-    "' class='presence-dot-none'></span> \
-        </div> \
-        <div class='float-end' style='display:inline;width:fit-content'> \
-            <div class='' style='text-align:right'> \
-                <span class='messageCheck'><i id='message-check-" +
-    messageObj.timetoken +
-    "' class='bi " +
-    readIcon +
-    "'></i></span> \
-                <div class='message-sender'>" +
-    name +
-    " (You)</div> \
-      <div class='message-time'>" +
-    convertTimetokenToDate(messageObj.timetoken) +
-    '</div> \
-            </div> \
-        </div> \
-    </div>'
+  newMsg.className =
+    'text-body-2 temp-message-container temp-message-container-me'
+  newMsg.innerHTML = `
+  <div class="text-body-2 temp-message-container temp-message-container-me">
+    <div class="temp-message temp-mesage-me">
+        <div class="temp-message-meta-container temp-message-meta-container-me">
+            <div class="text-caption temp-message-meta-time">
+                ${convertTimetokenToDate(messageObj.timetoken)}
+            </div>
+        </div>
+        <div class="temp-message-bubble temp-message-bubble-me">
+            ${messageContents(messageObj.message)}
+            <div class="temp-read-indicator">
+
+                <div class="temp-message-reaction-rel-container">
+                    <div class="temp-message-reaction-abs-container">
+                        <div id='emoji-reactions-${
+                          messageObj.timetoken
+                        }' class="temp-message-reaction-display-container">
+                            <div class="temp-message-reaction-display">
+                                <img src='../img/icons/smile.png' height='18'><span id='emoji-reactions-${
+                                  messageObj.timetoken
+                                }-count' class="text-caption temp-message-reaction-number">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <img class="temp-read-indicator-me" id='message-check-${
+                  messageObj.timetoken
+                }'
+                    src="${readSrc}" height="10px">
+            </div>
+        </div>
+    </div>
+</div>`
+
   return newMsg
 }
 
@@ -139,44 +153,75 @@ function createMessageSent (messageObj, messageIsRead) {
 function createMessageReceived (messageObj) {
   var profileUrl = '../img/avatar/placeholder.png'
   var name = 'pending...'
+  var extraReceiptStyle = ''
+  if (messageObj.channel.startsWith('DM.') || messageObj.channel.includes('-iot')) {
+    //  Hide read receipts in direct chats and the private IoT chat
+    extraReceiptStyle = 'hidden'
+  }
   if (channelMembers[messageObj.publisher] != null) {
     profileUrl = channelMembers[messageObj.publisher].profileUrl
     name = channelMembers[messageObj.publisher].name
   }
   var newMsg = document.createElement('div')
   newMsg.id = messageObj.timetoken
-  newMsg.className = 'message message-them align-self-start'
-  newMsg.innerHTML =
-    "<div class='user-with-presence float-start mx-2'> <img src='" +
-    profileUrl +
-    "' class='chat-list-avatar'> <span class='presence-dot-none'></span> </div><span class='messageCheck'><i id='message-check-" +
-    messageObj.timetoken +
-    "' class='bi bi-check-all'></i></span>" +
-    messageContents(messageObj.message) +
-    " <div id='emoji-reactions-" +
-    messageObj.timetoken +
-    "' class='message-reaction' style='display:inline' data-actionid=''></div>" +
-    "<div class='message-sender' style='display:block'>" +
-    name +
-    "</div> \
-      <div class='message-time' style='display:inline'>" +
-    convertTimetokenToDate(messageObj.timetoken) +
-    '</div></div>'
+  newMsg.className =
+    'text-body-2 temp-message-container temp-message-container-you'
+  newMsg.innerHTML = `
+  <div class='temp-message-avatar'>
+  <img src='${profileUrl}' class='chat-list-avatar temp-message-avatar-img'>
+  </div>
+  <div class='temp-message temp-mesage-you'>
+  <div class='temp-message-meta-container temp-message-meta-container-you'>
+      <div class='text-caption temp-message-meta-name'>
+          ${name} 
+      </div>
+      <div class='text-caption temp-message-meta-time'>
+      ${convertTimetokenToDate(messageObj.timetoken)} 
+      </div>
+  </div>
+  <div class='temp-message-bubble temp-message-bubble-you'>
+      ${messageContents(messageObj.message)}
+      <div class='temp-read-indicator'>
+          <div class='temp-message-reaction-rel-container'>
+              <div class='temp-message-reaction-abs-container'>
+                  <div id='emoji-reactions-${
+                    messageObj.timetoken
+                  }' class='temp-message-reaction-display-container' data-actionid=''>
+                      <div class='temp-message-reaction-display'>
+                          <img src='../img/icons/smile.png' height='18'><span id='emoji-reactions-${
+                            messageObj.timetoken
+                          }-count' class='text-caption temp-message-reaction-number'>0</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <img id='message-check-${
+            messageObj.timetoken
+          }' class='${extraReceiptStyle}' src='../img/icons/read.png' height='10px'>
+      </div>
+  </div>
+</div>  
+  `
+
   return newMsg
 }
 
 //  Wrapper function to cater for whether the message had an associated image
-function messageContents(messageData)
-{
-  if (messageData.attachment != null)
-  {
+function messageContents (messageData) {
+  if (messageData.attachment != null) {
     //  There was an image attachment with the message
-    var imageRender = "<img src='" + messageData.attachment + "' height='200'><br>"
-    return imageRender + messageData.message
-  }
-  else{
+    var imageRender =
+      `<img class='temp-message-img temp-message-img-you' src='${messageData.attachment}'>` +
+      `${messageData.message}`
+    //var imageRender = "<img src='" + messageData.attachment + "' height='200'><br>"
+    return imageRender
+  } else {
     return messageData.message
   }
+}
+
+function messageReactionClicked (messageId) {
+  maAddEmojiReaction(messageId)
 }
 
 //////////////////////
@@ -185,24 +230,59 @@ function messageContents(messageData)
 //  Use the pubnub.messageCounts() API to determine how many unread messages there are in each channel
 //  that were received prior to us subscribing to the channel.
 async function updateMessageCountFirstLoad () {
-  var lastLoadTimestamp = sessionStorage.getItem('chatLastLoadTimestamp')
-  if (lastLoadTimestamp == null) {
-    //  This is the first load after log-in, load all messages in the last 24 hours
-    var oneDayAgoTimestamp = (Date.now() - 24 * 60 * 60 * 1000) * 10000
-    lastLoadTimestamp = oneDayAgoTimestamp
-  }
-  sessionStorage.setItem('chatLastLoadTimestamp', Date.now() * 10000)
-  try {
-    const result = await pubnub.messageCounts({
-      channels: [subscribedChannels],
-      channelTimetokens: [lastLoadTimestamp]
+  var oneDayAgoTimestamp = (Date.now() - 24 * 60 * 60 * 1000) * 10000
+  //  Obtain the 'last read time' for each channel we are a member of
+  pubnub.objects
+    .getMemberships({
+      include: {
+        customFields: true
+      }
     })
-    for (var key in result.channels) {
-      setChannelUnreadCounter(key, result.channels[key])
-    }
-  } catch (status) {
-    console.log(status)
-  }
+    .then(membershipData => {
+      //  Create a hash of the channels which have a last read time
+      var channelTimestamps = {}
+      for (var channelMembership in membershipData.data) {
+        var memberData = membershipData.data[channelMembership]
+        if (
+          memberData.custom != null &&
+          memberData.custom.lastReadTimetoken != null
+        ) {
+          channelTimestamps[memberData.channel.id] =
+            memberData.custom.lastReadTimetoken
+        }
+      }
+      //  Create an array of channel timetokens
+      var lastLoadTimestamps = []
+      for (var subscribedChannel in subscribedChannels) {
+        if (
+          typeof channelTimestamps[subscribedChannels[subscribedChannel]] ===
+          'undefined'
+        ) {
+          lastLoadTimestamps.push('' + oneDayAgoTimestamp)
+        } else {
+          lastLoadTimestamps.push(
+            '' + channelTimestamps[subscribedChannels[subscribedChannel]]
+          )
+        }
+      }
+      //  lastLoadTimestamps now contains the last read time for each channel, or 0 if it has not been read
+      developerMessage(
+        'PubNub has a dedicated API to return the number of messages received since a given time, ideal to keep track of unread message counts'
+      )
+      pubnub
+        .messageCounts({
+          channels: subscribedChannels,
+          channelTimetokens: lastLoadTimestamps
+        })
+        .then(result => {
+          for (var key in result.channels) {
+            //  Do not display the unread counter if we are currently viewing the channel
+            if (channel != key) {
+              setChannelUnreadCounter(key, result.channels[key])
+            }
+          }
+        })
+    })
 }
 
 function incrementChannelUnreadCounter (channel) {
@@ -217,6 +297,9 @@ function setChannelUnreadCounter (channel, count) {
     channel = channel.replace('DM.', '')
     channel = channel.replace('&', '')
     var unreadMessage = document.getElementById('unread-' + channel)
+    if (unreadMessage == null) {
+      return
+    }
     if (count == -1) {
       //  Increment current count by 1
       var currentCount = unreadMessage.innerText
@@ -236,17 +319,35 @@ function setChannelUnreadCounter (channel, count) {
   }
 }
 
+var months = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec'
+]
 //  Convert PubNub timetoken to a human readable date
 function convertTimetokenToDate (timetoken) {
   var timestamp = new Date(timetoken / 10000)
+  var hours = timestamp.getHours()
+  var ampm = hours >= 12 ? 'pm' : 'am'
+  hours = hours % 12
+  hours = hours ? hours : 12
   return (
-    timestamp.toDateString() +
-    '' +
+    months[timestamp.getMonth()] +
+    ' ' +
+    (timestamp.getDay() + '').padStart(2, '0') +
     ' - ' +
-    (timestamp.getHours() + '').padStart(2, '0') +
+    (hours + '').padStart(2, '0') +
     ':' +
     (timestamp.getMinutes() + '').padStart(2, '0') +
-    ':' +
-    (timestamp.getSeconds() + '').padStart(2, '0')
+    ampm
   )
 }

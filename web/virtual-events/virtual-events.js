@@ -159,3 +159,16 @@ function imgPollHover(isHover)
     pollIcon.src = '../img/icons/poll.png'
   }
 }
+
+function addReaction()
+{
+  const rhs = document.getElementById('rhs')
+  const rhsRect = rhs.getBoundingClientRect()
+  const reactionNode = document.createElement('div')
+  reactionNode.className = 'reaction'
+  reactionNode.innerHTML = String.fromCodePoint(0x1F60D);
+  var leftPos = Math.floor(Math.random() * (rhsRect.right - rhsRect.left + 1) + rhsRect.left)
+  reactionNode.style.setProperty('left', leftPos);
+  rhs.appendChild(reactionNode);
+  setTimeout(() => {rhs.removeChild(reactionNode)}, 3000)
+}

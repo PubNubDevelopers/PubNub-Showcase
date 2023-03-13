@@ -40,13 +40,12 @@
 
     <div class="main-container">
         <div id="liveStream" class="live-stream">
-            <iframe src="https://www.youtube.com/embed/YaJbc7s1ROg?&autoplay=1&mute=1&start=18"
+            <iframe src="https://www.youtube.com/embed/0KeHUtMR6yQ?&autoplay=1&mute=1&start=1"
                 title="Node.js WebSocket Programming Tutorial with JavaScript" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"></iframe>
         </div>
 
-        <div class="rhs">
-
+        <div id='rhs' class="rhs">
 
             <div id='messageList' class="message-list">
 
@@ -78,14 +77,12 @@
                 </div>
             </div>
 
-
-
             <div id="emojiPicker" class="mx-2 emoji-picker" style="bottom:170px">
 
             </div>
 
             <div class="d-flex flex-row message-input-bar">
-                <div class="message-emoji" onclick="messageInputEmoji()"><img src="../img/icons/emoji.png" height="22">
+                <div class="message-emoji" style="font-size:1.5em;user-select: none;" onclick="addReaction()/*messageInputEmoji()*/">😍 <img src="../img/avatar/placeholder.png" height="22">
                 </div>
                 <input id="input-message" class="text-body-2 pn-text-field message-input" placeholder="Message" />
                 <div class="message-emoji" onclick="messageInputSend()"><img src="../img/icons/send.png" height="22">

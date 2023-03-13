@@ -87,7 +87,8 @@ var isMessageSendingInProgress = false
 const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1 //  bytes
-const DEFAULT_AVATAR = "https://pubnubdevelopers.github.io/PubNub-Showcase/web/img/avatar/placeholder.png"
+const DEFAULT_AVATAR =
+  'https://pubnubdevelopers.github.io/PubNub-Showcase/web/img/avatar/placeholder.png'
 
 //  To make presence indications more accurate if the webpage is being refreshed, notify PubNub that the client is leaving .
 //  PubNub will eventually catch up, but this makes it quicker
@@ -618,15 +619,24 @@ async function getGroupList () {
     var channels = []
     for (const group of predefined_groups.groups) {
       var groupHtml =
-        "<div class='user-with-presence group-row' onclick='launchGroupChat(\"" +
+        "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
         group.channel +
         "\")'><img src='../img/group/" +
         group.profileIcon +
         "' class='chat-list-avatar'><div id='unread-" +
         group.channel +
-        "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div> <span class='group-name'>" +
-        group.name +
-        '</span></div>'
+        "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div>"
+
+      if (typeof group.info === 'undefined') {
+        groupHtml += "<div class='group-name'>" + group.name + '</div></div>'
+      } else {
+        groupHtml +=
+          "<div class='group-name group-name-flex'><div>" +
+          group.name +
+          "</div><div class='text-caption'>" +
+          group.info +
+          '</div></div></div>'
+      }
       groupList += groupHtml
       channels.push(group.channel)
       subscribedChannels.push(group.channel)
@@ -665,15 +675,17 @@ async function getPrivateGroupList () {
     for (const group of predefined_groups.private_groups) {
       var actualChannel = group.channel.replace('uuid', pubnub.getUserId())
       var privateGroupHtml =
-        "<div class='user-with-presence group-row' onclick='launchGroupChat(\"" +
+        "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
         actualChannel +
         "\")'><img src='../img/group/" +
         group.profileIcon +
         "' class='chat-list-avatar'><div id='unread-" +
         actualChannel +
-        "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div> <span class='group-name'>" +
+        "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div> <div class='group-name group-name-flex'><div>" +
         group.name +
-        '</span></div>'
+        "</div><div class='text-caption'>" +
+        group.info +
+        '</div></div></div>'
       privateGroupList += privateGroupHtml
 
       channels.push(actualChannel)

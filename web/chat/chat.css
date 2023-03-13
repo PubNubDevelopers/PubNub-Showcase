@@ -66,9 +66,19 @@ body {
     padding-left: 8px;
 }
 
+.group-name-flex {
+    display:flex;
+    flex-direction:column;
+}
+
 .group-row {
     margin-top: 16px;
     cursor: pointer;
+}
+
+.group-row-flex {
+    display:flex;
+    align-items:center;
 }
 
 .chat-list-current-user {

@@ -100,13 +100,38 @@ iframe {
     margin-top: 28px;
 }
 
+.reaction {
+    position: absolute;
+    animation-name: example;
+    animation-duration: 3s;
+    animation-fill-mode: forwards;
+    left: 90%;
+}
+
+@keyframes example {
+    0% {
+        top: 80%;
+        opacity: 1
+    }
+
+    90% {
+        top: 10%;
+        opacity: 0.8
+    }
+
+    100% {
+        display: none;
+        opacity: 0
+    }
+}
+
 @media screen and (max-width: 576px) {
     body {
         height: 50vh;
         min-height: -webkit-fill-available;
         min-height: -moz-available;
     }
-    
+
     .main-container {
         flex-flow: column;
     }
@@ -119,9 +144,9 @@ iframe {
         position: fixed;
         bottom: 150px;
     }
-    
+
     .red-ellipse-bkd {
-        display:none;
+        display: none;
     }
 }
 

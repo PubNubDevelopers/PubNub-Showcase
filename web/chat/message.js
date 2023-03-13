@@ -20,7 +20,7 @@ async function messageReceived (messageObj) {
     //  If we don't have the information about the message sender cached, retrieve that from objects and update our cache
     if (channelMembers[messageObj.publisher] == null) {
       try {
-        getUUIDMetaData(messageObj.publisher).then(result => {
+        var result = await getUUIDMetaData(messageObj.publisher)
           if (result != null) {
             addUserToCurrentChannel(
               messageObj.publisher,
@@ -28,9 +28,11 @@ async function messageReceived (messageObj) {
               result.data.profileUrl
             )
           }
-        })
+        
       } catch (e) {
         //  Lookup of unknown uuid failed - they probably logged out and cleared objects
+        messageObj.message.attachment = null
+        messageObj.message.message = 'User has logged out'
       }
     }
 
@@ -152,7 +154,7 @@ function createMessageSent (messageObj, messageIsRead) {
 //  HTML for messages we have received
 function createMessageReceived (messageObj) {
   var profileUrl = '../img/avatar/placeholder.png'
-  var name = 'pending...'
+  var name = 'Unknown'
   var extraReceiptStyle = ''
   if (messageObj.channel.startsWith('DM.') || messageObj.channel.includes('-iot')) {
     //  Hide read receipts in direct chats and the private IoT chat
@@ -315,7 +317,7 @@ function setChannelUnreadCounter (channel, count) {
       unreadMessage.style.visibility = 'visible'
     }
   } catch (e) {
-    //  Probably called whilst the page is still loading
+    console.log(e)
   }
 }
 

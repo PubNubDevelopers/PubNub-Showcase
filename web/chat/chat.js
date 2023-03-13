@@ -219,7 +219,7 @@ async function loadChat () {
         //  Somebody else has joined a channel
         //  Regardless of our active channel, add this person to our list of direct chats if they aren't there already (this is our indication a new user is added)
         var userId = objectEvent.message.data.uuid.id
-        if (userId.includes("sim_")) return
+        if (userId.includes('sim_')) return
         if (userData[userId] == null) {
           userData[userId] = {}
           //  Find out the information about this user
@@ -296,8 +296,7 @@ async function populateChatWindow (channelName) {
   //  Update the heading
   if (channelName.startsWith('Public')) {
     //  This is a public group
-    document.getElementById('heading').innerHTML =
-      'Group: ' + lookupGroupName(channelName)
+    document.getElementById('heading').innerHTML = lookupGroupName(channelName)
   } else if (channelName.startsWith('Private')) {
     document.getElementById('heading').innerHTML = lookupGroupName(channelName)
   } else if (channelName.startsWith('DM')) {
@@ -354,65 +353,56 @@ async function populateChatWindow (channelName) {
         pubnub
           .fetchMessages({
             channels: [channelName],
-            count: 10, //  Limit to 10 messages.  Design decision for this app, not a limitation of PubNUb
+            count: 20, //  Limit to 20 messages.  Design decision for this app, not a limitation of PubNUb
             includeUUID: true,
             includeMessageActions: true
           })
-          .then(history => {
+          .then(async history => {
             if (history.channels[channelName] != null) {
-
               for (const historicalMsg of history.channels[channelName]) {
                 developerMessage(
                   'PubNub can persist previous messages which can then be loaded into the conversation at launch'
                 )
                 historicalMsg.publisher = historicalMsg.uuid
 
+                await messageReceived(historicalMsg)
+
+                //  Update the historically loaded messages based on message actions
                 if (
-                  channelMembers[historicalMsg.uuid] != null ||
-                  historicalMsg.uuid == pubnub.getUserId()
+                  historicalMsg.actions != null &&
+                  historicalMsg.actions.read != null
                 ) {
-                  //  Only show past messages from users who didn't log out
-                  messageReceived(historicalMsg)
+                  //  Mark the sent message as read
+                  var originalMessage = document.getElementById(
+                    'message-check-' + historicalMsg.timetoken
+                  )
 
-                  //  Update the historically loaded messages based on message actions
-                  if (
-                    historicalMsg.actions != null &&
-                    historicalMsg.actions.read != null
-                  ) {
-                    //  Mark the sent message as read
-                    var originalMessage = document.getElementById(
-                      'message-check-' + historicalMsg.timetoken
-                    )
-
-                    originalMessage.src = '../img/icons/read.png'
-                  }
-                  //  Read in emoji reactions for historical messages (message actions)
-                  if (
-                    historicalMsg.actions != null &&
-                    historicalMsg.actions.react != null &&
-                    historicalMsg.actions.react.smile != null
-                  ) {
-                    //  Handle the message reactions
-                    var messageEmojiElement = document.getElementById(
-                      'emoji-reactions-' + historicalMsg.timetoken
-                    )
-                    var reaction = ''
-                    for (const action of historicalMsg.actions.react.smile) {
-                      var reactionPayload = {
-                        event: 'added',
-                        data: {
-                          type: 'react',
-                          messageTimetoken: historicalMsg.timetoken
-                        }
+                  originalMessage.src = '../img/icons/read.png'
+                }
+                //  Read in emoji reactions for historical messages (message actions)
+                if (
+                  historicalMsg.actions != null &&
+                  historicalMsg.actions.react != null &&
+                  historicalMsg.actions.react.smile != null
+                ) {
+                  //  Handle the message reactions
+                  var messageEmojiElement = document.getElementById(
+                    'emoji-reactions-' + historicalMsg.timetoken
+                  )
+                  var reaction = ''
+                  for (const action of historicalMsg.actions.react.smile) {
+                    var reactionPayload = {
+                      event: 'added',
+                      data: {
+                        type: 'react',
+                        messageTimetoken: historicalMsg.timetoken
                       }
-                      maEmojiReaction(reactionPayload)
-                      if (action.uuid == pubnub.getUserId()) {
-                        messageEmojiElement.classList.add(
-                          'temp-message-reacted'
-                        )
-                        messageEmojiElement.dataset.actionid =
-                          action.actionTimetoken
-                      }
+                    }
+                    maEmojiReaction(reactionPayload)
+                    if (action.uuid == pubnub.getUserId()) {
+                      messageEmojiElement.classList.add('temp-message-reacted')
+                      messageEmojiElement.dataset.actionid =
+                        action.actionTimetoken
                     }
                   }
                 }
@@ -420,7 +410,6 @@ async function populateChatWindow (channelName) {
             }
           })
       })
-
 
     setChannelLastReadTimetoken(channelName)
   } catch (status) {
@@ -491,7 +480,7 @@ async function getUserMetaDataOthers () {
           //  Populate the Direct 1:1 Chat list with people you can chat with
           for (var i = users.data.length - 1; i >= 0; i--) {
             if (users.data[i].id == pubnub.getUserId()) continue
-            if (users.data[i].id.includes("sim_")) continue
+            if (users.data[i].id.includes('sim_')) continue
             var lastUpdated = new Date(users.data[i].updated)
             //  Do not show users who logged in more than 24 hours ago.  To avoid stale data in the demo - you probably would not do this in production
             var cutoff = new Date()
@@ -695,7 +684,6 @@ async function getPrivateGroupList () {
         uuid: pubnub.getUserId()
       })
       .then(() => {
-
         subscribedChannels.push(actualChannel)
         document.getElementById('groupListPrivate').innerHTML = privateGroupList
         document.getElementById('groupListPrivate-side').innerHTML =

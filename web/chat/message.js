@@ -306,9 +306,12 @@ function incrementChannelUnreadCounter (channel) {
 //  Update unread message indicator for the specified channel
 function setChannelUnreadCounter (channel, count) {
   try {
-    channel = channel.replace(pubnub.getUserId(), '')
-    channel = channel.replace('DM.', '')
-    channel = channel.replace('&', '')
+    if (!channel.includes('Private.'))
+    {
+      channel = channel.replace(pubnub.getUserId(), '')
+      channel = channel.replace('DM.', '')
+      channel = channel.replace('&', '')
+    }
     var unreadMessage = document.getElementById('unread-' + channel)
     if (unreadMessage == null) {
       return

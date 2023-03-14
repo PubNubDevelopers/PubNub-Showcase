@@ -4,7 +4,7 @@
 
 ## Demo
 
-A hosted version of this demo can be found at **[https://pubnub-showcase.netlify.app/](https://pubnub-showcase.netlify.app/)**
+A hosted version of this demo can be found at **[https://showcase.pub-nub.com/](https://showcase.pub-nub.com/)**
 
 ![Screenshot](https://raw.githubusercontent.com/PubNubDevelopers/PubNub-Showcase/main/media/landing.png)
 

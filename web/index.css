@@ -168,6 +168,18 @@ body {
     content: url(./img/icons/i.png)
 }
 
+.company-logos {
+    display:flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.company-logo {
+    max-height: 30px;
+}
+
 @media screen and (max-width: 576px) {
     .showcase-grid {
         grid-template-columns: repeat(1, 1fr);

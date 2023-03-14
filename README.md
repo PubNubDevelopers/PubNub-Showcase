@@ -65,6 +65,23 @@ To run this project yourself you will need a PubNub account and (optionally) you
 ## Contributing
 Please fork the repository if you'd like to contribute. Pull requests are always welcome. 
 
+## Customization with customer logos on home screen
+
+To add customer logos to the list of home screen apps, add a `div` of class `company-logos` and apply the class `company-logo` to each image, as follows:
+
+```html
+<a href="./chat/chat.html" class="showcase-tile">
+  <img src="./img/icons/icon-chat.png" class="showcase-image">
+  <div class="heading-2">Chat</div>
+  <div class="text-body-2">Group Chat etc.</div>
+  <!--  Add the section below, include as many logos as needed for each section but be sparing -->
+  <div class="company-logos">
+    <img src="http://company-logo.png" class="company-logo">
+    <img src="http://company-logo.svg" class="company-logo">
+  </div>
+</a>
+```
+
 ## Further Information / Licenses
 
 All avatar images licenced under MIT from [DiceBear](https://dicebear.com/) and [Bootstrap Icons](https://icons.getbootstrap.com/) 

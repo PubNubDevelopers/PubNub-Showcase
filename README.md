@@ -4,7 +4,7 @@
 
 ## Demo
 
-A hosted version of this demo can be found at **[https://pubnubdevelopers.github.io/PubNub-Showcase/web/](https://pubnubdevelopers.github.io/PubNub-Showcase/web/index.html)**
+A hosted version of this demo can be found at **[https://pubnub-showcase.netlify.app/](https://pubnub-showcase.netlify.app/)**
 
 ![Screenshot](https://raw.githubusercontent.com/PubNubDevelopers/PubNub-Showcase/main/media/landing.png)
 

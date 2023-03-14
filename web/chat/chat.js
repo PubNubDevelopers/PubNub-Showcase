@@ -294,6 +294,7 @@ async function loadChat () {
 //  associated with the specified channel
 async function populateChatWindow (channelName) {
   sessionStorage.setItem('activeChatChannel', channelName)
+  hideEmojiWindow()
 
   //  Update the heading
   if (channelName.startsWith('Public')) {

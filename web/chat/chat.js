@@ -641,6 +641,9 @@ async function getGroupList () {
       channels.push(group.channel)
       subscribedChannels.push(group.channel)
     }
+    developerMessage(
+      'This demo has 3 hardcoded public groups and 1 hardcoded private group.  The demo automatically enrols you in all these groups.  See code comments for details of channel naming conventions for groups.'
+    )
     //  Add ourself as a member of every (public) group
     pubnub.objects
       .setMemberships({

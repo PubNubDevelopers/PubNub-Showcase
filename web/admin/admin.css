@@ -82,6 +82,23 @@ body {
     margin-top: 32px;
 }
 
+.message-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+.message-icon-info {
+    content: url(../img/icons/i.png)
+}
+
+#developer-message-text {
+    display:inline-flex;
+    flex-direction:column
+}
+
+
+
 @media screen and ( max-width: 576px ) { 
     .page {
         flex-direction: column;

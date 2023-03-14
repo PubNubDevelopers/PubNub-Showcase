@@ -50,6 +50,13 @@ async function loadVirtualEvents () {
       //  See the poll.js file for more information on how polls should be handled.
       if (payload.channel === VIRTUAL_EVENT_CHANNEL) messageReceived(payload)
       else if (payload.channel === POLLS_CHANNEL_NAME) pollVoteReceived(payload)
+    },
+    signal: signalEvent => {
+      //  Received a signal.  The virtual events app only uses signals for live reactions.
+      //  Signals are ideally suited for live reactions (i.e. displaying an emoji on top
+      //  of the virtual event) since they have a very small data payload
+      developerMessage("Live (emoji) reactions are sent over PubNub efficiently using the Signal API")
+      receiveReaction(signalEvent.message.r)
     }
   })
 
@@ -162,12 +169,20 @@ function imgPollHover(isHover)
 
 function addReaction()
 {
+  pubnub.signal({
+    message: { r: String.fromCodePoint(0x1F60D) },
+    channel: VIRTUAL_EVENT_CHANNEL
+  })
+}
+
+function receiveReaction(emoji)
+{
   const rhs = document.getElementById('rhs')
   const rhsRect = rhs.getBoundingClientRect()
   const reactionNode = document.createElement('div')
   reactionNode.className = 'reaction'
-  reactionNode.innerHTML = String.fromCodePoint(0x1F60D);
-  var leftPos = Math.floor(Math.random() * (rhsRect.right - rhsRect.left + 1) + rhsRect.left)
+  reactionNode.innerHTML = emoji
+  var leftPos = Math.floor(Math.random() * (rhsRect.right - rhsRect.left -10) + rhsRect.left)
   reactionNode.style.setProperty('left', leftPos);
   rhs.appendChild(reactionNode);
   setTimeout(() => {rhs.removeChild(reactionNode)}, 3000)

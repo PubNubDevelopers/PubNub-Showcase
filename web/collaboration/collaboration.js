@@ -67,6 +67,18 @@ const PENCIL_SPRITE_Y_ADJUST = 80 //  Pencil icon
 pubnub = createPubNubObject()
 
 async function loadCollaboration () {
+  if (window.innerWidth > 576)
+  {
+    //  Running on desktop, make the canvas smaller so easier to manage when interacting with mobile
+    var canvas = document.getElementById('drawCanvas')
+    var head = document.getElementById('heading')
+    canvas.style.top = (head.offsetHeight + 10);
+    var canvasWidth = window.innerWidth / 1.5
+    canvas.width = canvasWidth;
+    var canvasHeight = window.innerHeight / 1.5
+    canvas.height = canvasHeight
+    canvas.style.background = "#E5E5E5"
+  }
   if (!(await testForLoggedInUser()))
   {
     //  User is not logged in, return them to the index

@@ -3,7 +3,7 @@
  */
 
 async function initializeSimulators () {
-  var id = 'sim_1' + makeid(6);
+  var id = 'sim_1';
   await createSimulator({
     id: id,
     name: 'Refrigerator Temperature',
@@ -20,7 +20,7 @@ async function initializeSimulators () {
   });
   iotDevices[id].worker.postMessage({ action: 'start' });
 
-  var id = 'sim_2' + makeid(6);
+  var id = 'sim_2';
   await createSimulator({
     id: id,
     name: 'Freezer Temperature',
@@ -37,7 +37,7 @@ async function initializeSimulators () {
   });
   iotDevices[id].worker.postMessage({ action: 'start' });
 
-  var id = 'sim_3' + makeid(6);
+  var id = 'sim_3';
   await createSimulator({
     id: id,
     name: 'Air Conditioning Temperature',
@@ -54,7 +54,7 @@ async function initializeSimulators () {
   });
   iotDevices[id].worker.postMessage({ action: 'start' });
 
-  var id = 'sim_4' + makeid(6);
+  var id = 'sim_4';
   await createSimulator({
     id: id,
     name: 'Thermostat Temperature',
@@ -71,7 +71,7 @@ async function initializeSimulators () {
   });
   iotDevices[id].worker.postMessage({ action: 'start' });
 
-  var id = 'sim_5' + makeid(6);
+  var id = 'sim_5';
   await createSimulator({
     id: id,
     name: 'Baby Crib Temperature',
@@ -88,7 +88,7 @@ async function initializeSimulators () {
   });
   iotDevices[id].worker.postMessage({ action: 'start' });
 
-  var id = 'sim_6' + makeid(6);
+  var id = 'sim_6';
   await createSimulator({
     id: id,
     name: 'Door Alarm',
@@ -99,7 +99,7 @@ async function initializeSimulators () {
   });
   iotDevices[id].worker.postMessage({ action: 'start' });
 
-  var id = 'sim_7' + makeid(6);
+  var id = 'sim_7';
   await createSimulator({
     id: id,
     name: 'Window Alarm',

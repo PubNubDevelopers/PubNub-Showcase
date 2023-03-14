@@ -10,13 +10,14 @@
 //  to consider the direct 1:1 groups, though your production app implementation may vary.
 async function updatePresenceInfoFirstLoad () {
   try {
+    developerMessage("User Presence can either be determined on change, or a full list can be returned by the hereNow() API")
     const result = await pubnub.hereNow({
       channels: ['Public.*'],
       includeUUIDs: true,
       includeState: true
     })
     for (var i = 0; i < result.channels['Public.*'].occupancy; i++) {
-      handlePresenceEvent('join', result.channels['Public.*'].occupants[i].uuid)
+      handlePresenceEvent('join', {'uuid': result.channels['Public.*'].occupants[i].uuid})
     }
   } catch (status) {
     console.log(status)
@@ -25,6 +26,7 @@ async function updatePresenceInfoFirstLoad () {
 
 //  Handler for a PubNub presence event, either 'join', 'leave', or 'interval'
 function handlePresenceEvent (action, presenceEvent) {
+  developerMessage("Presence events are returned when users join or leave a channel.  Be aware of the ANNOUNCE_MAX setting, to enable an efficient implementation")
   var userId = presenceEvent.uuid
   if (action == 'join') {
     memberJoined(userId)

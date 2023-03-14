@@ -405,3 +405,16 @@ a:hover {
     white-space: nowrap;
     min-width: 150px;
 }
+
+.developer-message {
+    font-weight: 300 !important;
+    left: 0;
+    width: 100%;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+.developer-message-info {
+    color: var(--color-icon-alert-text-info) !important;
+    background-color: var(--color-background-alert-info);
+}

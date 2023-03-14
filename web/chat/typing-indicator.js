@@ -9,6 +9,7 @@ var activeTypersTimer = 0
 const TYPING_INDICATOR_TIMEOUT_IN_MSECS = 5000 //  ms
 
 function sendTypingIndicator () {
+  developerMessage("You can send signals on every keystroke without worrying about data usage or network issues")
     pubnub.signal({
       message: { id: pubnub.getUserId(), t: 't' },
       channel: channel
@@ -22,7 +23,7 @@ function sendTypingIndicator () {
         //  User is typing in our active channel.  Note that userData does NOT contain our own ID
         if (userData[signalObj.message.id] != null)
         {
-          activeTypers[userData[signalObj.message.id].name] = signalObj.timetoken;
+          activeTypers[signalObj.message.id] = signalObj.timetoken;
           evaluateCurrentTypers()
         }
       }
@@ -32,30 +33,29 @@ function sendTypingIndicator () {
   function evaluateCurrentTypers() {
     clearTimeout(activeTypersTimer);
     //  Clear any names who have not typed in X seconds
-    var timeAgoTimestamp = (Date.now() - TYPING_INDICATOR_TIMEOUT_IN_MSECS) * 10000
+    var timeAgoTimestamp = (Date.now() - TYPING_INDICATOR_TIMEOUT_IN_MSECS + 100) * 10000
     for (var key in activeTypers) {
       if (activeTypers[key] < timeAgoTimestamp)
       {
         delete activeTypers[key];
       }
       //  Populate the '... is typing' field
-      var isTypingUI = ""
       var typersCount = Object.keys(activeTypers).length
       if (typersCount == 0)
       {
-        document.getElementById('typingIndicatorDots').style.visibility = 'hidden';
+        document.getElementById('typingIndicator').style.display = 'none';
       }
       else if (typersCount == 1)
       {
-        isTypingUI = key + ' is typing...'
-        document.getElementById('typingIndicatorDots').style.visibility = 'visible';
+        document.getElementById('typingIndicatorName').innerHTML = userData[key].name;
+        document.getElementById('typingIndicatorAvatar').src = userData[key].profileUrl;
+        document.getElementById('typingIndicator').style.display = 'block';
       }
       else if (typersCount > 1)
       {
-        isTypingUI = 'Multiple people are typing...'
-        document.getElementById('typingIndicatorDots').style.visibility = 'visible';
+        document.getElementById('typingIndicatorName').innerHTML = "Multiple People are typing";
+        document.getElementById('typingIndicator').style.display = 'block';
       }
-      document.getElementById('typingIndicator').innerText = isTypingUI;
     }
     if (Object.keys(activeTypers).length > 0)
     {
@@ -63,3 +63,4 @@ function sendTypingIndicator () {
     }
   
   }
+

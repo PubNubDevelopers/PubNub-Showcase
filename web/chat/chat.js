@@ -1,71 +1,71 @@
 /**
- * Many customers use PubNub to implement chat into their solution, so they don't have to 
+ * Many customers use PubNub to implement chat into their solution, so they don't have to
  * worry about scale, reliability or other infrastructure considerations.  If you are reading
  * this source code, hopefully you are implementing an app with PubNub :)  THANK YOU!
  * Here are some tips for things you'll need to watch out for as you move to production, this is
- * just a demo and beyond the usual caveats to add 'error handling' code, it's worth bearing the 
- * following in mind 
+ * just a demo and beyond the usual caveats to add 'error handling' code, it's worth bearing the
+ * following in mind
  * IN PRODUCTION:
  * - PubNub provides all the underlying APIs you need to implement your chat solution but we don't
  *   provide an opinionated visual design - feel free to build your own UI on top of our APIs, this
  *   demo uses a very basic chat UI to 'get the idea across'
  * - PubNub uses a flexible channel architecture for communication, endpoints 'subscribe' and 'publish'
- *   messages to channels.  By naming channels in a sensible hierarchy you can enable public and 
+ *   messages to channels.  By naming channels in a sensible hierarchy you can enable public and
  *   private groups.  This demo follows the same naming convention a number of our customers use for
  *   'Public.<channel>', 'Private.<channel>' and 'DM.A&B', enabling all possible grouping use cases.
  *   In production, you will use Access Manager to restrict access to channels as appropriate but that
  *   is not done in this demo, for readability.
  * - This demo does not encrypt any messages, but you could do this if you chose to do so for additional
  *   privacy and security.  Obviously all messages are already sent over secure connection and PubNub
- *   is SOC2 compliant so even if you do not choose to implement message encryption, your messages are 
+ *   is SOC2 compliant so even if you do not choose to implement message encryption, your messages are
  *   still secure.
  * - Subscription: This demo uses wildcard subscription in conjunction with the channel naming topology
  *   to listen for new messages.  This will be sufficient for most production use cases but if you need
  *   an even greater number of channels then please see our Channel Groups feature.
- * - Presence: This demo uses PubNub presence APIs to detect who is online.  Presence is based subscription 
+ * - Presence: This demo uses PubNub presence APIs to detect who is online.  Presence is based subscription
  *   which, in the case of this demo, is to 'channel.*', so a user will be shown as online even if they are
  *   not viewing the same conversation as you.  Presence is configurable at both the client and server level,
  *   for example you can choose to unsubscribe / resubscribe to channels as you switch conversations and additional
- *   options are available on the admin portal (for example, unsubscribing when a TCP ACK is received).  
+ *   options are available on the admin portal (for example, unsubscribing when a TCP ACK is received).
  * - Read receipts and message reactions: Both of these are implemented in this demo using PubNub's message
  *   actions feature.  Message actions allow you to add meta data to a specific message, which can subsequently
- *   be read by recipients and stored in history.  You can also use message actions to edit message data (still 
+ *   be read by recipients and stored in history.  You can also use message actions to edit message data (still
  *   retaining the original message content) and 'delete' existing messages.  The logic around read receipts
- *   can get particularly complex with groups (messages are sent, delivered, read by a subset of the group, then 
+ *   can get particularly complex with groups (messages are sent, delivered, read by a subset of the group, then
  *   finally are read by the entire group).  To keep things simple, this demo implements a simplified mechanism
  *   for read receipts (they are sent, then marked as read when only one person has read them) BUT this is not
  *   a limitation of PubNub, it is just a simple demo to show the principle.
  * - Objects: If you are building a chat app based on the PubNub SDK you will have a number of requirements in
- *   common with other chat implementations, i.e. you will need to store metadata associated with a user (name, 
+ *   common with other chat implementations, i.e. you will need to store metadata associated with a user (name,
  *   avatar URL, mood), channel and which users are members of which channel.  This demo uses PubNub objects
  *   extensively to track user information including which channels they are members of.  Objects are particularly
- *   useful if you do not have an existing backend or you want to isolate your chat functionality so it is 
+ *   useful if you do not have an existing backend or you want to isolate your chat functionality so it is
  *   entirely within the PubNub domain.
- * - Typing indicator: We recommend you use PubNub signals, as this demo does.  This demo's logic for the typing 
- *   indicator with groups, where multiple people are typing, is quite simple (especially the use of setTimeout).  
- *   In production, you would have more robust logic but, again, the demo was written with readibility in mind. 
+ * - Typing indicator: We recommend you use PubNub signals, as this demo does.  This demo's logic for the typing
+ *   indicator with groups, where multiple people are typing, is quite simple (especially the use of setTimeout).
+ *   In production, you would have more robust logic but, again, the demo was written with readibility in mind.
  *   PubNub signals will meet your typing indicator use case regardless of scale.
  * - Attachments are handled using the PubNub file API.  In production, you will probably have some complex use
- *   cases around sharing files, previewing them and opening them externally.  The PubNub file API provides 
- *   serverside storage for ANY file type, though this demo restricts itself to images only.  The file API also 
+ *   cases around sharing files, previewing them and opening them externally.  The PubNub file API provides
+ *   serverside storage for ANY file type, though this demo restricts itself to images only.  The file API also
  *   supports files up to 5MB (increasible if you contact support), though this demo restricts images to 1MB.
  *   Images in this demo are moderated using PubNub functions and it is strongly recommended you moderate any images
- *   in your own chat solution.  This demo will delete any image that does not pass moderation before it is 
+ *   in your own chat solution.  This demo will delete any image that does not pass moderation before it is
  *   delivered to the recipient, though in production you will want a more complex logic around 'banning' users
  *   who do not follow your chat rules.
  * - Persistence: The data in this demo (messages, files) only persist for 1 day.  That is a deliberate choice since
- *   this is only a demo but in production, this is something you can configure from your PubNub admin dashboard, so 
- *   data can be persisted as long as you need.  The history (AKA persistence) API can retrieve messages (along with 
- *   their accompanying actions) as far back as you need but for readibility, this demo only goes back to the past 
- *   50 messages.  
+ *   this is only a demo but in production, this is something you can configure from your PubNub admin dashboard, so
+ *   data can be persisted as long as you need.  The history (AKA persistence) API can retrieve messages (along with
+ *   their accompanying actions) as far back as you need but for readibility, this demo only goes back to the past
+ *   50 messages.
  * - Paging: Related to persistence, in production you will need to page through the results from a number of API
- *   calls that return a lot of data (message history including message actions, object data, etc.).  This is 
+ *   calls that return a lot of data (message history including message actions, object data, etc.).  This is
  *   standard for Network APIs but to keep things simple, this demo has been designed to avoid having to page any
  *   data.  Be sure to add paging logic to any API call you make that returns a 'next' page.
  * - Functions: Functions provide server logic that can be exeuted after an event occurs, such as a message is published
  *   or a file is uploaded.  Functions are used by this demo to moderate both text and images but are not used beyond
- *   that.  In production, you might choose to use functions to perform inline language translation or to store a 
- *   copy of any message in your own storage for analytics purposes (you can also use Events & Actions for this 
+ *   that.  In production, you might choose to use functions to perform inline language translation or to store a
+ *   copy of any message in your own storage for analytics purposes (you can also use Events & Actions for this
  *   analytics use case)
  */
 //  Connection to the PubNub API
@@ -86,7 +86,9 @@ var fileAttachment = null
 var isMessageSendingInProgress = false
 const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
-const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1  //  bytes
+const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1 //  bytes
+const DEFAULT_AVATAR =
+  'https://pubnubdevelopers.github.io/PubNub-Showcase/web/img/avatar/placeholder.png'
 
 //  To make presence indications more accurate if the webpage is being refreshed, notify PubNub that the client is leaving .
 //  PubNub will eventually catch up, but this makes it quicker
@@ -117,9 +119,21 @@ async function loadChat () {
   //  PubNub object - connection with the PubNub infrastructure
   pubnub = createPubNubObject()
   await getUserMetadataSelf() //  Populate own data for left hand pane
-  getUserMetaDataOthers() //  Populate list of direct chats for left hand pane
-  getPrivateGroupList() //  Populate list of private group chats for left hand pane
-  getGroupList() //  Populate list of public group chats for left hand pane
+  const directChatsLoaded = getUserMetaDataOthers() //  Populate list of direct chats for left hand pane
+  const privateGroupsLoaded = getPrivateGroupList() //  Populate list of private group chats for left hand pane
+  //  Populate list of public group chats for left hand pane
+  const publicGroupsLoaded = getGroupList()
+  Promise.all([
+    directChatsLoaded,
+    privateGroupsLoaded,
+    publicGroupsLoaded
+  ]).then(() => {
+    updateMessageCountFirstLoad()
+  })
+
+  developerMessage(
+    'A PubNub event listener will receive data from PubNub, including status, messages, signals, presence and object updates'
+  )
 
   //  Add an event listener for the channel
   pnListener = pubnub.addListener({
@@ -129,18 +143,30 @@ async function loadChat () {
     },
     message: payload => {
       //  Messages are used for chat messages
+      developerMessage(
+        'Messages can contain any serializable data and, when published to a channel, will be received by all subscribers of that channel'
+      )
       messageReceived(payload)
     },
     signal: signalEvent => {
       //  Signals are used for the typing indicator
+      developerMessage(
+        "Signals are small messages ideal for typing or 'message read' notifications"
+      )
       signalReceived(signalEvent)
     },
     presence: presenceEvent => {
       //  Presence is used to determine whether users are online or offline
+      developerMessage(
+        "User online and offline status is provided by PubNub's presence feature, giving a channel's occupants"
+      )
       handlePresenceEvent(presenceEvent.action, presenceEvent)
     },
     messageAction: messageActionEvent => {
       //  Message actions are used to handle read receipts and message reactions (add emoji to messages)
+      developerMessage(
+        "PubNub's Message Actions are used to augment existing messages with extra data, such as read receipts or reactions"
+      )
       maReadReceipt(messageActionEvent)
       maEmojiReaction(messageActionEvent)
     },
@@ -170,7 +196,6 @@ async function loadChat () {
         if (channel.startsWith('Public.')) {
           //  If the removed user is part of the active group, remove them
           if (channelMembers[userId] != null) {
-            console.log('removing user from current channel')
             removeUserFromCurrentChannel(userId)
             updateInfoPane()
           }
@@ -196,6 +221,7 @@ async function loadChat () {
         //  Somebody else has joined a channel
         //  Regardless of our active channel, add this person to our list of direct chats if they aren't there already (this is our indication a new user is added)
         var userId = objectEvent.message.data.uuid.id
+        if (userId.includes('sim_')) return
         if (userData[userId] == null) {
           userData[userId] = {}
           //  Find out the information about this user
@@ -254,18 +280,25 @@ async function loadChat () {
 
   //  Call PubNub's hereNow() API to see who else is here
   updatePresenceInfoFirstLoad()
+
+  var infoPane = document.getElementById('chatRightSide')
+  chatRightSide.addEventListener('hidden.bs.offcanvas', function () {
+    document.getElementById('chat-container').classList.remove('blurred')
+  })
+  chatRightSide.addEventListener('show.bs.offcanvas', function () {
+    document.getElementById('chat-container').classList.add('blurred')
+  })
 }
 
 //  Very large method to handle all the logic of populating the chat window with the chat
 //  associated with the specified channel
 async function populateChatWindow (channelName) {
   sessionStorage.setItem('activeChatChannel', channelName)
-  
+
   //  Update the heading
   if (channelName.startsWith('Public')) {
     //  This is a public group
-    document.getElementById('heading').innerHTML =
-      'Group: ' + lookupGroupName(channelName)
+    document.getElementById('heading').innerHTML = lookupGroupName(channelName)
   } else if (channelName.startsWith('Private')) {
     document.getElementById('heading').innerHTML = lookupGroupName(channelName)
   } else if (channelName.startsWith('DM')) {
@@ -274,98 +307,130 @@ async function populateChatWindow (channelName) {
     document.getElementById('heading').innerHTML = 'Chat with ' + recipientName
   }
   clearMessageList()
-  //  If we select a channel to view it, clear all unread messages for this channel regardless of the 
+  messageReactions = {}
+  //  If we select a channel to view it, clear all unread messages for this channel regardless of the
   //  position of the scrollbar (to keep the demo simple)
   setChannelUnreadCounter(channelName, 0)
-  //  To help populate the unread message counter, keep track of when the messages were last 'read'.  This is
-  //  required for the pubnub.messageCounts API
-  sessionStorage.setItem('chatLastLoadTimestamp', Date.now() * 10000)
 
   //  Get the meta data for other users in this chat.  This will be stored locally for efficiency.  If we see a new user after the chat
   //  is loaded, that user's data will be loaded dynamically as needed
   try {
-    const result = await pubnub.objects.getChannelMembers({
-      channel: channel,
-      sort: { updated: 'desc' },
-      include: {
-        UUIDFields: true
-      },
-      limit: 50,  //  To keep the logic simple, this demo is limited to 50 simultaneous users.  See notes about paging at the top of this file.
-      totalCount: true
-    })
-    channelMembers = {}
-    for (var i = 0; i < result.data.length; i++) {
-      //  Since this is a shared system with essentially ephemeral users, only display users who were created in the last 24 hours
-      //  The 'updated' field, for our purposes, will be when the user was created (or changed their name), but either way, this
-      //  allows the list of 'users' to be kept manageable.
-      //  There is logic to load the names / avatars on historical messages separately, so they are not blank.
-      var lastUpdated = new Date(result.data[i].updated)
-      var cutoff = new Date()
-      cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
-      if (lastUpdated > cutoff) {
-        addUserToCurrentChannel(
-          result.data[i].uuid.id,
-          result.data[i].uuid.name,
-          result.data[i].uuid.profileUrl
-        )
-      }
-    }
+    developerMessage(
+      'PubNub Objects are used to store data about users, channels and who is a member of each channel'
+    )
 
-    //  The current channel members are shown in the right hand pane
-    updateInfoPane()
-
-    //  Load channel history
-    const history = await pubnub.fetchMessages({
-      channels: [channelName],
-      count: 10,  //  Limit to 10 messages.  Design decision for this app, not a limitation of PubNUb
-      includeUUID: true,
-      includeMessageActions: true
-    })
-    if (history.channels[channelName] != null) {
-      for (const historicalMsg of history.channels[channelName]) {
-        historicalMsg.publisher = historicalMsg.uuid
-
-        if (channelMembers[historicalMsg.uuid] != null || historicalMsg.uuid == pubnub.getUserId()) {
-          //  Only show past messages from users who didn't log out
-          await messageReceived(historicalMsg)
-          //  Update the historically loaded messages based on message actions
-          if (
-            historicalMsg.actions != null &&
-            historicalMsg.actions.read != null
-          ) {
-            //  Mark the sent message as read
-            var originalMessage = document.getElementById(
-              'message-check-' + historicalMsg.timetoken
+    pubnub.objects
+      .getChannelMembers({
+        channel: channel,
+        sort: { updated: 'desc' },
+        include: {
+          UUIDFields: true
+        },
+        limit: 50, //  To keep the logic simple, this demo is limited to 50 simultaneous users.  See notes about paging at the top of this file.
+        totalCount: true
+      })
+      .then(result => {
+        channelMembers = {}
+        for (var i = 0; i < result.data.length; i++) {
+          //  Since this is a shared system with essentially ephemeral users, only display users who were created in the last 24 hours
+          //  The 'updated' field, for our purposes, will be when the user was created (or changed their name), but either way, this
+          //  allows the list of 'users' to be kept manageable.
+          //  There is logic to load the names / avatars on historical messages separately, so they are not blank.
+          var lastUpdated = new Date(result.data[i].updated)
+          var cutoff = new Date()
+          cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
+          if (lastUpdated > cutoff) {
+            addUserToCurrentChannel(
+              result.data[i].uuid.id,
+              result.data[i].uuid.name,
+              result.data[i].uuid.profileUrl
             )
-            originalMessage.classList.remove('bi-check')
-            originalMessage.classList.add('bi-check-all')
-          }
-          //  Read in emoji reactions for historical messages (message actions)
-          if (
-            historicalMsg.actions != null &&
-            historicalMsg.actions.react != null &&
-            historicalMsg.actions.react.smile != null
-          ) {
-            //  Handle the message reactions
-            var messageEmojiElement = document.getElementById(
-              'emoji-reactions-' + historicalMsg.timetoken
-            )
-            var reaction = ''
-            for (const action of historicalMsg.actions.react.smile) {
-              reaction += String.fromCodePoint(0x1f642)
-              if (action.uuid == pubnub.getUserId()) {
-                messageEmojiElement.classList.add('message-reacted')
-                messageEmojiElement.dataset.actionid = action.actionTimetoken
-              }
-            }
-            messageEmojiElement.innerHTML = reaction
           }
         }
-      }
-    }
+
+        //  The current channel members are shown in the right hand pane
+        updateInfoPane()
+
+        //  Load channel history
+        pubnub
+          .fetchMessages({
+            channels: [channelName],
+            count: 20, //  Limit to 20 messages.  Design decision for this app, not a limitation of PubNUb
+            includeUUID: true,
+            includeMessageActions: true
+          })
+          .then(async history => {
+            if (history.channels[channelName] != null) {
+              for (const historicalMsg of history.channels[channelName]) {
+                developerMessage(
+                  'PubNub can persist previous messages which can then be loaded into the conversation at launch'
+                )
+                historicalMsg.publisher = historicalMsg.uuid
+
+                await messageReceived(historicalMsg)
+
+                //  Update the historically loaded messages based on message actions
+                if (
+                  historicalMsg.actions != null &&
+                  historicalMsg.actions.read != null
+                ) {
+                  //  Mark the sent message as read
+                  var originalMessage = document.getElementById(
+                    'message-check-' + historicalMsg.timetoken
+                  )
+
+                  originalMessage.src = '../img/icons/read.png'
+                }
+                //  Read in emoji reactions for historical messages (message actions)
+                if (
+                  historicalMsg.actions != null &&
+                  historicalMsg.actions.react != null &&
+                  historicalMsg.actions.react.smile != null
+                ) {
+                  //  Handle the message reactions
+                  var messageEmojiElement = document.getElementById(
+                    'emoji-reactions-' + historicalMsg.timetoken
+                  )
+                  var reaction = ''
+                  for (const action of historicalMsg.actions.react.smile) {
+                    var reactionPayload = {
+                      event: 'added',
+                      data: {
+                        type: 'react',
+                        messageTimetoken: historicalMsg.timetoken
+                      }
+                    }
+                    maEmojiReaction(reactionPayload)
+                    if (action.uuid == pubnub.getUserId()) {
+                      messageEmojiElement.classList.add('temp-message-reacted')
+                      messageEmojiElement.dataset.actionid =
+                        action.actionTimetoken
+                    }
+                  }
+                }
+              }
+            }
+          })
+      })
+
+    setChannelLastReadTimetoken(channelName)
   } catch (status) {
-    console.log('error (check you have history & objects enabled in the admin portal): ' + status)
+    console.log(
+      'error (check you have history & objects enabled in the admin portal): ' +
+        status
+    )
   }
+}
+
+function setChannelLastReadTimetoken (channel) {
+  var timeTokenNow = Date.now() * 10000
+  developerMessage(
+    "PubNub Objects also allows you to specify meta data for a channel, in this case when the channel's messages were last read"
+  )
+  pubnub.objects.setMemberships({
+    channels: [{ id: channel, custom: { lastReadTimetoken: timeTokenNow } }],
+    uuid: pubnub.getUserId()
+  })
 }
 
 //  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
@@ -376,7 +441,9 @@ async function getUserMetadataSelf () {
     })
     me = result.data
     document.getElementById('currentUser').innerText = me.name + ' (You)'
+    document.getElementById('currentUser-side').innerText = me.name + ' (You)'
     document.getElementById('avatar').src = me.profileUrl
+    document.getElementById('avatar-side').src = me.profileUrl
   } catch (e) {
     //  Some error retrieving our own meta data - probably the objects were deleted, therefore log off (possible duplicate tab)
     location.href = '../index.html'
@@ -385,33 +452,51 @@ async function getUserMetadataSelf () {
 
 //  Wrapper around pubnub objects getAllUUIDMetadata and set up our internal cache
 async function getUserMetaDataOthers () {
+  //  Subscribing to all possible channels we will want to know about.  Need to know about all channels so we can track the unread message counter
+  //  Using the recommended naming convention:
+  //  Public.<name> for public groups
+  //  Private.<name> for private groups
+  //  DM.A&B for direct messages between two users
+  developerMessage(
+    'You can specify a wildcard (*) to subscribe to all channels which match a specific pattern'
+  )
+  pubnub.subscribe({
+    channels: ['DM.*', 'Public.*', 'Private.*'],
+    withPresence: true
+  })
+
   // Get all UUIDs
   userData = {}
   try {
-    const users = await pubnub.objects.getAllUUIDMetadata({
-      sort: { updated: 'desc' },
-      limit: 50
-    })
-    //  Populate the Direct 1:1 Chat list with people you can chat with
-    for (var i = users.data.length - 1; i >= 0; i--) {
-      if (users.data[i].id == pubnub.getUserId()) continue
-      if (users.data[i].id.includes("sim_")) continue
-      var lastUpdated = new Date(users.data[i].updated)
-      //  Do not show users who logged in more than 24 hours ago.  To avoid stale data in the demo - you probably would not do this in production
-      var cutoff = new Date()
-      cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
-      if (lastUpdated < cutoff) continue
-      //  Only add new users recently created
-      addNewUser(users.data[i].id, users.data[i].name, users.data[i].profileUrl)
-    }
-    //  Subscribing to all possible channels we will want to know about.  Need to know about all channels so we can track the unread message counter
-    //  Using the recommended naming convention:
-    //  Public.<name> for public groups
-    //  Private.<name> for private groups
-    //  DM.A&B for direct messages between two users
-    pubnub.subscribe({
-      channels: ['DM.*', 'Public.*', 'Private.*'],
-      withPresence: true
+    return new Promise((res, rej) => {
+      developerMessage(
+        "This demo retrieves all user's information from PubNub's Object API (you may choose to do this from your server in production for security)"
+      )
+      //  IN PRODUCTION: You may not wish every user to have access to every other user's information, in which case PubNub's Access Manager can restrict who has access to what data.
+      pubnub.objects
+        .getAllUUIDMetadata({
+          sort: { updated: 'desc' },
+          limit: 50
+        })
+        .then(async users => {
+          //  Populate the Direct 1:1 Chat list with people you can chat with
+          for (var i = users.data.length - 1; i >= 0; i--) {
+            if (users.data[i].id == pubnub.getUserId()) continue
+            if (users.data[i].id.includes('sim_')) continue
+            var lastUpdated = new Date(users.data[i].updated)
+            //  Do not show users who logged in more than 24 hours ago.  To avoid stale data in the demo - you probably would not do this in production
+            var cutoff = new Date()
+            cutoff.setHours(cutoff.getHours() - IGNORE_USER_AFTER_THIS_DURATION)
+            if (lastUpdated < cutoff) continue
+            //  Only add new users recently created
+            await addNewUser(
+              users.data[i].id,
+              users.data[i].name,
+              users.data[i].profileUrl
+            )
+          }
+          res()
+        })
     })
   } catch (status) {
     console.log('Failed to retrieve user meta data for other users: ', status)
@@ -427,7 +512,7 @@ function clearMessageList () {
 //  User management and management of which users are in which channels
 
 //  Add a new REMOTE user to the system, not including ourselves
-function addNewUser (userId, name, profileUrl) {
+async function addNewUser (userId, name, profileUrl) {
   //  A new user is present in the chat system.
   //  Add this user's details to our local cache of user details
   userData[userId] = { name: name, profileUrl: profileUrl }
@@ -436,19 +521,22 @@ function addNewUser (userId, name, profileUrl) {
   var oneOneUser =
     " <div id='user-" +
     userId +
-    "' class='user-with-presence cursor-pointer mb-2' onclick='launchDirectChat(\"" +
+    "' class='user-with-presence group-row' onclick='launchDirectChat(\"" +
     userId +
     "\")'><img src='" +
     profileUrl +
     "' class='chat-list-avatar'><span id='user-pres-" +
     userId +
-    "' class='presence-dot-gray'></span><span class='chat-list-name'>" +
-    name +
-    "</span><span id='unread-" +
+    "' class='presence-dot-gray'></span><div id='unread-" +
     userId +
-    "' class='unread-message-indicator hidden'>0</span></div>"
+    "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div><span class='chat-list-name'>" +
+    name +
+    '</span></div>'
+
   document.getElementById('oneOneUserList').innerHTML =
     oneOneUser + document.getElementById('oneOneUserList').innerHTML
+  document.getElementById('oneOneUserList-side').innerHTML =
+    oneOneUser + document.getElementById('oneOneUserList-side').innerHTML
 
   var tempChannel = createDirectChannelName(pubnub.getUserId(), userId)
   subscribedChannels.push(tempChannel)
@@ -456,9 +544,18 @@ function addNewUser (userId, name, profileUrl) {
   //  Add myself and the recipient to the direct chat channel
   //  In production this would probably be done from a central server with access control but for
   //  simplicity, we'll do this on every client
-  pubnub.objects.setMemberships({
-    channels: [tempChannel],
-    uuid: pubnub.getUserId()
+  developerMessage(
+    "PubNub's Object API enables you to specify which channel(s) a user is a member of, then you will receive events as that channel's data changes."
+  )
+  return new Promise((res, rej) => {
+    pubnub.objects
+      .setMemberships({
+        channels: [tempChannel],
+        uuid: pubnub.getUserId()
+      })
+      .then(() => {
+        res()
+      })
   })
 }
 
@@ -517,30 +614,48 @@ function createDirectChannelName (userId1, userId2) {
 
 //  Populate the public 'Groups', in the left hand pane
 async function getGroupList () {
-  var groupList = ''
+  return new Promise((res, rej) => {
+    var groupList = ''
+    var channels = []
+    for (const group of predefined_groups.groups) {
+      var groupHtml =
+        "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
+        group.channel +
+        "\")'><img src='../img/group/" +
+        group.profileIcon +
+        "' class='chat-list-avatar'><div id='unread-" +
+        group.channel +
+        "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div>"
 
-  for (const group of predefined_groups.groups) {
-    var groupHtml =
-      "<div class='user-with-presence cursor-pointer mb-2' onclick='launchGroupChat(\"" +
-      group.channel +
-      "\")'><img src='../img/group/" +
-      group.profileIcon +
-      "' class='chat-list-avatar'> <span style='font-size: larger;padding-left: 0.5em;'>" +
-      group.name +
-      "</span> <span id='unread-" +
-      group.channel +
-      "' class='unread-message-indicator hidden'>0</span></div>"
-    groupList += groupHtml
-
+      if (typeof group.info === 'undefined') {
+        groupHtml += "<div class='group-name'>" + group.name + '</div></div>'
+      } else {
+        groupHtml +=
+          "<div class='group-name group-name-flex'><div>" +
+          group.name +
+          "</div><div class='text-caption'>" +
+          group.info +
+          '</div></div></div>'
+      }
+      groupList += groupHtml
+      channels.push(group.channel)
+      subscribedChannels.push(group.channel)
+    }
+    developerMessage(
+      'This demo has 3 hardcoded public groups and 1 hardcoded private group.  The demo automatically enrols you in all these groups.  See code comments for details of channel naming conventions for groups.'
+    )
     //  Add ourself as a member of every (public) group
-    await pubnub.objects.setMemberships({
-      channels: [group.channel],
-      uuid: pubnub.getUserId()
-    })
-    subscribedChannels.push(group.channel)
-  }
-  document.getElementById('groupList').innerHTML = groupList
-  updateMessageCountFirstLoad()
+    pubnub.objects
+      .setMemberships({
+        channels: channels,
+        uuid: pubnub.getUserId()
+      })
+      .then(() => {
+        document.getElementById('groupList').innerHTML = groupList
+        document.getElementById('groupList-side').innerHTML = groupList
+        res()
+      })
+  })
 }
 
 /**
@@ -548,38 +663,50 @@ async function getGroupList () {
  *  This demo hard codes the list of private groups but in a production chat solution
  *  users should be added and removed from private groups by an authorized endpoint.
  *  Typically this would be done on the server side, in conjunction with the access manager
- *  ensuring that only authorized users are added to specific groups and controlling requests to be 
+ *  ensuring that only authorized users are added to specific groups and controlling requests to be
  *  added to new groups.
- *  A group will map to a channel.  Although you can choose any naming convention for your channel, 
- *  recommendations exist in the documentation.  For private groups, the recommendation is to use Private.<channel name> 
+ *  A group will map to a channel.  Although you can choose any naming convention for your channel,
+ *  recommendations exist in the documentation.  For private groups, the recommendation is to use Private.<channel name>
  *  for the channel name
  *  You can still use PubNub Objects to organize which channels your users are members of.
  */
 async function getPrivateGroupList () {
-  var privateGroupList = ''
+  return new Promise((res, rej) => {
+    var privateGroupList = ''
 
-  for (const group of predefined_groups.private_groups) {
-    var actualChannel = group.channel.replace('uuid', pubnub.getUserId())
-    var privateGroupHtml =
-      "<div class='user-with-presence cursor-pointer mb-2' onclick='launchGroupChat(\"" +
-      actualChannel +
-      "\")'><img src='../img/group/" +
-      group.profileIcon +
-      "' class='chat-list-avatar'> <span style='font-size: larger;padding-left: 0.5em;'>" +
-      group.name +
-      "</span> <span id='unread-" +
-      actualChannel +
-      "' class='unread-message-indicator hidden'>0</span></div>"
-    privateGroupList += privateGroupHtml
+    var channels = []
+    for (const group of predefined_groups.private_groups) {
+      var actualChannel = group.channel.replace('uuid', pubnub.getUserId())
+      var privateGroupHtml =
+        "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
+        actualChannel +
+        "\")'><img src='../img/group/" +
+        group.profileIcon +
+        "' class='chat-list-avatar'><div id='unread-" +
+        actualChannel +
+        "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div> <div class='group-name group-name-flex'><div>" +
+        group.name +
+        "</div><div class='text-caption'>" +
+        group.info +
+        '</div></div></div>'
+      privateGroupList += privateGroupHtml
 
-    await pubnub.objects.setMemberships({
-      channels: [actualChannel],
-      uuid: pubnub.getUserId()
-    })
-    subscribedChannels.push(actualChannel)
-  }
+      channels.push(actualChannel)
+    }
 
-  document.getElementById('groupListPrivate').innerHTML = privateGroupList
+    pubnub.objects
+      .setMemberships({
+        channels: channels,
+        uuid: pubnub.getUserId()
+      })
+      .then(() => {
+        subscribedChannels.push(actualChannel)
+        document.getElementById('groupListPrivate').innerHTML = privateGroupList
+        document.getElementById('groupListPrivate-side').innerHTML =
+          privateGroupList
+        res()
+      })
+  })
 }
 
 //  Handler for when a user is selected in the 1:1 chat window.  Display the chat with that user
@@ -597,7 +724,9 @@ async function launchDirectChat (withUserId) {
 
   let myOffCanvas = document.getElementById('chatLeftSide')
   let openedCanvas = bootstrap.Offcanvas.getInstance(myOffCanvas)
-  openedCanvas.hide()
+  if (openedCanvas !== null) {
+    openedCanvas.hide()
+  }
 }
 
 //  Handler for when a public or private group is selected from the left hand pane
@@ -607,7 +736,9 @@ async function launchGroupChat (channelName) {
 
   let myOffCanvas = document.getElementById('chatLeftSide')
   let openedCanvas = bootstrap.Offcanvas.getInstance(myOffCanvas)
-  openedCanvas.hide()
+  if (openedCanvas !== null) {
+    openedCanvas.hide()
+  }
 }
 
 //  Given the channel name of a direct chat, return the name of the person being spoken with
@@ -658,7 +789,7 @@ function updateInfoPane () {
   if (!channel.startsWith('DM')) {
     chatInfo = lookupGroupDescription(channel)
   }
-  document.getElementById('chatInformation').innerHTML = chatInfo
+  document.getElementById('chat-info-description').innerHTML = chatInfo
 }
 
 //  HTML for a member in the info (right hand) pane
@@ -668,7 +799,7 @@ function generateHtmlChatMember (userId, name, profileUrl, online) {
   return (
     "<div id='member-" +
     userId +
-    "' class='user-with-presence mb-2'> \
+    "' class='user-with-presence group-row'> \
             <img src='" +
     profileUrl +
     "' class='chat-list-avatar'> \
@@ -713,10 +844,21 @@ function lookupGroupDescription (channelName) {
 function addContextHandler (element, callback) {
   //  On desktop environments, handle right click
   if (!('ontouchstart' in window)) {
-    element.oncontextmenu = function (e) {
-      callback(element.id)
-      return false
-    }
+    element.addEventListener('mouseenter', data => {
+      document.getElementById(
+        'emoji-reactions-' + element.id
+      ).style.visibility = 'visible'
+    })
+    element.addEventListener('mouseleave', data => {
+      document.getElementById(
+        'emoji-reactions-' + element.id
+      ).style.visibility = 'hidden'
+    })
+    //  Old logic for handling right click
+    //element.oncontextmenu = function (e) {
+    //  callback(element.id)
+    //  return false
+    //}
   } else {
     onLongPress(element, callback)
   }
@@ -724,7 +866,17 @@ function addContextHandler (element, callback) {
 
 //  Handler for when user right clicks or long presses the element
 async function onContextHandler (messageId) {
-  maAddEmojiReaction(messageId)
+  var emojiReactionDiv = document.getElementById('emoji-reactions-' + messageId)
+  if (
+    document.getElementById('emoji-reactions-' + messageId).style.visibility ==
+    'visible'
+  ) {
+    document.getElementById('emoji-reactions-' + messageId).style.visibility =
+      'hidden'
+  } else {
+    document.getElementById('emoji-reactions-' + messageId).style.visibility =
+      'visible'
+  }
 }
 
 //  Long press happens on mobile devices
@@ -788,12 +940,9 @@ function messageInputAttachment () {
         const img = new Image()
         img.src = content
         img.onload = async () => {
-          if (img.height > 200) {
-            var newWidth = (img.height / img.width) * 200
-            if (img.width < img.height) {
-              newWidth = (img.width / img.height) * 200
-            }
-            content = await compressImage(content, newWidth, 200)
+          if (img.height > 100) {
+            var newWidth = img.width * (100 / img.height)
+            content = await compressImage(content, newWidth, 100)
           }
 
           //  Bit of a cheat but the easiest way to display the message is to just set it as the message
@@ -816,7 +965,7 @@ function messageBoxHasImage (hasImage) {
   const msgInput = document.getElementById('input-message')
   if (hasImage) {
     //  disable the message input field
-    msgInput.style.height = '200px'
+    msgInput.style.height = '100px'
   } else {
     msgInput.style.height = ''
     msgInput.style.backgroundImage = ''
@@ -859,7 +1008,6 @@ async function messageInputSend () {
   var messageText = messageInput.value
   if (isMessageSendingInProgress) {
     //  Prevent duplicate sends
-    console.log('send alredy in progress')
     return
   }
   messageSendingInProgress(true)
@@ -870,13 +1018,16 @@ async function messageInputSend () {
     //  but this demo keeps things simple
     try {
       //  Upload the file using the PubNub file API
+      developerMessage(
+        'PubNub allows you to store files, for example, to store Chat file attachments.  File storage is NOT restricted, though this demo does self-impose limits'
+      )
       const uploadedFile = await pubnub.sendFile({
         channel: channel,
         file: fileAttachment
       })
       //  Once the file is uploaded, get the URL of the file, stored in PubNub storage.
-      //  In production, you would use Access Manager to ensure that only authorized users have access to 
-      //  desired files. 
+      //  In production, you would use Access Manager to ensure that only authorized users have access to
+      //  desired files.
       fileUrl = await pubnub.getFileUrl({
         channel: channel,
         id: uploadedFile.id,
@@ -913,4 +1064,12 @@ async function messageInputSend () {
   }
   messageBoxHasImage(false)
   messageSendingInProgress(false)
+}
+
+function errorMessage (message) {
+  const toastLiveExample = document.getElementById('liveToast')
+  const toastBody = document.getElementById('toast-body')
+  toastBody.innerText = message
+  const toast = new bootstrap.Toast(toastLiveExample)
+  toast.show()
 }

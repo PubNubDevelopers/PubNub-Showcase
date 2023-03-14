@@ -21,10 +21,11 @@ var predefined_groups = {
       info: "Populated by the <a href='../geolocation/geolocation.html'>Geo</a> demo"
     },
     {
-      channel: 'Public.puzzles',
-      name: 'Puzzle Fans',
-      profileIcon: 'group-test.png',
-      description: 'A group for people who love puzzles'
+      channel: 'Public.healthcare',
+      name: 'Healthcare',
+      profileIcon: 'group-healthcare.png',
+      description: 'Build HIPAA-compliant telemedicine apps with PubNub as well as GDPR and SOC2 compliant apps',
+      info: "HIPAA & GDPR compiance"
     }
   ],
   private_groups: [

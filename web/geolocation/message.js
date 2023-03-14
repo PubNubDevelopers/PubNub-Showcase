@@ -29,11 +29,7 @@ async function messageReceived(payload){
 		try{
 			if(payload.message && payload.message.address && payload.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(payload.timetoken)){
 				travelHistory[payload.timetoken] = payload.message.address;
-				var div = document.createElement("div");
-				div.classList.add("card");
-				div.prepend(document.createTextNode(payload.message.address));
-				var ul = document.getElementById("history-list");
-				ul.prepend(div);
+				displayMessage(payload.message.address);
 			}
 			// Update new position on the map
 			displayPosition(payload);
@@ -60,4 +56,15 @@ function messageContents(messageData)
 
 function timeout(s) {
 	return new Promise(resolve => setTimeout(resolve, s*1000));
+}
+
+// Function to render message onto screen
+// Displays in the TravelHistory section
+function displayMessage(address){
+	var p = document.createElement("p");
+	p.classList.add("text-label");
+	p.style.color = "#525252";
+	p.appendChild(document.createTextNode(address));
+	var ul = document.getElementById("history-list");
+	ul.appendChild(p);
 }

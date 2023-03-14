@@ -378,11 +378,7 @@ async function loadLastLocations() {
 
                 // Add location to history list
                 travelHistory[historicalMsg.timetoken] = historicalMsg.message.address;
-                var div = document.createElement("div");
-                div.classList.add("card");
-                div.appendChild(document.createTextNode(historicalMsg.message.address));
-                var ul = document.getElementById("history-list");
-                ul.appendChild(div);
+                displayMessage(historicalMsg.message.address);
             }
             if (channelMembers[historicalMsg.uuid] != null && !(displayedMembers.hasOwnProperty(historicalMsg.uuid))) {
                 addToDisplayedUsers(historicalMsg.uuid);

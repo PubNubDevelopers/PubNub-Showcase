@@ -1,198 +1,89 @@
+
+/* Page Layout */
+
 body {
     display: flex;
     flex-flow: column;
-    height: 50vh;
-    min-height: -webkit-fill-available;
-    min-height: -moz-available;
-    overflow: hidden;
+    height: 100vh;
 }
 
-.geolocation-container {
+.main-container {
+    display: flex;
+    flex-flow: row;
+    height: 100vh;
+    overflow: scroll;
+    margin-left: 24px;
+    margin-right: 24px;
+}
+
+.map-wrapper{
+    margin-top: 16px;
+    margin-bottom: 16px;
     display: flex;
     flex-grow: 1;
-    overflow: scroll;
-}
-
-.custom-bubble {
-    padding: 4px 16px;
-    max-width: fit-content;
-    max-height: fit-content;
-    background-color: #EAF0F6;
-    border-radius: 50px;
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 24px;
-    color: #33687B;
+    justify-content: center;
+    flex-direction: row;
 }
 
 .map-style {
-    width:100%;
-    height:100%;
+    height: 100%;
+    width: 100%;
 }
 
-.new-location-padding {
-    padding: 4px 16px;
-}
-
-.input-group-append > button {
-    margin-left: 20px;
-}
-
-.btn-create-new {
-    background: #33687B;
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-family: 'Poppins';
-    font-style: normal;
-    font-size: 16px;
-    line-height: 24px;
-    color: #FFFFFF;
-}
-
-.btn-create-new:hover {
-    background: #155c76;
-    color: #FFFFFF;
-}
-
-.btn-invite {
-    background: #FFFFFF;
-    border: 1px solid #33687B;
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-family: 'Poppins';
-    font-style: normal;
-    font-size: 16px;
-    line-height: 24px;
-    color: #33687B;
-}
-
-.form-switch {
+.rhs {
+    margin-left: 24px;
     display: flex;
-    flex-direction: row-reverse;
-    align-items: flex-start;
-    justify-content: space-between !important;
-    padding-left: 0px;
-}
-.form-check-label {
-    margin-right: 50px !important;
+    flex: 1;
+    flex-direction: column;
+    min-width: 40%;
 }
 
-.form-check-input {
-    margin-right: 80px;
+.background-container {
+    background: var(--color-background-section);
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 24px;
+    padding-bottom: 24px;
 }
 
-.form-check-input:checked {
-    background-color: #33687B;
-    border-color: #33687B;
+/* Page Layout Mobile */
+
+@media screen and (max-width: 576px) {
+    body {
+        height: 50vh;
+        min-height: -webkit-fill-available;
+        min-height: -moz-available;
+    }
+
+    .main-container {
+        flex-flow: column;
+    }
+
+    .map-style {
+        flex-grow: 0;
+        height: 297px
+    }
+
+    .rhs{
+        margin-left: 0px;
+    }
+
+    .enter-location-layout{
+        margin-top: 0px !important;
+    }
 }
 
-.user-details-label {
-    font-size: 12px;
-    line-height: 18px;
-    letter-spacing: 0.01em;
-    color: #606060;
-}
-
-.user-details-button {
-    border: 1px solid #33687B;
-    color: #33687B;
-    font-size: 16px;
-    line-height: 24px;
-}
+/* Map */
 
 #map-canvas-div {
-    height: 400px;
+    height: 100%;
     width: 100%;
-    display: flex;
 }
 
-#geo-channel-id {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: #000000;
-    padding-right: 16px;
-}
+/* Enter Location */
 
-@media only screen and (max-width: 600px) {
-    #map-canvas-div {height: 191px;}
-    .form-check-input {margin-right: 150px;}
-}
-@media only screen and (min-width: 600px) {
-    #map-canvas-div {height: 394px;}
-    .form-check-input {margin-right: 80px;}
-}
-
-@media only screen and (min-width: 992px) {
-    #map-canvas-div {height: 524px;}
-    .form-check-input {margin-right: 80px;}
-}
-
-/* Button */
-
-.btn:link,
-.btn:visited {
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 15px 40px;
-    display: inline-block;
-    border-radius: 100px;
-    transition: all .2s;
-}
-
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
-
-.btn-white {
-    background-color: #fff;
-    color: #777;
-}
-
-.btn::after {
-    content: "";
-    display: inline-block;
-    width: 100%;
-    border-radius: 100px;
-    top: 0;
-    left: 0;
-    transition: all .4s;
-}
-
-.btn-white::after {
-    background-color: #fff;
-}
-
-.btn:hover::after {
-    transform: scaleX(1.4) scaleY(1.6);
-    opacity: 0;
-}
-
-.btn-animated {
-    animation: moveInBottom 5s ease-out;
-    animation-fill-mode: backwards;
-}
-
-@keyframes moveInBottom {
-    0% {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0px);
-    }
+.enter-location-layout{
+    margin-top: 16px;
 }
 
 /* Input */
@@ -204,7 +95,7 @@ body {
     margin-bottom: 10px;
     width: 100%;
     box-sizing: border-box;
-    color: #2C3E50;
+    color: #525252;
     font-size: 13px;
 }
 
@@ -212,7 +103,7 @@ body {
     -moz-box-shadow: none !important;
     -webkit-box-shadow: none !important;
     box-shadow: none !important;
-    border: 1px solid #ee0979;
+    border: 1px solid #216F7B;
     outline-width: 0;
     transition: All 0.5s ease-in;
     -webkit-transition: All 0.5s ease-in;
@@ -220,24 +111,103 @@ body {
     -o-transition: All 0.5s ease-in;
 }
 
-/* Card */
+/* Use Location Button */
 
-.card {
-    border-radius: 50px;
-    background: #FFFFFF;
-    border: none;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    margin-bottom: 10px;
-    margin-top: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 16px;
-    margin-right: 16px;
+.location-button-layout{
+    display: flex;
+    flex-flow: row;
+    height: 44px;
+    padding: 9px 0px;
+    align-items: center;
+    cursor: pointer;
 }
 
-.card:hover{
-    transform: scaleY(1.1);
-    transform: translateY(-3px);
+.location-icon {
+    content: url(../img/icons/location.png)
+}
+
+.location-icon-style {
+    width: 23px;
+    height: 23px;
+}
+
+.location-button{
+    padding-left: 10px;
+    color: var(--color-teal-700);
+}
+
+/* Share Location Button */
+
+.share-location-layout{
+    margin-top: 24px;
+    display: flex;
+    flex-flow: row;
+    height: 42px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.share-location-button-outline{
+    height: 42px;
+}
+
+.share-location-icon {
+    content: url(../img/icons/share-light.png)
+}
+
+.share-location-icon-style {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    align-self: center;
+}
+
+/* Share Location Info */
+
+.share-location-info-layout{
+    margin-top: 16px;
+    height: 32px;
+    display: flex;
+    flex-flow: row;
+    justify-content: start;
+}
+
+.info-icon{
+    content: url('../img/icons/info-solid-grey-fill.png')
+}
+
+.info-icon-style{
+    width: 20px;
+    height: 20px;
+    margin-right: 14px;
+}
+
+.info-share-text-style{
+    color: var(--color-icon-text-secondary) !important;
+}
+
+/* Travel History */
+
+.travel-history-layout-wrapper{
+    padding-top: 24px;
+    padding-bottom: 16px;
+}
+
+.travel-histroy-layout{
+    height: 100%;
+    min-height: 300px;
+}
+
+.travel-history-list-style{
+    overflow: auto;
+    padding: 0px;
+    margin-bottom: 0px;
+}
+
+.travel-history-heading-layout{
+    margin-bottom: 20px;
 }
 
 

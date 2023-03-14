@@ -263,6 +263,9 @@ body {
 
 .temp-mesage-me {
     align-items: flex-end;
+}
+
+.ninetyPercent {
     max-width: 90%;
 }
 

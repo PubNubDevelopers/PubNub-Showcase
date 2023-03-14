@@ -126,7 +126,7 @@ function createMessageSent (messageObj, messageIsRead) {
   newMsg.className =
     'text-body-2 temp-message-container temp-message-container-me'
   newMsg.innerHTML = `
-  <div class="text-body-2 temp-message-container temp-message-container-me">
+  <div class="text-body-2 temp-message-container temp-message-container-me ninetyPercent">
     <div class="temp-message temp-mesage-me">
         <div class="temp-message-meta-container temp-message-meta-container-me">
             <div class="text-caption temp-message-meta-time">

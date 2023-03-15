@@ -25,6 +25,7 @@ function addRegisteredDevice (deviceId) {
     updateRelativePositionOfStaticValue(deviceId, iotDevices[deviceId].setValue);
 
     document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => {
+      removeFill(slider);
       removeFill(fromSlider);
       saveSettings(deviceId)
     });
@@ -36,6 +37,7 @@ function addRegisteredDevice (deviceId) {
     const slider = document.getElementById(`singleSlider${deviceId}`);
     slider.oninput = () => controlSlider(slider, deviceId);
     document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => {
+      removeFill(slider);
       saveSettings(deviceId);
     });
     document.getElementById(`ToggleButton${deviceId}`).addEventListener('change', function(){
@@ -92,14 +94,8 @@ function getContinuousDeviceElement(deviceID){
               </div>
             </div>
             <div class="row">
-              <div class="justify-content-end" style="display: flex">
-                <div id="saveButton${deviceID}" class="contentBox" style="visibility: hidden">
-                  <div id="first" class="buttonBox div_button">
-                    <button class="div_button_text">Save</button>
-                    <div class="border"></div>
-                    <div class="border"></div>
-                  </div>
-                </div>
+              <div id="saveButton${deviceID}" class="save-settings-layout pn-btn disabled">
+                <p class="save-settings-label-layout">Save</p>
               </div>
             </div>
           </div>

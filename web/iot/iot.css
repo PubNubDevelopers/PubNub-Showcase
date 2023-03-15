@@ -336,3 +336,16 @@ input[type=range]::-webkit-slider-thumb:active {
   background: var(--color-text-link);
 }
 
+/* Save Button Layout */
+
+.save-settings-layout{
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  cursor: pointer;
+}
+
+.save-settings-label-layout{
+  margin: 0px;
+}
+

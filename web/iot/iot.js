@@ -225,16 +225,23 @@ function fillSlider(from, to, sliderColor, rangeColor, controlSlider) {
 
 function fillSingleSlider(slider, currentValue, sliderColor, rangeColor, newValue){
   const rangeDistance = slider.max-slider.min;
-  const toPosition = currentValue - newValue;
-  const fromPosition = newValue - currentValue;
+  var toPosition = currentValue - newValue;
+  var beforePosition = currentValue < newValue ? Math.abs(currentValue) - Math.abs(slider.min) : Math.abs(newValue) - Math.abs(slider.min);
+  var afterPosition = currentValue < newValue ? Math.abs(slider.max) - Math.abs(newValue) : Math.abs(slider.max) - Math.abs(currentValue);
+  toPosition = Math.abs(toPosition);
+  beforePosition = Math.abs(beforePosition);
+  afterPosition = Math.abs(afterPosition);
+  var beforePositionPercent = (beforePosition)/(rangeDistance);
+  var toPositionPercent = (toPosition)/(rangeDistance);
+  var afterPositionPeercent = (afterPosition)/(rangeDistance);
   slider.style.background = `linear-gradient(
     to right,
     ${sliderColor} 0%,
-    ${sliderColor} ${(fromPosition)/(rangeDistance)*100}%,
-    ${rangeColor} ${((fromPosition)/(rangeDistance))*100}%,
-    ${rangeColor} ${(toPosition)/(rangeDistance)*100}%,
-    ${sliderColor} ${(toPosition)/(rangeDistance)*100}%,
-    ${sliderColor} 100%)`;
+    ${sliderColor} ${beforePositionPercent*100}%,
+    ${rangeColor} ${beforePositionPercent*100}%,
+    ${rangeColor} ${(toPositionPercent + beforePositionPercent)*100}%,
+    ${sliderColor} ${(toPositionPercent + beforePositionPercent)*100}%,
+    ${sliderColor} 100%`;
 }
 
 function removeFill(controlSlider){
@@ -268,20 +275,20 @@ function setAlarmSettings(from, to, deviceId){
     to: to,
   }
   saveButton = document.getElementById(`saveButton${deviceId}`);
-  saveButton.style.visibility = 'visible';
+  saveButton.classList.remove('disabled');
 }
 
 // When setting changes are made to the configurations of the discrete IoT devices
 function setValue(value, deviceId){
   valueSettings[deviceId] = value;
   saveButton = document.getElementById(`saveButton${deviceId}`);
-  saveButton.style.visibility = 'visible';
+  saveButton.classList.remove('disabled');
 }
 
 // Communicates with the IoT devices to send the new setting configurations
 function saveSettings(deviceId){
   saveButton = document.getElementById(`saveButton${deviceId}`);
-  saveButton.style.visibility = 'hidden';
+  saveButton.classList.add('disabled');
   try{
     pubnub.publish({
       channel: 'device.' + deviceId,

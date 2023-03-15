@@ -1,9 +1,7 @@
 body {
     display: flex;
     flex-flow: column;
-    height: 80vh;
-    min-height: -webkit-fill-available;
-    min-height: -moz-available;
+    height: 100%;
     overflow: hidden;
 }
 

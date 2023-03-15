@@ -90,7 +90,7 @@ a:hover {
     color: var(--color-text-heading);
 }
 
-.heading-5{
+.heading-5 {
     font-family: 'Poppins';
     font-style: normal;
     font-weight: 600;
@@ -214,6 +214,15 @@ a:hover {
     pointer-events: none;
 }
 
+@-moz-document url-prefix() {
+    .red-ellipse-bkd {
+        display:none !important;
+    }
+    .blue-ellipse-bkd {
+        display:none !important;
+    }
+}
+
 .pn-text-field {
     color: var(--color-text-heading);
     background: var(--color-background);
@@ -309,10 +318,10 @@ a:hover {
 .message-emoji {
     min-width: 64px;
     min-height: 64px;
-    display:flex;
-    align-items:center;
+    display: flex;
+    align-items: center;
     cursor: pointer;
-    padding-left:20px;
+    padding-left: 20px;
 }
 
 .pn-radio {
@@ -367,7 +376,7 @@ a:hover {
 }
 
 .carousel {
-    display:flex;
+    display: flex;
     flex-direction: row;
     overflow: scroll;
     gap: 16px;
@@ -385,7 +394,7 @@ a:hover {
 .carousel-tile {
     display: flex;
     flex-direction: column;
-    justify-content:space-between;
+    justify-content: space-between;
     background: var(--color-background);
     border: 1px solid var(--color-background-text-secondary);
     border-radius: 8px;

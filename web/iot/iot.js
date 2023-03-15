@@ -209,6 +209,13 @@ function updateRelativePositionOfStaticValue(deviceId, val){
   sliderValue.style.left = (percent*100 - 3).toString() + "%";
 }
 
+function updateRelativePositionOfDoorSlider(deviceId, val){
+  // Adjust Positioning of number
+  var sliderValue = document.getElementById(`sliderValue${deviceId}`);
+  var percent = val/100;
+  sliderValue.style.left = (percent*100 - 3).toString() + "%";
+}
+
 function fillSlider(from, to, sliderColor, rangeColor, controlSlider) {
   const rangeDistance = to.max-to.min;
   const fromPosition = from.value - to.min;
@@ -254,13 +261,19 @@ function getParsed(currentFrom, currentTo) {
   return [from, to];
 }
 
-function controlSlider(slider, deviceId){
+function controlSlider(slider, deviceId, isPercent){
   const value = getParsedValue(slider);
   slider.value = value;
-  document.getElementById(`singleSliderValue${deviceId}`).innerHTML = value + '&#176C';
+  console.log(value);
+  document.getElementById(`singleSliderValue${deviceId}`).innerHTML = value + (isPercent ? '%' : '&#176C');
   setValue(value, deviceId);
   fillSingleSlider(slider, iotDevices[deviceId].setValue, '#C6C6C6', '#25daa5', value);
-  updateRelativePositionOfStaticValue(deviceId, value);
+  if(isPercent){
+    updateRelativePositionOfDoorSlider(deviceId, value);
+  }
+  else{
+    updateRelativePositionOfStaticValue(deviceId, value);
+  }
 }
 
 function getParsedValue(currentValue){
@@ -289,6 +302,7 @@ function setValue(value, deviceId){
 function saveSettings(deviceId){
   saveButton = document.getElementById(`saveButton${deviceId}`);
   saveButton.classList.add('disabled');
+  iotDevices[deviceId].setValue = valueSettings[deviceId];
   try{
     pubnub.publish({
       channel: 'device.' + deviceId,
@@ -305,6 +319,8 @@ function saveSettings(deviceId){
 
 // Communicates with the IoT device to either turn the device off or back on
 function changeDeviceState(on, deviceId){
+  toggleButtonLabel = document.getElementById(`toggleButtonLabel${deviceId}`);
+  toggleButtonLabel.innerHTML = on ? "On" : "Off";
   try{
     pubnub.publish({
       channel: 'device.' + deviceId,

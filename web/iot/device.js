@@ -17,7 +17,7 @@ function addRegisteredDevice (deviceId) {
     const toSlider = document.getElementById(`toSlider${deviceId}`);
     const fromInput = document.getElementById(`fromInput${deviceId}`);
     const toInput = document.getElementById(`toInput${deviceId}`);
-    slider.oninput = () => controlSlider(slider, deviceId);
+    slider.oninput = () => controlSlider(slider, deviceId, false);
     fromSlider.oninput = () => controlFromSlider(fromSlider, toSlider, fromInput, deviceId);
     toSlider.oninput = () => controlToSlider(fromSlider, toSlider, toInput, deviceId);
     updateRelativePositionOfMinValue(deviceId, iotDevices[deviceId].alarmSettings.minValue);
@@ -35,7 +35,8 @@ function addRegisteredDevice (deviceId) {
     var wrap = document.getElementById('registedDeviceListDiscrete');
     wrap.appendChild(getDiscreteDeviceElement(deviceId));
     const slider = document.getElementById(`singleSlider${deviceId}`);
-    slider.oninput = () => controlSlider(slider, deviceId);
+    slider.oninput = () => controlSlider(slider, deviceId, true);
+    updateRelativePositionOfDoorSlider(deviceId, iotDevices[deviceId].setValue);
     document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => {
       removeFill(slider);
       saveSettings(deviceId);
@@ -81,7 +82,7 @@ function getContinuousDeviceElement(deviceID){
                     </div>
                 </div>
                 <p class="text-label">Temperature Setting</p>
-                <div class="flex-grow-1" style="font-size: 1rem;" id="deviceInformation">
+                <div class="flex-grow-1" id="deviceInformation">
                   <div class="range_container temp_layout">
                       <div id="sliderValue${deviceID}" class="sliderValue">
                         <span class="text-label" id="singleSliderValue${deviceID}">${iotDevices[deviceID].setValue}&#176C</span>
@@ -131,33 +132,29 @@ function getDiscreteDeviceElement(deviceID){
             <div class="col">
               <div class="d-flex align-items-center">
                 <div class="flex-grow-1" style="font-size: 1rem;" id="deviceInformation">
-                  <div class="range_container d-flex flex-row">
-                  <h6 class="toggle-button-label-layout text-body-2"> ON/OFF </h6>
+                  <div class="range_container d-flex flex-row override_margins_range_container align_button_toggle_center">
                     <label class="switch">
                       <input id="ToggleButton${deviceID}" type="checkbox" checked>
                       <span class="slider round"></span>
                     </label>
+                    <h6 id="toggleButtonLabel${deviceID}" class="toggle-button-label-layout text-body-2"> On </h6>
                   </div>
                 </div>
               </div>
               <p class="text-label">Sensitivity Setting</p>
-                <div class="range_container row">
-                    <div class="sliders_control">
-                        <input class='fromSlider' type="range" id="singleSlider${deviceID}" value="${iotDevices[deviceID].setValue}" min="0" max="100"/>
-                    </div>
-                    <h3 id="singleSliderValue${deviceID}">${iotDevices[deviceID].setValue}%</h3>
-                </div>
-              </div>
-              <div class="row">
-              <div class="justify-content-end" style="display: flex">
-                <div id="saveButton${deviceID}" class="contentBox" style="visibility: hidden">
-                  <div id="first" class="buttonBox div_button">
-                    <button class="div_button_text">Save</button>
-                    <div class="border"></div>
-                    <div class="border"></div>
+                <div class="range_container temp_layout">
+                  <div id="sliderValue${deviceID}" class="sliderValue">
+                    <span class="text-label" id="singleSliderValue${deviceID}">${iotDevices[deviceID].setValue}%</span>
+                  </div>
+                  <div class="sliders_control">
+                      <input class='fromSlider' type="range" id="singleSlider${deviceID}" value="${iotDevices[deviceID].setValue}" min="0" max="100"/>
                   </div>
                 </div>
               </div>
+              <div class="row">
+                <div id="saveButton${deviceID}" class="save-settings-layout pn-btn disabled">
+                  <p class="save-settings-label-layout">Save</p>
+                </div>
             </div>
         </div>
       </div>

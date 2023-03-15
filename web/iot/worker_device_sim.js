@@ -245,7 +245,7 @@ function worker_node(){
         }
         else{
           this.model = function(x){
-            return "Off";
+            return "Alarm Off";
           }
         }
         this.publishSignal(
@@ -261,7 +261,7 @@ function worker_node(){
     }
 
     updateValue(value){
-      if(this.model(tick) != "Off"){
+      if(this.model(tick) != "Alarm Off"){
         this.value = value;
         this.setModel(value);
         this.publishSignal(

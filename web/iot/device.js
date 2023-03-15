@@ -3,10 +3,9 @@
 // Configures two types of devices discrete and continuous with different setting configurations
 function addRegisteredDevice (deviceId) {
 
-  var wrap = document.getElementById('registeredDevicesList');
-
   // Create Continuous Device Element
   if(iotDevices[deviceId].alarmSettings != undefined){
+    var wrap = document.getElementById('registeredDevicesList');
     wrap.appendChild(getContinuousDeviceElement(deviceId));
     alarmSettings[deviceId] = {
       from: iotDevices[deviceId].alarmSettings.minValue,
@@ -21,13 +20,16 @@ function addRegisteredDevice (deviceId) {
     slider.oninput = () => controlSlider(slider, deviceId);
     fromSlider.oninput = () => controlFromSlider(fromSlider, toSlider, fromInput, deviceId);
     toSlider.oninput = () => controlToSlider(fromSlider, toSlider, toInput, deviceId);
-    fromInput.oninput = () => controlFromInput(fromSlider, fromInput, toInput, toSlider, deviceId);
-    toInput.oninput = () => controlToInput(toSlider, fromInput, toInput, toSlider, deviceId);
+    updateRelativePositionOfMinValue(deviceId, iotDevices[deviceId].alarmSettings.minValue);
+    updateRelativePositionOfMaxValue(deviceId, iotDevices[deviceId].alarmSettings.maxValue);
+    // fromInput.oninput = () => controlFromInput(fromSlider, fromInput, toInput, toSlider, deviceId);
+    // toInput.oninput = () => controlToInput(toSlider, fromInput, toInput, toSlider, deviceId);
 
     document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => saveSettings(deviceId));
   }
   // Create Discrete Device Element
   else{
+    var wrap = document.getElementById('registedDeviceListDiscrete');
     wrap.appendChild(getDiscreteDeviceElement(deviceId));
     const slider = document.getElementById(`singleSlider${deviceId}`);
     slider.oninput = () => controlSlider(slider, deviceId);
@@ -42,45 +44,37 @@ function addRegisteredDevice (deviceId) {
 function getContinuousDeviceElement(deviceID){
   var section = document.createElement('section');
   section.innerHTML = `
-    <div class="container">
-
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div>
-
-        <div class="card" style="color: #4B515D; border-radius: 35px;">
-          <div class="card-body p-4">
-
+    <div class='card-wrapper'>
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div>
+          <div class="card card-layout">
             <div class="d-flex">
-              <h6 class="flex-grow-1">${iotDevices[deviceID].name}</h6>
+              <h6 class="flex-grow-1 heading-5">${iotDevices[deviceID].name}</h6>
               <div class="deviceStatusGood" id="deviceStatus${deviceID}">
-                <h4 style="color: white; margin: 3px">&#10003</h4>
+
               </div>
             </div>
 
-            <div class="d-flex flex-column text-center mt-5 mb-4">
-              <h6 class="display-4 mb-0 font-weight-bold" style="color: #1C2331; font-size: 40px" id=${deviceID}> Connecting... </h6>
+            <div class="d-flex flex-column text-center measurement-heading-layout">
+              <h6 class="heading-2" id=${deviceID}> Connecting... </h6>
             </div>
             <div class="col">
-              <p>Alarm Setting</p>
+              <p class="text-label">Alert Setting</p>
               <div class="d-flex align-items-center">
                 <div class="flex-grow-1" style="font-size: 1rem;" id="deviceInformation">
                   <div class="range_container">
+                    <div id="minSliderValue${deviceID}" class="sliderValue">
+                      <span class="text-label" id="fromInput${deviceID}">${iotDevices[deviceID].alarmSettings.minValue}&#176C</span>
+                    </div>
+                    <div id="maxSliderValue${deviceID}" class="sliderValue">
+                      <span class="text-label" id="toInput${deviceID}">${iotDevices[deviceID].alarmSettings.maxValue}&#176C</span>
+                    </div>
                     <div class="sliders_control">
-                        <input class="fromSlider" id="fromSlider${deviceID}" type="range" value="${iotDevices[deviceID].alarmSettings.minValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
+                        <input class="fromSlider" id="fromSlider${deviceID}" type="range" value="${iotDevices[deviceID].alarmSettings.minValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}">
                         <input id="toSlider${deviceID}" type="range" value="${iotDevices[deviceID].alarmSettings.maxValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
                     </div>
-                    <div class="form_control">
-                        <div class="form_control_container">
-                            <div class="form_control_container__time">Min</div>
-                            <input class="form_control_container__time__input" type="number" id="fromInput${deviceID}" value="${iotDevices[deviceID].alarmSettings.minValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
-                        </div>
-                        <div class="form_control_container">
-                            <div class="form_control_container__time">Max</div>
-                            <input class="form_control_container__time__input" type="number" id="toInput${deviceID}" value="${iotDevices[deviceID].alarmSettings.maxValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
-                        </div>
-                    </div>
                 </div>
-                <p>Temperature Setting</p>
+                <p class="text-label">Temperature Setting</p>
                 <div class="range_container row">
                     <div class="sliders_control">
                         <input type="range" id="singleSlider${deviceID}" value="${iotDevices[deviceID].setValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
@@ -101,12 +95,11 @@ function getContinuousDeviceElement(deviceID){
               </div>
             </div>
           </div>
+
         </div>
-
       </div>
-    </div>
 
-  </div>
+    </div>
   `
 
   return section;
@@ -116,28 +109,26 @@ function getContinuousDeviceElement(deviceID){
 function getDiscreteDeviceElement(deviceID){
   var section = document.createElement('section');
   section.innerHTML = `
-    <div class="container">
+    <div class='card-wrapper'>
 
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div>
 
-          <div class="card" style="color: #4B515D; border-radius: 35px;">
-            <div class="card-body">
+          <div class="card card-layout">
             <div class="d-flex">
-              <h6 class="flex-grow-1">${iotDevices[deviceID].name}</h6>
+              <h6 class="flex-grow-1 heading-5">${iotDevices[deviceID].name}</h6>
               <div class="deviceStatusGood" id="deviceStatus${deviceID}">
-                <h4 style="color: white; margin: 3px">&#10003</h4>
               </div>
             </div>
 
             <div class="d-flex flex-column text-center mt-5 mb-4">
-              <h6 class="display-4 mb-0 font-weight-bold" style="color: #1C2331; font-size: 40px" id=${deviceID}> Connecting... </h6>
+              <h6 class="heading-2" id=${deviceID}> Connecting... </h6>
             </div>
             <div class="col">
               <div class="d-flex align-items-center">
                 <div class="flex-grow-1" style="font-size: 1rem;" id="deviceInformation">
                   <div class="range_container d-flex flex-row">
-                  <h6 style="margin-top: 10px; margin-right: 20px"> ON/OFF </h6>
+                  <h6 class="toggle-button-label-layout text-body-2"> ON/OFF </h6>
                     <label class="switch">
                       <input id="ToggleButton${deviceID}" type="checkbox" checked>
                       <span class="slider round"></span>
@@ -145,7 +136,7 @@ function getDiscreteDeviceElement(deviceID){
                   </div>
                 </div>
               </div>
-              <p>Sensitivity Setting</p>
+              <p class="text-label">Sensitivity Setting</p>
                 <div class="range_container row">
                     <div class="sliders_control">
                         <input type="range" id="singleSlider${deviceID}" value="${iotDevices[deviceID].setValue}" min="0" max="100"/>
@@ -166,7 +157,6 @@ function getDiscreteDeviceElement(deviceID){
             </div>
         </div>
       </div>
-    </div>
   `
 
   return section;

@@ -144,25 +144,52 @@ function controlToInput(toSlider, fromInput, toInput, controlSlider, deviceId) {
 
 function controlFromSlider(fromSlider, toSlider, fromInput, deviceId) {
   const [from, to] = getParsed(fromSlider, toSlider);
+  var val = 0;
   if (from > to) {
     fromSlider.value = to;
-    fromInput.value = to;
+    fromInput.innerHTML = to + '&#176C';
+    val = to;
   } else {
-    fromInput.value = from;
+    fromInput.innerHTML = from + '&#176C';
+    val = from;
   }
+  updateRelativePositionOfMinValue(deviceId, val);
   setAlarmSettings(from, to, deviceId);
 }
 
 function controlToSlider(fromSlider, toSlider, toInput, deviceId) {
   const [from, to] = getParsed(fromSlider, toSlider);
+  var val = 0;
   if (from <= to) {
     toSlider.value = to;
-    toInput.value = to;
+    toInput.innerHTML = to + '&#176C';
+    val = to;
   } else {
-    toInput.value = from;
+    toInput.innerHTML = from + '&#176C';
     toSlider.value = from;
+    val = from;
   }
+  console.log("Updating max value");
+  updateRelativePositionOfMaxValue(deviceId, val);
   setAlarmSettings(from, to, deviceId);
+}
+
+function updateRelativePositionOfMinValue(deviceId, val){
+    // Adjust Positioning of min number
+    var sliderValue = document.getElementById(`minSliderValue${deviceId}`);
+    var diff = iotDevices[deviceId].alarmSettings.upperBound - iotDevices[deviceId].alarmSettings.lowerBound;
+    var valDiff = val - iotDevices[deviceId].alarmSettings.lowerBound;
+    var percent = valDiff/diff;
+    sliderValue.style.left = (percent*100 - 3).toString() + "%";
+}
+
+function updateRelativePositionOfMaxValue(deviceId, val){
+  // Adjust Positioning of max number
+  var sliderValue = document.getElementById(`maxSliderValue${deviceId}`);
+  var diff = iotDevices[deviceId].alarmSettings.upperBound - iotDevices[deviceId].alarmSettings.lowerBound;
+  var valDiff = val - iotDevices[deviceId].alarmSettings.lowerBound;
+  var percent = valDiff/diff;
+  sliderValue.style.left = (percent*100 - 3).toString() + "%";
 }
 
 function getParsed(currentFrom, currentTo) {

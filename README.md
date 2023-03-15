@@ -1,5 +1,3 @@
-# WORK IN PROGRESS
-
 # PubNub Showcase application
 
 ## Demo
@@ -69,7 +67,9 @@ Please fork the repository if you'd like to contribute. Pull requests are always
 
 ## Customization with customer logos on home screen
 
-To add customer logos to each tile on the home screen (`index.html`), add a `div` of class `customer-logos` to each tile you wish to customize and apply the class `customer-logo` to each image, as follows:
+You can customize the home screen with customer logos which will appear when the user hovers over any configured use-case tile.
+
+To add customer logos to the home screen (`index.html`), add a `div` of class `customer-logos` to each tile you wish to customize and apply the class `customer-logo` to each image, as follows:
 
 ```html
 <div class="showcase-tile-container" onmouseover="showcaseTileHover(this, true);"

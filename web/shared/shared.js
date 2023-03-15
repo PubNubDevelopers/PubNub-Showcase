@@ -1,3 +1,5 @@
+const HOST_URL = "https://showcase.pub-nub.com/"
+
 /////////////////////////
 //  Emoji logic
 

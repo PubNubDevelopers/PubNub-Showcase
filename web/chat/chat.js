@@ -87,8 +87,7 @@ var isMessageSendingInProgress = false
 const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1 //  bytes
-const DEFAULT_AVATAR =
-  'https://pubnubdevelopers.github.io/PubNub-Showcase/web/img/avatar/placeholder.png'
+const DEFAULT_AVATAR = HOST_URL + 'img/avatar/placeholder.png'
 
 //  To make presence indications more accurate if the webpage is being refreshed, notify PubNub that the client is leaving .
 //  PubNub will eventually catch up, but this makes it quicker

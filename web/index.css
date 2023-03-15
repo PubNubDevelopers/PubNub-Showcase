@@ -168,15 +168,27 @@ body {
     content: url(./img/icons/i.png)
 }
 
-.company-logos {
-    display:flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    width: 100%;
-    justify-content: flex-end;
+.showcase-tile-container {
+    position: relative;
 }
 
-.company-logo {
+.customer-logos {
+    display:none;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--color-background-default);
+    position: absolute;
+    padding: 24px;
+    width: 100%;
+    border-bottom: 1px solid var(--color-background-text-secondary);
+    border-radius: 8px 8px 0px 0px;
+    border: 1px solid var(--color-background-text-secondary);
+    height: 90px;
+    cursor: auto;
+}
+
+.customer-logo {
+    max-width: 60px;
     max-height: 30px;
 }
 

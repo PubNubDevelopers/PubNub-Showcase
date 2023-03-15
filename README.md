@@ -44,15 +44,17 @@ To run this project yourself you will need a PubNub account and (optionally) you
 
 1. Click your new app to open its settings, then click its keyset.
 
-1. Enable the Presence feature on your keyset
+1. Enable the Presence feature on your keyset (check 'Presence Deltas' and 'Generate Leave on TCP FIN or RST')
 
-1. Enable the Persistence feature on your keyset
+1. Enable the Persistence feature on your keyset and choose a duration
 
 1. Enable the Stream Controller feature on your keyset
 
-1. Enable the Files feature on your keyset
+1. Enable the Files feature on your keyset and choose a retention duration
 
 1. Enable the Objects feature on your keyset.  Make sure you check all the checkboxes related to events, i.e. User and Channel Metadata Events as well as Membership Events.
+
+1. The hosted variant of this app uses PubNub functions for moderation, specifically [https://www.pubnub.com/integrations/chat-message-profanity-filter/](https://www.pubnub.com/integrations/chat-message-profanity-filter/).
 
 1. Copy the Publish and Subscribe keys and paste them into your app as specified in the next step.
 
@@ -67,20 +69,24 @@ Please fork the repository if you'd like to contribute. Pull requests are always
 
 ## Customization with customer logos on home screen
 
-To add customer logos to the list of home screen apps, add a `div` of class `company-logos` and apply the class `company-logo` to each image, as follows:
+To add customer logos to the list of home screen apps, add a `div` of class `customer-logos` and apply the class `customer-logo` to each image, as follows:
 
 ```html
-<a href="./chat/chat.html" class="showcase-tile">
-  <img src="./img/icons/icon-chat.png" class="showcase-image">
-  <div class="heading-2">Chat</div>
-  <div class="text-body-2">Group Chat etc.</div>
-  <!--  Add the section below, include as many logos as needed for each section but be sparing -->
-  <div class="company-logos">
-    <img src="http://company-logo.png" class="company-logo">
-    <img src="http://company-logo.svg" class="company-logo">
+<div class="showcase-tile-container" onmouseover="showcaseTileHover(this, true);"
+  onmouseout="showcaseTileHover(this, false);">
+  <!--  Add the section below with UP TO 3 logos -->
+  <div class="customer-logos text-label">
+    Used by:
+    <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo">
+    <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo"> <!--  optional -->
+    <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo"> <!--  optional -->
   </div>
-</a>
+  <a href="./blah blah">
+  <!--  Rest of the code continues as normal -->
 ```
+
+![Custom Logos](https://raw.githubusercontent.com/PubNubDevelopers/PubNub-Showcase/main/media/custom-logos.png)
+
 
 ## Further Information / Licenses
 

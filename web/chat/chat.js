@@ -127,6 +127,8 @@ async function loadChat () {
     privateGroupsLoaded,
     publicGroupsLoaded
   ]).then(() => {
+      //  Call PubNub's hereNow() API to see who else is here
+    updatePresenceInfoFirstLoad()
     updateMessageCountFirstLoad()
   })
 
@@ -276,9 +278,6 @@ async function loadChat () {
     )
     alert('Demo will not run without session storage')
   }
-
-  //  Call PubNub's hereNow() API to see who else is here
-  updatePresenceInfoFirstLoad()
 
   var infoPane = document.getElementById('chatRightSide')
   chatRightSide.addEventListener('hidden.bs.offcanvas', function () {

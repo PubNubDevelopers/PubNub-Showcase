@@ -243,8 +243,6 @@ async function login () {
   hideLogin();
 }
 
-
-
 function showLoginMsg (msg, isError, shouldFade) {
   document.getElementById('login-message').style.display = 'block'
   if (isError) {
@@ -279,5 +277,20 @@ function showLoginMsg (msg, isError, shouldFade) {
     setTimeout(function () {
       document.getElementById('login-message').style.display = 'none'
     }, 3000)
+  }
+}
+
+function showcaseTileHover(elem, isHover)
+{
+  var customerLogos = elem.querySelector('.customer-logos');
+  if (customerLogos != null)
+  {
+    if (isHover)
+    {
+      customerLogos.style.display = 'flex'
+    }
+    else {
+      customerLogos.style.display = 'none'
+    }
   }
 }

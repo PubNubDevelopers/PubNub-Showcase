@@ -69,7 +69,7 @@ Please fork the repository if you'd like to contribute. Pull requests are always
 
 ## Customization with customer logos on home screen
 
-To add customer logos to the list of home screen apps, add a `div` of class `customer-logos` and apply the class `customer-logo` to each image, as follows:
+To add customer logos to each tile on the home screen (`index.html`), add a `div` of class `customer-logos` to each tile you wish to customize and apply the class `customer-logo` to each image, as follows:
 
 ```html
 <div class="showcase-tile-container" onmouseover="showcaseTileHover(this, true);"

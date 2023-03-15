@@ -4,13 +4,13 @@
 body {
     display: flex;
     flex-flow: column;
-    height: 100vh;
+    height: 100%;
 }
 
 .main-container {
     display: flex;
     flex-flow: row;
-    height: 100vh;
+    height: 100%;
     overflow: scroll;
     margin-left: 24px;
     margin-right: 24px;

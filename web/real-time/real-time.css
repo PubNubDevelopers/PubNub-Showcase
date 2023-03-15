@@ -1,7 +1,7 @@
 body {
     display: flex;
     flex-flow: column;
-    height: 100vh
+    height: 100%;
 }
 
 a {
@@ -11,7 +11,7 @@ a {
 .main-container {
     display: flex;
     flex-flow: row;
-    height: 100vh;
+    height: 100%;
     overflow: scroll;
 }
 

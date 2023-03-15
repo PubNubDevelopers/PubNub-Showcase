@@ -78,6 +78,8 @@ async function loadCollaboration () {
     var canvasHeight = window.innerHeight / 1.5
     canvas.height = canvasHeight
     canvas.style.background = "#E5E5E5"
+    var ctx = canvas.getContext('2d')
+    ctx.lineCap = ctx.lineJoin = 'round'
   }
   if (!(await testForLoggedInUser()))
   {

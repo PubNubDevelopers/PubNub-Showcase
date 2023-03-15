@@ -18,10 +18,17 @@ A hosted version of this demo can be found at **[https://showcase.pub-nub.com/](
 | Real-Time Streaming | Generate, process and deliver streaming data to any number of subscribers.  Based on the [standalone real-time data streaming demo](https://www.pubnub.com/demos/real-time-data-streaming/) | [Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe) |
 
 
+## Usage Notes
+
+### Firefox Users
+
+Firefox will not allow you to share storage between pages.  This is a [feature and not a bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1730419).  Please load the demo from a local server to use with Firefox, e.g. `python3 -m http.server 8001`.  Be sure to use `localhost` rather than the IP address when doing this, for full compatibility with the IoT demo.  *These are only issues running locally, you will not experience issues running a hosted version of this app*   
+
 
 ## Installing / Getting started
 
 To run this project yourself you will need a PubNub account and (optionally) your own Google key to render the Google map used for Geolocation.
+
 
 ### Requirements
 - [PubNub Account](#pubnub-account) (*Free*)

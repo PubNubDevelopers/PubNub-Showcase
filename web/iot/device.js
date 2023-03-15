@@ -22,10 +22,12 @@ function addRegisteredDevice (deviceId) {
     toSlider.oninput = () => controlToSlider(fromSlider, toSlider, toInput, deviceId);
     updateRelativePositionOfMinValue(deviceId, iotDevices[deviceId].alarmSettings.minValue);
     updateRelativePositionOfMaxValue(deviceId, iotDevices[deviceId].alarmSettings.maxValue);
-    // fromInput.oninput = () => controlFromInput(fromSlider, fromInput, toInput, toSlider, deviceId);
-    // toInput.oninput = () => controlToInput(toSlider, fromInput, toInput, toSlider, deviceId);
+    updateRelativePositionOfStaticValue(deviceId, iotDevices[deviceId].setValue);
 
-    document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => saveSettings(deviceId));
+    document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => {
+      removeFill(fromSlider);
+      saveSettings(deviceId)
+    });
   }
   // Create Discrete Device Element
   else{
@@ -33,7 +35,9 @@ function addRegisteredDevice (deviceId) {
     wrap.appendChild(getDiscreteDeviceElement(deviceId));
     const slider = document.getElementById(`singleSlider${deviceId}`);
     slider.oninput = () => controlSlider(slider, deviceId);
-    document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => saveSettings(deviceId));
+    document.getElementById(`saveButton${deviceId}`).addEventListener("click", () => {
+      saveSettings(deviceId);
+    });
     document.getElementById(`ToggleButton${deviceId}`).addEventListener('change', function(){
       changeDeviceState(document.getElementById(`ToggleButton${deviceId}`).checked, deviceId);
     });
@@ -71,15 +75,19 @@ function getContinuousDeviceElement(deviceID){
                     </div>
                     <div class="sliders_control">
                         <input class="fromSlider" id="fromSlider${deviceID}" type="range" value="${iotDevices[deviceID].alarmSettings.minValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}">
-                        <input id="toSlider${deviceID}" type="range" value="${iotDevices[deviceID].alarmSettings.maxValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
+                        <input class="toSlider" id="toSlider${deviceID}" type="range" value="${iotDevices[deviceID].alarmSettings.maxValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
                     </div>
                 </div>
                 <p class="text-label">Temperature Setting</p>
-                <div class="range_container row">
-                    <div class="sliders_control">
-                        <input type="range" id="singleSlider${deviceID}" value="${iotDevices[deviceID].setValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
-                    </div>
-                    <h3 id="singleSliderValue${deviceID}">${iotDevices[deviceID].setValue}</h3>
+                <div class="flex-grow-1" style="font-size: 1rem;" id="deviceInformation">
+                  <div class="range_container temp_layout">
+                      <div id="sliderValue${deviceID}" class="sliderValue">
+                        <span class="text-label" id="singleSliderValue${deviceID}">${iotDevices[deviceID].setValue}&#176C</span>
+                      </div>
+                      <div class="sliders_control">
+                          <input class="fromSlider" type="range" id="singleSlider${deviceID}" value="${iotDevices[deviceID].setValue}" min="${iotDevices[deviceID].alarmSettings.lowerBound}" max="${iotDevices[deviceID].alarmSettings.upperBound}"/>
+                      </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -139,7 +147,7 @@ function getDiscreteDeviceElement(deviceID){
               <p class="text-label">Sensitivity Setting</p>
                 <div class="range_container row">
                     <div class="sliders_control">
-                        <input type="range" id="singleSlider${deviceID}" value="${iotDevices[deviceID].setValue}" min="0" max="100"/>
+                        <input class='fromSlider' type="range" id="singleSlider${deviceID}" value="${iotDevices[deviceID].setValue}" min="0" max="100"/>
                     </div>
                     <h3 id="singleSliderValue${deviceID}">${iotDevices[deviceID].setValue}%</h3>
                 </div>

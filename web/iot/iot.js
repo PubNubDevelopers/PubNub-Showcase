@@ -120,30 +120,37 @@ function handleMessageHandler(payload){;
 
 function controlFromInput(fromSlider, fromInput, toInput, controlSlider, deviceId) {
   const [from, to] = getParsed(fromInput, toInput);
-  // fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
+  fillSlider(fromInput, toInput, '#22C55E', '#94A3B8', controlSlider);
+  var val = 0;
   if (from > to) {
       fromSlider.value = to;
       fromInput.value = to;
+      val = to;
   } else {
       fromSlider.value = from;
+      val = from;
   }
   setAlarmSettings(from, to, deviceId);
 }
 
 function controlToInput(toSlider, fromInput, toInput, controlSlider, deviceId) {
   const [from, to] = getParsed(fromInput, toInput);
-  // fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
+  fillSlider(fromInput, toInput, '#22C55E', '#94A3B8', controlSlider);
+  var val = 0;
   if (from <= to) {
       toSlider.value = to;
       toInput.value = to;
+      val = to;
   } else {
       toInput.value = from;
+      val = from;
   }
   setAlarmSettings(from, to, deviceId);
 }
 
 function controlFromSlider(fromSlider, toSlider, fromInput, deviceId) {
   const [from, to] = getParsed(fromSlider, toSlider);
+  fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', fromSlider);
   var val = 0;
   if (from > to) {
     fromSlider.value = to;
@@ -159,6 +166,7 @@ function controlFromSlider(fromSlider, toSlider, fromInput, deviceId) {
 
 function controlToSlider(fromSlider, toSlider, toInput, deviceId) {
   const [from, to] = getParsed(fromSlider, toSlider);
+  fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', fromSlider);
   var val = 0;
   if (from <= to) {
     toSlider.value = to;
@@ -192,6 +200,47 @@ function updateRelativePositionOfMaxValue(deviceId, val){
   sliderValue.style.left = (percent*100 - 3).toString() + "%";
 }
 
+function updateRelativePositionOfStaticValue(deviceId, val){
+  // Adjust Positioning of number
+  var sliderValue = document.getElementById(`sliderValue${deviceId}`);
+  var diff = iotDevices[deviceId].alarmSettings.upperBound - iotDevices[deviceId].alarmSettings.lowerBound;
+  var valDiff = val - iotDevices[deviceId].alarmSettings.lowerBound;
+  var percent = valDiff/diff;
+  sliderValue.style.left = (percent*100 - 3).toString() + "%";
+}
+
+function fillSlider(from, to, sliderColor, rangeColor, controlSlider) {
+  const rangeDistance = to.max-to.min;
+  const fromPosition = from.value - to.min;
+  const toPosition = to.value - to.min;
+  controlSlider.style.background = `linear-gradient(
+    to right,
+    ${sliderColor} 0%,
+    ${sliderColor} ${(fromPosition)/(rangeDistance)*100}%,
+    ${rangeColor} ${((fromPosition)/(rangeDistance))*100}%,
+    ${rangeColor} ${(toPosition)/(rangeDistance)*100}%,
+    ${sliderColor} ${(toPosition)/(rangeDistance)*100}%,
+    ${sliderColor} 100%)`;
+}
+
+function fillSingleSlider(slider, currentValue, sliderColor, rangeColor, newValue){
+  const rangeDistance = slider.max-slider.min;
+  const toPosition = currentValue - newValue;
+  const fromPosition = newValue - currentValue;
+  slider.style.background = `linear-gradient(
+    to right,
+    ${sliderColor} 0%,
+    ${sliderColor} ${(fromPosition)/(rangeDistance)*100}%,
+    ${rangeColor} ${((fromPosition)/(rangeDistance))*100}%,
+    ${rangeColor} ${(toPosition)/(rangeDistance)*100}%,
+    ${sliderColor} ${(toPosition)/(rangeDistance)*100}%,
+    ${sliderColor} 100%)`;
+}
+
+function removeFill(controlSlider){
+  controlSlider.style.background = '#94A3B8';
+}
+
 function getParsed(currentFrom, currentTo) {
   const from = parseInt(currentFrom.value, 10);
   const to = parseInt(currentTo.value, 10);
@@ -201,8 +250,10 @@ function getParsed(currentFrom, currentTo) {
 function controlSlider(slider, deviceId){
   const value = getParsedValue(slider);
   slider.value = value;
-  document.getElementById(`singleSliderValue${deviceId}`).innerHTML = value;
+  document.getElementById(`singleSliderValue${deviceId}`).innerHTML = value + '&#176C';
   setValue(value, deviceId);
+  fillSingleSlider(slider, iotDevices[deviceId].setValue, '#C6C6C6', '#25daa5', value);
+  updateRelativePositionOfStaticValue(deviceId, value);
 }
 
 function getParsedValue(currentValue){

@@ -72,17 +72,14 @@ You can customize the home screen with customer logos which will appear when the
 To add customer logos to the home screen (`index.html`), add a `div` of class `customer-logos` to each tile you wish to customize and apply the class `customer-logo` to each image, as follows:
 
 ```html
-<div class="showcase-tile-container" onmouseover="showcaseTileHover(this, true);"
-  onmouseout="showcaseTileHover(this, false);">
-  <!--  Add the section below with UP TO 3 logos -->
-  <div class="customer-logos text-label">
-    Used by:
-    <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo">
-    <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo"> <!--  optional -->
-    <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo"> <!--  optional -->
-  </div>
-  <a href="./blah blah">
-  <!--  Rest of the code continues as normal -->
+</a>
+<!-- You can add customer logos here.  See ReadMe for more info -->
+<div class="customer-logos-bottom text-label">
+  <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo">
+  <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo"> <!--  optional -->
+  <img src="https://www.pubnub.com/pubnub_logo.svg" class="customer-logo"> <!--  optional -->
+</div>
+<!--  End of added code for logos -->
 ```
 
 ![Custom Logos](https://raw.githubusercontent.com/PubNubDevelopers/PubNub-Showcase/main/media/custom-logos.png)

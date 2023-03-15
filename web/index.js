@@ -280,17 +280,3 @@ function showLoginMsg (msg, isError, shouldFade) {
   }
 }
 
-function showcaseTileHover(elem, isHover)
-{
-  var customerLogos = elem.querySelector('.customer-logos');
-  if (customerLogos != null)
-  {
-    if (isHover)
-    {
-      customerLogos.style.display = 'flex'
-    }
-    else {
-      customerLogos.style.display = 'none'
-    }
-  }
-}

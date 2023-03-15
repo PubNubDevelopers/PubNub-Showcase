@@ -27,15 +27,12 @@ body {
 .showcase-tile {
     display: flex;
     flex-direction: column;
-    background: var(--color-background);
-    border: 1px solid var(--color-background-text-secondary);
-    border-radius: 8px;
     padding: 24px;
     gap: 24px;
     width: 100%;
 }
 
-.showcase-tile:hover {
+.showcase-tile-container:hover {
     box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
@@ -169,21 +166,26 @@ body {
 }
 
 .showcase-tile-container {
-    position: relative;
+    display:flex;
+    flex-direction:column;
+    justify-content: space-between;
+    border: 1px solid var(--color-background-text-secondary);
+    border-radius: 8px;
+    background: var(--color-background);
+
 }
 
-.customer-logos {
-    display:none;
+.customer-logos-bottom {
+    display:flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-evenly;
     background-color: var(--color-background-default);
-    position: absolute;
+    position: relative;
     padding: 24px;
     width: 100%;
-    border-bottom: 1px solid var(--color-background-text-secondary);
-    border-radius: 8px 8px 0px 0px;
-    border: 1px solid var(--color-background-text-secondary);
-    height: 90px;
+    border-top: 1px solid var(--color-background-text-secondary);
+    border-radius: 0px 0px 8px 8px;
+    height: 75px;
     cursor: auto;
 }
 

@@ -5,26 +5,101 @@ body {
   overflow: hidden;
 }
 
+/* Grid Wrapper Layout */
+
 .iot-container {
-  display: flex;
-  flex-grow: 1;
   overflow: scroll;
+  height: 100%;
 }
 
 .quick_activity_wrap{
-  margin: 10px;
   display: grid;
-  grid-template-columns: auto auto auto;
-  grid-gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
 
-.range_container {
-  display: flex;
-  flex-direction: column;
-  width: 80%;
-  height: 100%;
-  margin: 40px;
-  justify-items: center;
+.top_grid_layout{
+  margin-top: 32px;
+  margin-bottom: 32px;
+  margin-left: 48px;
+  margin-right: 48px;
+}
+
+.quick_activity-wrap-top-border{
+  border-top: 1px solid #E2E8F0;
+  padding-top: 32px;
+  margin-bottom: 32px;
+  margin-left: 48px;
+  margin-right: 48px;
+}
+
+@media screen and (max-width: 800px){
+  .quick_activity_wrap{
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .quick_activity_wrap{
+    grid-template-columns: repeat(1, 1fr);
+
+  }
+}
+
+/* Card Layout */
+
+.card-layout{
+  color: #E2E8F0;
+  padding-top: 32px;
+  padding-bottom: 32px;
+  padding-right: 24px;
+  padding-left: 24px;
+}
+
+/* Status Icons */
+
+.deviceStatusGood {
+  content: url(../img/icons/IoT-Status-Good.png);
+  height: 24px;
+  width: 24px;
+}
+
+.deviceStatusWarning{
+  content: url('../img/icons/IoT-Status-Warning.png');
+  height: 24px;
+  width: 24px;
+}
+
+.deviceStatusError{
+  content: url('../img/icons/IoT-Status-Error.png');
+  height: 24px;
+  width: 24px;
+}
+
+.deviceStatusNone{
+  content: url('../img/icons/IoT-Status-None.png');
+  height: 24px;
+  width: 24px;
+}
+
+/* Typography */
+
+.measurement-heading-layout{
+  margin-top: 64px;
+  margin-bottom: 64px;
+}
+
+/* Device Toggle Button */
+
+.toggle-button-label-layout{
+  margin-top: 7px;
+  margin-left: 12px;
+}
+
+/* Slider */
+
+.temp_layout{
+  margin-top: 40px !important;
 }
 
 .sliders_control {
@@ -32,13 +107,54 @@ body {
   min-height: 50px;
 }
 
-.form_control {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  font-size: 24px;
-  color: #635a5a;
+.fromSlider {
+  z-index: 1;
+  background-color: var(--color-navy-400);
+  height: 2px;
 }
+
+.toSlider {
+  z-index: 1;
+  background-color: transparent;
+  height: 2px;
+}
+
+.sliderValue{
+  position: absolute;
+  top: 20px;
+}
+
+.range_container {
+  position:relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 48px;
+  margin-top: 24px;
+  margin-right: 32px;
+  justify-items: center;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  width: 100%;
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Rounded sliders */
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Slider Draggable Base State */
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -47,7 +163,8 @@ input[type=range]::-webkit-slider-thumb {
   height: 24px;
   background-color: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px #C6C6C6;
+  border: solid var(--color-navy-400);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   cursor: pointer;
 }
 
@@ -58,141 +175,35 @@ input[type=range]::-moz-range-thumb {
   height: 24px;
   background-color: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px #C6C6C6;
+  border: solid var(--color-navy-400);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   cursor: pointer;
 }
 
+/* Slider Draggable Moveable States */
+
 input[type=range]::-webkit-slider-thumb:hover {
-  background: #f7f7f7;
+  background: var(--color-text-link);
 }
 
 input[type=range]::-webkit-slider-thumb:active {
-  box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
-  -webkit-box-shadow: inset 0 0 3px #387bbe, 0 0 9px #387bbe;
+  background: var(--color-text-link);
 }
 
-input[type="number"] {
-  color: #8a8383;
-  width: 50px;
-  height: 30px;
-  font-size: 20px;
-  border: none;
-}
+/* Save Button Layout */
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  opacity: 1;
-}
-
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 2px;
-  width: 100%;
-  position: absolute;
-  background-color: #C6C6C6;
-  pointer-events: none;
-}
-
-.fromSlider {
-  height: 0;
-  z-index: 1;
-}
-
-/* Button */
-
-.contentBox{
+.save-settings-layout{
+  justify-content: center;
+  align-items: center;
   display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-}
-
-.buttonBox{
-  position:relative;
-  max-width: 200px;
-  min-width: 150px;
-  flex: 20%;
-}
-
-.div_button{
   cursor: pointer;
 }
 
-.div_button_text{
-  width:100%;
-  height:80px;
-  position:relative;
-  background:rgba(255, 255, 255, .27);
-  text-transform:uppercase;
-  color:black;
-  font-weight:700;
-  letter-spacing:1px;
-  border:none;
-  font-size:15px;
-  outline:none;
+.save-settings-label-layout{
+  margin: 0px;
 }
 
-.border{
-  position:absolute;
-  background:none;
-  transition:all .5s ease-in-out;
-}
-
-#first>.border:nth-of-type(1){
-  top:0;
-  left:0;
-  border-left:1px solid white;
-  border-top:1px solid white;
-  width:30px;
-  height:30px;
-}
-
-#first>.border:nth-of-type(2){
-bottom:0;
-right:0;
-border-right:1px solid white;
-border-bottom:1px solid white;
-width:30px;
-height:30px;
-}
-
-#first:hover .border{
-width:102%;
-height:105%;
-}
-
-/* Warning Indicator */
-
-.deviceStatusGood{
-  height: 30px;
-  width: 30px;
-  border-radius: 30px;
-  background-color: green;
-}
-
-.deviceStatusWarning{
-  height: 30px;
-  width: 30px;
-  border-radius: 30px;
-  background-color: darkorange;
-}
-
-.deviceStatusError{
-  height: 30px;
-  width: 30px;
-  border-radius: 30px;
-  background-color: red;
-}
-
-.deviceStatusNone{
-  height: 30px;
-  width: 30px;
-  border-radius: 30px;
-  background-color: gray;
-}
-
-
-/* Toggle Button */
+/* Toggle Button Layout */
 
 .switch {
   position: relative;
@@ -208,7 +219,17 @@ height:105%;
   height: 0;
 }
 
-/* The slider */
+.override_margins_range_container{
+  margin-right: 0px !important;
+}
+
+.align_button_toggle_center{
+  align-items: center;
+  justify-content: center;
+}
+
+/* Toggle button Design */
+
 .slider {
   position: absolute;
   cursor: pointer;
@@ -216,7 +237,7 @@ height:105%;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--color-background-dark-text-secondary);
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -228,17 +249,17 @@ height:105%;
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
+  background-color: var(--color-background);
   -webkit-transition: .4s;
   transition: .4s;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: var(--color-teal-700);
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px var(--color-teal-700);
 }
 
 input:checked + .slider:before {
@@ -247,11 +268,102 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
+/* Status Message */
+
+.status-message-wrapper{
+  position: absolute;
+  right: 0;
+  bottom: 72px;
 }
 
-.slider.round:before {
-  border-radius: 50%;
+.status-message{
+  width: 384px;
+  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  z-index: 10;
+  position: relative;
+  right: -384px;
+  bottom: 0px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.status-message-error{
+  background-color: var(--color-background-alert-error);
+}
+
+.status-message-warning{
+  background-color: #fcf3de;
+}
+
+.status-message-good{
+  background-color: #e9fcde;
+}
+
+#slide{
+  -webkit-animation: slide 0.5s forwards;
+  animation: slide 5s forwards;
+}
+
+@-webkit-keyframes slide {
+  20% { right: 36px; }
+  40% { right: 36px; }
+  60% { right: 36px; }
+  80% {right: 36px; }
+  100% {right: -384px; }
+}
+
+@keyframes slide {
+  20% { right: 36px; }
+  40% { right: 36px; }
+  60% { right: 36px; }
+  80% {right: 36px; }
+  100% {right: -384px; }
+}
+
+.status-message-warning-message{
+  padding: 0px;
+  margin-top: 2px;
+  margin-left: 14px;
+  margin-bottom: 0px;
+}
+
+.status-message{
+  padding-left: 16px;
+  justify-content: center;
+  display: flex;
+}
+
+.status-message-body-wrapper{
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.icon-layout{
+  margin: 0px;
+  padding-top: 2px;
+}
+
+.status-message-caption-layout{
+  padding: 0px;
+  font-size: 10px;
+  margin-left: 39px;
+  margin-bottom: 6px;
+}
+
+.status-message-caption-layout-divert{
+  padding: 0px;
+  font-size: 10px;
+  margin-left: 37px;
+  margin-bottom: 6px !important;
+}
+
+.status-message-caption-layout-wrapper{
+  margin-bottom: 6px;
+}
+
+.status-message-body-layout{
+  margin-top: 5px;
 }

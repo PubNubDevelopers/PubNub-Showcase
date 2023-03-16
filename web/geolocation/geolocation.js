@@ -69,6 +69,10 @@ async function initialize () {
     initalizeMapSearch(); // Initalize Place search
     findLocation(); // Find Current Location Button
     initiateShare(); // Share Location Button
+
+    // Debug Messages
+    developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a real-time geolocation application.")
+    developerMessage("This demo uses a combination of publish / subscribe messages to update and send users locations in real-time")
 }
 
 // Add login user MetaData to the channelMembers map
@@ -184,6 +188,7 @@ function showNewPosition(position) {
 
 // Listen to PubNub events (message events, object events)
 async function activatePubNubListener(){
+    developerMessage("This demo listens to PubNub's Object API to retrieve user information when they join the Geolocation Demo");
     pnListener = pubnub.addListener({
         message: (payload) => {
             messageReceived(payload);
@@ -364,6 +369,8 @@ async function loadLastLocations() {
         includeUUID: true,
     });
 
+    developerMessage('PubNub can persist previous messages (in this case previous locations) which can then be loaded in at launch time');
+
     // Only populate history for the GEO_CHANNEL
     if (history.channels[GEO_CHANNEL] != null) {
         for(var i = history.channels[GEO_CHANNEL].length - 1; i >= 0; i--) {
@@ -420,5 +427,6 @@ function initiateShare(){
         }
     })
 }
+
 
 

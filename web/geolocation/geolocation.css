@@ -97,6 +97,7 @@ body {
     box-sizing: border-box;
     color: #525252;
     font-size: 13px;
+    caret-color: black;
 }
 
 #pac-container input:focus, #pac-container textarea:focus {
@@ -209,5 +210,4 @@ body {
 .travel-history-heading-layout{
     margin-bottom: 20px;
 }
-
 

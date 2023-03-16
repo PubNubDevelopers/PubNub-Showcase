@@ -110,10 +110,57 @@ function handleMessageHandler(payload){;
     else {
       statusBadge?.setAttribute('class', 'deviceStatusNone');
     }
+    handleStatusMessage(payload.message.message, payload.message.status);
   }
   catch(e){
     console.log(e);
   }
+}
+
+async function handleStatusMessage(message, status){
+  var statusSection = document.getElementById('status-message-section');
+  var div = document.createElement('div');
+  if(status == Status.Good){
+    div.innerHTML = getStatusMessageGoodHTML(message);
+  }
+  else if (status == Status.Warning){
+    div.innerHTML = getStatusMessageWarningHTML(message);
+  }
+  else if(status == Status.Alert){
+    div.innerHTML = getStatusMessageErrorHTML(message);
+  }
+  statusSection.prepend(div);
+  // Animation Duration
+  await timeout(5);
+  // Remove the Component
+  div.remove();
+}
+
+function getStatusMessageErrorHTML(message){
+  return `<div id="slide" class="status-message status-message-error">
+    <div class="status-message-body-wrapper">
+        <img class="deviceStatusError icon-layout"></img>
+        <p class="text-label status-message-warning-message">${message}</p>
+    </div>
+  </div>`;
+}
+
+function getStatusMessageWarningHTML(message){
+  return `<div id="slide" class="status-message status-message-warning">
+    <div class="status-message-body-wrapper">
+        <img class="deviceStatusWarning icon-layout"></img>
+        <p class="text-label status-message-warning-message">${message}</p>
+    </div>
+  </div>`;
+}
+
+function getStatusMessageGoodHTML(message){
+  return `<div id="slide" class="status-message status-message-good">
+    <div class="status-message-body-wrapper">
+        <img class="deviceStatusGood icon-layout"></img>
+        <p class="text-label status-message-warning-message">${message}</p>
+    </div>
+  </div>`;
 }
 
 // Slider Functionality
@@ -332,6 +379,10 @@ function changeDeviceState(on, deviceId){
   catch(e){
     console.log("Failed to publish state");
   }
+}
+
+function timeout(s) {
+	return new Promise(resolve => setTimeout(resolve, s*1000));
 }
 
 

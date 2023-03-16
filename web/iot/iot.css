@@ -296,3 +296,81 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 
+/* Status Message */
+
+.status-message-wrapper{
+  position: absolute;
+  right: 0;
+  bottom: 72px;
+}
+
+.status-message{
+  height: 54px;
+  width: 384px;
+  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  z-index: 10;
+  position: relative;
+  right: -384px;
+  bottom: 0px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.status-message-error{
+  background-color: var(--color-background-alert-error);
+}
+
+.status-message-warning{
+  background-color: #fcf3de;
+}
+
+.status-message-good{
+  background-color: #e9fcde;
+}
+
+#slide{
+  -webkit-animation: slide 0.5s forwards;
+  animation: slide 5s forwards;
+}
+
+@-webkit-keyframes slide {
+  20% { right: 36px; }
+  40% { right: 36px; }
+  60% { right: 36px; }
+  80% {right: 36px; }
+  100% {right: -384px; }
+}
+
+@keyframes slide {
+  20% { right: 36px; }
+  40% { right: 36px; }
+  60% { right: 36px; }
+  80% {right: 36px; }
+  100% {right: -384px; }
+}
+
+.status-message-warning-message{
+  padding: 0px;
+  margin-top: 2px;
+  margin-left: 14px;
+  margin-bottom: 0px;
+}
+
+.status-message{
+  padding-left: 16px;
+  justify-content: center;
+  display: flex;
+}
+
+.status-message-body-wrapper{
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.icon-layout{
+  margin: 0px;
+}
+

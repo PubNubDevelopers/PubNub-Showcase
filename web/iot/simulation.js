@@ -193,5 +193,5 @@ function getFilePath(type){
       break;
   }
 
-  return new URL(url, document.baseURI).href;
+  return url;
 }

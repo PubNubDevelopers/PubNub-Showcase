@@ -47,10 +47,16 @@ async function initialize () {
   //  Private.<name> for private groups
   //  DM.A&B for direct messages between two users
   pubnub.subscribe({channels: ["device.*", `Private.${pubnub.getUUID()}-iot`], withPresence: true}); // Subscribe
+
+  // Debug Messages
+  developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a real-time IoT application.");
+  developerMessage("This demo uses a combination of publish / subscribe / signal messages to update and send IoT status updates that can be handled on the client-side.");
+  developerMessage("IoT Devices can also listen to setting updates using a PubNub message or signal listener.");
 }
 
 // Listen to PubNub events (message events, object events)
 function activatePubNubListener(){
+  developerMessage('IoT Devices will either send back signals for a status update, or messages when there is an alert with the IoT Device which can be listened to using PubNubs message and signal listener.');
   pnListener = pubnub.addListener({
     // Status events
     status: async statusEvent => {
@@ -137,28 +143,58 @@ async function handleStatusMessage(message, status){
 }
 
 function getStatusMessageErrorHTML(message){
+  var marginClass;
+  if(message.length < 45){
+    marginClass = 'status-message-caption-layout';
+  }
+  else{
+    marginClass = 'status-message-caption-layout-divert'
+  }
   return `<div id="slide" class="status-message status-message-error">
-    <div class="status-message-body-wrapper">
-        <img class="deviceStatusError icon-layout"></img>
-        <p class="text-label status-message-warning-message">${message}</p>
+    <div class="col status-message-body-layout">
+      <div class="status-message-body-wrapper">
+          <img class="deviceStatusError icon-layout"></img>
+          <p class="text-label status-message-warning-message">${message}</p>
+      </div>
+      <p class="text-caption ${marginClass}">Sent to Chat Demo</p>
     </div>
   </div>`;
 }
 
 function getStatusMessageWarningHTML(message){
+  var marginClass;
+  if(message.length < 43){
+    marginClass = 'status-message-caption-layout';
+  }
+  else{
+    marginClass = 'status-message-caption-layout-divert'
+  }
   return `<div id="slide" class="status-message status-message-warning">
-    <div class="status-message-body-wrapper">
-        <img class="deviceStatusWarning icon-layout"></img>
-        <p class="text-label status-message-warning-message">${message}</p>
+    <div class="col status-message-body-layout">
+      <div class="status-message-body-wrapper">
+          <img class="deviceStatusWarning icon-layout"></img>
+          <p class="text-label status-message-warning-message">${message}</p>
+      </div>
+      <p class="text-caption ${marginClass}">Sent to Chat Demo</p>
     </div>
   </div>`;
 }
 
 function getStatusMessageGoodHTML(message){
+  var marginClass;
+  if(message.length < 45){
+    marginClass = 'status-message-caption-layout';
+  }
+  else{
+    marginClass = 'status-message-caption-layout-divert'
+  }
   return `<div id="slide" class="status-message status-message-good">
-    <div class="status-message-body-wrapper">
-        <img class="deviceStatusGood icon-layout"></img>
-        <p class="text-label status-message-warning-message">${message}</p>
+    <div class="col status-message-body-layout">
+      <div class="status-message-body-wrapper">
+          <img class="deviceStatusGood icon-layout"></img>
+          <p class="text-label status-message-warning-message">${message}</p>
+      </div>
+      <p class="text-caption ${marginClass}">Sent to Chat Demo</p>
     </div>
   </div>`;
 }

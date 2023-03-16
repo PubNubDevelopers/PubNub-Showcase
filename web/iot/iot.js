@@ -47,10 +47,16 @@ async function initialize () {
   //  Private.<name> for private groups
   //  DM.A&B for direct messages between two users
   pubnub.subscribe({channels: ["device.*", `Private.${pubnub.getUUID()}-iot`], withPresence: true}); // Subscribe
+
+  // Debug Messages
+  developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a real-time IoT application.");
+  developerMessage("This demo uses a combination of publish / subscribe / signal messages to update and send IoT status updates that can be handled on the client-side.");
+  developerMessage("IoT Devices can also listen to setting updates using a PubNub message or signal listener.");
 }
 
 // Listen to PubNub events (message events, object events)
 function activatePubNubListener(){
+  developerMessage('IoT Devices will either send back signals for a status update, or messages when there is an alert with the IoT Device which can be listened to using PubNubs message and signal listener.');
   pnListener = pubnub.addListener({
     // Status events
     status: async statusEvent => {
@@ -110,72 +116,221 @@ function handleMessageHandler(payload){;
     else {
       statusBadge?.setAttribute('class', 'deviceStatusNone');
     }
+    handleStatusMessage(payload.message.message, payload.message.status);
   }
   catch(e){
     console.log(e);
   }
 }
 
+async function handleStatusMessage(message, status){
+  var statusSection = document.getElementById('status-message-section');
+  var div = document.createElement('div');
+  if(status == Status.Good){
+    div.innerHTML = getStatusMessageGoodHTML(message);
+  }
+  else if (status == Status.Warning){
+    div.innerHTML = getStatusMessageWarningHTML(message);
+  }
+  else if(status == Status.Alert){
+    div.innerHTML = getStatusMessageErrorHTML(message);
+  }
+  statusSection.prepend(div);
+  // Animation Duration
+  await timeout(5);
+  // Remove the Component
+  div.remove();
+}
+
+function getStatusMessageErrorHTML(message){
+  var marginClass;
+  if(message.length < 45){
+    marginClass = 'status-message-caption-layout';
+  }
+  else{
+    marginClass = 'status-message-caption-layout-divert'
+  }
+  return `<div id="slide" class="status-message status-message-error">
+    <div class="col status-message-body-layout">
+      <div class="status-message-body-wrapper">
+          <img class="deviceStatusError icon-layout"></img>
+          <p class="text-label status-message-warning-message">${message}</p>
+      </div>
+      <div class="status-message-caption-layout-wrapper">
+        <a href="../chat/chat.html" class="text-caption ${marginClass} status-message-caption-layout-wrapper">see chat demo for details</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function getStatusMessageWarningHTML(message){
+  var marginClass;
+  if(message.length < 43){
+    marginClass = 'status-message-caption-layout';
+  }
+  else{
+    marginClass = 'status-message-caption-layout-divert'
+  }
+  return `<div id="slide" class="status-message status-message-warning">
+    <div class="col status-message-body-layout">
+      <div class="status-message-body-wrapper">
+          <img class="deviceStatusWarning icon-layout"></img>
+          <p class="text-label status-message-warning-message">${message}</p>
+      </div>
+      <div class="status-message-caption-layout-wrapper">
+        <a href="../chat/chat.html" class="text-caption ${marginClass} status-message-caption-layout-wrapper">see chat demo for details</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function getStatusMessageGoodHTML(message){
+  var marginClass;
+  if(message.length < 45){
+    marginClass = 'status-message-caption-layout';
+  }
+  else{
+    marginClass = 'status-message-caption-layout-divert'
+  }
+  return `<div id="slide" class="status-message status-message-good">
+    <div class="col status-message-body-layout">
+      <div class="status-message-body-wrapper">
+          <img class="deviceStatusGood icon-layout"></img>
+          <p class="text-label status-message-warning-message">${message}</p>
+      </div>
+      <div class="status-message-caption-layout-wrapper">
+        <a href="../chat/chat.html" class="text-caption ${marginClass} status-message-caption-layout-wrapper">see chat demo for details</a>
+      </div>
+    </div>
+  </div>`;
+}
+
 // Slider Functionality
-
-function controlFromInput(fromSlider, fromInput, toInput, controlSlider, deviceId) {
-  const [from, to] = getParsed(fromInput, toInput);
-  // fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
-  if (from > to) {
-      fromSlider.value = to;
-      fromInput.value = to;
-  } else {
-      fromSlider.value = from;
-  }
-  setAlarmSettings(from, to, deviceId);
-}
-
-function controlToInput(toSlider, fromInput, toInput, controlSlider, deviceId) {
-  const [from, to] = getParsed(fromInput, toInput);
-  // fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
-  if (from <= to) {
-      toSlider.value = to;
-      toInput.value = to;
-  } else {
-      toInput.value = from;
-  }
-  setAlarmSettings(from, to, deviceId);
-}
 
 function controlFromSlider(fromSlider, toSlider, fromInput, deviceId) {
   const [from, to] = getParsed(fromSlider, toSlider);
+  fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', fromSlider);
+  var val = 0;
   if (from > to) {
     fromSlider.value = to;
-    fromInput.value = to;
+    fromInput.innerHTML = to + '&#176C';
+    val = to;
   } else {
-    fromInput.value = from;
+    fromInput.innerHTML = from + '&#176C';
+    val = from;
   }
+  updateRelativePositionOfMinValue(deviceId, val);
   setAlarmSettings(from, to, deviceId);
 }
 
 function controlToSlider(fromSlider, toSlider, toInput, deviceId) {
   const [from, to] = getParsed(fromSlider, toSlider);
+  fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', fromSlider);
+  var val = 0;
   if (from <= to) {
     toSlider.value = to;
-    toInput.value = to;
+    toInput.innerHTML = to + '&#176C';
+    val = to;
   } else {
-    toInput.value = from;
+    toInput.innerHTML = from + '&#176C';
     toSlider.value = from;
+    val = from;
   }
+  updateRelativePositionOfMaxValue(deviceId, val);
   setAlarmSettings(from, to, deviceId);
+}
+
+function controlSlider(slider, deviceId, isPercent){
+  const value = getParsedValue(slider);
+  slider.value = value;
+  document.getElementById(`singleSliderValue${deviceId}`).innerHTML = value + (isPercent ? '%' : '&#176C');
+  setValue(value, deviceId);
+  fillSingleSlider(slider, iotDevices[deviceId].setValue, '#C6C6C6', '#25daa5', value);
+  if(isPercent){
+    updateRelativePositionOfDoorSlider(deviceId, value);
+  }
+  else{
+    updateRelativePositionOfStaticValue(deviceId, value);
+  }
+}
+
+function updateRelativePositionOfMinValue(deviceId, val){
+    // Adjust Positioning of min number
+    var sliderValue = document.getElementById(`minSliderValue${deviceId}`);
+    var diff = iotDevices[deviceId].alarmSettings.upperBound - iotDevices[deviceId].alarmSettings.lowerBound;
+    var valDiff = val - iotDevices[deviceId].alarmSettings.lowerBound;
+    var percent = valDiff/diff;
+    sliderValue.style.left = (percent*100 - 3).toString() + "%";
+}
+
+function updateRelativePositionOfMaxValue(deviceId, val){
+  // Adjust Positioning of max number
+  var sliderValue = document.getElementById(`maxSliderValue${deviceId}`);
+  var diff = iotDevices[deviceId].alarmSettings.upperBound - iotDevices[deviceId].alarmSettings.lowerBound;
+  var valDiff = val - iotDevices[deviceId].alarmSettings.lowerBound;
+  var percent = valDiff/diff;
+  sliderValue.style.left = (percent*100 - 3).toString() + "%";
+}
+
+function updateRelativePositionOfStaticValue(deviceId, val){
+  // Adjust Positioning of number
+  var sliderValue = document.getElementById(`sliderValue${deviceId}`);
+  var diff = iotDevices[deviceId].alarmSettings.upperBound - iotDevices[deviceId].alarmSettings.lowerBound;
+  var valDiff = val - iotDevices[deviceId].alarmSettings.lowerBound;
+  var percent = valDiff/diff;
+  sliderValue.style.left = (percent*100 - 3).toString() + "%";
+}
+
+function updateRelativePositionOfDoorSlider(deviceId, val){
+  // Adjust Positioning of number
+  var sliderValue = document.getElementById(`sliderValue${deviceId}`);
+  var percent = val/100;
+  sliderValue.style.left = (percent*100 - 3).toString() + "%";
+}
+
+function fillSlider(from, to, sliderColor, rangeColor, controlSlider) {
+  const rangeDistance = to.max-to.min;
+  const fromPosition = from.value - to.min;
+  const toPosition = to.value - to.min;
+  controlSlider.style.background = `linear-gradient(
+    to right,
+    ${sliderColor} 0%,
+    ${sliderColor} ${(fromPosition)/(rangeDistance)*100}%,
+    ${rangeColor} ${((fromPosition)/(rangeDistance))*100}%,
+    ${rangeColor} ${(toPosition)/(rangeDistance)*100}%,
+    ${sliderColor} ${(toPosition)/(rangeDistance)*100}%,
+    ${sliderColor} 100%)`;
+}
+
+function fillSingleSlider(slider, currentValue, sliderColor, rangeColor, newValue){
+  const rangeDistance = slider.max-slider.min;
+  var toPosition = currentValue - newValue;
+  var beforePosition = currentValue < newValue ? Math.abs(currentValue) - Math.abs(slider.min) : Math.abs(newValue) - Math.abs(slider.min);
+  var afterPosition = currentValue < newValue ? Math.abs(slider.max) - Math.abs(newValue) : Math.abs(slider.max) - Math.abs(currentValue);
+  toPosition = Math.abs(toPosition);
+  beforePosition = Math.abs(beforePosition);
+  afterPosition = Math.abs(afterPosition);
+  var beforePositionPercent = (beforePosition)/(rangeDistance);
+  var toPositionPercent = (toPosition)/(rangeDistance);
+  var afterPositionPeercent = (afterPosition)/(rangeDistance);
+  slider.style.background = `linear-gradient(
+    to right,
+    ${sliderColor} 0%,
+    ${sliderColor} ${beforePositionPercent*100}%,
+    ${rangeColor} ${beforePositionPercent*100}%,
+    ${rangeColor} ${(toPositionPercent + beforePositionPercent)*100}%,
+    ${sliderColor} ${(toPositionPercent + beforePositionPercent)*100}%,
+    ${sliderColor} 100%`;
+}
+
+function removeFill(controlSlider){
+  controlSlider.style.background = '#94A3B8';
 }
 
 function getParsed(currentFrom, currentTo) {
   const from = parseInt(currentFrom.value, 10);
   const to = parseInt(currentTo.value, 10);
   return [from, to];
-}
-
-function controlSlider(slider, deviceId){
-  const value = getParsedValue(slider);
-  slider.value = value;
-  document.getElementById(`singleSliderValue${deviceId}`).innerHTML = value;
-  setValue(value, deviceId);
 }
 
 function getParsedValue(currentValue){
@@ -190,20 +345,21 @@ function setAlarmSettings(from, to, deviceId){
     to: to,
   }
   saveButton = document.getElementById(`saveButton${deviceId}`);
-  saveButton.style.visibility = 'visible';
+  saveButton.classList.remove('disabled');
 }
 
 // When setting changes are made to the configurations of the discrete IoT devices
 function setValue(value, deviceId){
   valueSettings[deviceId] = value;
   saveButton = document.getElementById(`saveButton${deviceId}`);
-  saveButton.style.visibility = 'visible';
+  saveButton.classList.remove('disabled');
 }
 
 // Communicates with the IoT devices to send the new setting configurations
 function saveSettings(deviceId){
   saveButton = document.getElementById(`saveButton${deviceId}`);
-  saveButton.style.visibility = 'hidden';
+  saveButton.classList.add('disabled');
+  iotDevices[deviceId].setValue = valueSettings[deviceId];
   try{
     pubnub.publish({
       channel: 'device.' + deviceId,
@@ -220,6 +376,8 @@ function saveSettings(deviceId){
 
 // Communicates with the IoT device to either turn the device off or back on
 function changeDeviceState(on, deviceId){
+  toggleButtonLabel = document.getElementById(`toggleButtonLabel${deviceId}`);
+  toggleButtonLabel.innerHTML = on ? "On" : "Off";
   try{
     pubnub.publish({
       channel: 'device.' + deviceId,
@@ -231,6 +389,10 @@ function changeDeviceState(on, deviceId){
   catch(e){
     console.log("Failed to publish state");
   }
+}
+
+function timeout(s) {
+	return new Promise(resolve => setTimeout(resolve, s*1000));
 }
 
 

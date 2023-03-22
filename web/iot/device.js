@@ -1,12 +1,12 @@
 
 // Display the IoT dahsboard element visibilly onto the screen
 // Configures two types of devices discrete and continuous with different setting configurations
-function addRegisteredDevice (deviceId) {
+function addRegisteredDevice (deviceId, count) {
 
   // Create Continuous Device Element
   if(iotDevices[deviceId].alarmSettings != undefined){
-    var wrap = document.getElementById('registeredDevicesList');
-    wrap.appendChild(getContinuousDeviceElement(deviceId));
+    var wrap = document.getElementById(`tempdevice${count}`);
+    wrap.innerHTML = getContinuousDeviceElement(deviceId);
     alarmSettings[deviceId] = {
       from: iotDevices[deviceId].alarmSettings.minValue,
       to: iotDevices[deviceId].alarmSettings.maxValue,
@@ -32,8 +32,8 @@ function addRegisteredDevice (deviceId) {
   }
   // Create Discrete Device Element
   else{
-    var wrap = document.getElementById('registedDeviceListDiscrete');
-    wrap.appendChild(getDiscreteDeviceElement(deviceId));
+    var wrap = document.getElementById(`alarmdevice${count}`);
+    wrap.innerHTML = getDiscreteDeviceElement(deviceId);
     const slider = document.getElementById(`singleSlider${deviceId}`);
     slider.oninput = () => controlSlider(slider, deviceId, true);
     updateRelativePositionOfDoorSlider(deviceId, iotDevices[deviceId].setValue);
@@ -49,14 +49,13 @@ function addRegisteredDevice (deviceId) {
 
 // Create Continuous IoT Device Dashboard Element through HTML injection
 function getContinuousDeviceElement(deviceID){
-  var section = document.createElement('section');
-  section.innerHTML = `
+  return `
     <div class='card-wrapper'>
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div>
-          <div class="card card-layout">
-            <div class="d-flex">
-              <h6 class="flex-grow-1 heading-5">${iotDevices[deviceID].name}</h6>
+          <div class="card card-layout card-layout-large">
+            <div class="d-flex text-heading-wrapper-layout">
+              <h6 class="flex-grow-1 heading-5 text-heading-layout">${iotDevices[deviceID].name}</h6>
               <div class="deviceStatusGood" id="deviceStatus${deviceID}">
 
               </div>
@@ -106,22 +105,19 @@ function getContinuousDeviceElement(deviceID){
 
     </div>
   `
-
-  return section;
 }
 
 // Create Discrete IoT Device Dashboard Element through HTML injection
 function getDiscreteDeviceElement(deviceID){
-  var section = document.createElement('section');
-  section.innerHTML = `
+  return `
     <div class='card-wrapper'>
 
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div>
 
-          <div class="card card-layout">
-            <div class="d-flex">
-              <h6 class="flex-grow-1 heading-5">${iotDevices[deviceID].name}</h6>
+          <div class="card card-layout card-layout-small">
+            <div class="d-flex text-heading-wrapper-layout">
+              <h6 class="flex-grow-1 heading-5 text-heading-layout">${iotDevices[deviceID].name}</h6>
               <div class="deviceStatusGood" id="deviceStatus${deviceID}">
               </div>
             </div>
@@ -159,8 +155,6 @@ function getDiscreteDeviceElement(deviceID){
         </div>
       </div>
   `
-
-  return section;
 }
 
 function updateValue(deviceId){

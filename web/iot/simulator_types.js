@@ -1,6 +1,6 @@
 /**
  * Types associated with the device simulators.
- */
+*/
 
 const SensorType = {
   TermostatTemperature: 'Thermostat Temperature',

@@ -138,7 +138,7 @@ async function createSimulator (args) {
             url: url
           }
           // Add Device to HTML
-          addRegisteredDevice(deviceId)
+          addRegisteredDevice(deviceId, iotDevices[deviceId].alarmSettings ? ++tempDeviceCounter : ++alarmDeviceCounter)
         }
         simulatorTask.postMessage({
           action: 'finalizeProvisioning',

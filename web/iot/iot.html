@@ -28,7 +28,8 @@
     <script src="../iot/simulator_types.js"></script>
     <script src="../iot/device.js"></script>
     <script src="../iot/worker_device_sim.js"></script>
-
+    <script src="./loading-card.js"></script>
+    <script src="./slider.js"></script>
 </HEAD>
 
 <body onload="initialize()" id="body">
@@ -39,10 +40,15 @@
     </div>
     <div class="iot-container">
         <div class="quick_activity_wrap top_grid_layout" id="registeredDevicesList">
-
+            <section id="tempdevice1"><loading-card-large/></section>
+            <section id="tempdevice2"><loading-card-large/></section>
+            <section id="tempdevice3"><loading-card-large/></section>
+            <section id="tempdevice4"><loading-card-large/></section>
+            <section id="tempdevice5"><loading-card-large/></section>
         </div>
         <div class="quick_activity_wrap quick_activity-wrap-top-border" id="registedDeviceListDiscrete">
-
+            <section id="alarmdevice1"><loading-card-small/></section>
+            <section id="alarmdevice2"><loading-card-small/></section>
         </div>
     </div>
     <div style="position: relative;">

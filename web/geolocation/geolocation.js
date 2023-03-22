@@ -117,6 +117,7 @@ async function getUUIDMetaData (userId) {
 function findLocation(){
     const position = document.getElementById("enter-button");
     position.addEventListener('click', () => {
+        document.getElementById('spinner').style.display = 'inline-block';
         if(navigator.geolocation){
             navigator.geolocation.getCurrentPosition(showPosition);
         }
@@ -129,6 +130,8 @@ function findLocation(){
 // Decode the current location position and publish it to PubNub
 // Positions when published are in the form lat, and lng
 async function showPosition(position) {
+    // Remove disabled state from share button
+    document.getElementById('share-button').classList.remove('disabled');
     // Get coordinates from position object
     currentLocation = {
         lat: position.coords.latitude,
@@ -171,6 +174,8 @@ async function showPosition(position) {
 // Publish a searched position to PubNub
 // Positions when published are in the form lat, and lng
 function showNewPosition(position) {
+    // Removed disabled state from share button
+    document.getElementById('share-button').classList.remove('disabled');
     currentLocation = {
         lat: position.geometry.location.lat(),
         lng: position.geometry.location.lng(),

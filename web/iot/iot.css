@@ -60,10 +60,6 @@ body {
   height: 636px;
 }
 
-.card-layout-small{
-  height: 533px;
-}
-
 .text-heading-layout{
   text-overflow: ellipsis;
   overflow: hidden;

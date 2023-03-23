@@ -46,12 +46,18 @@ async function testForLoggedInUser () {
   //  If there is a previous login, check it is still valid
   if (savedUUID != null) {
     try {
-      pubnub = createPubNubObject()
-      const userInfo = await pubnub.objects.getUUIDMetadata(savedUUID)
+      pubnub = await createPubNubObject()
+      try{
+        const userInfo = await pubnub.objects.getUUIDMetadata(savedUUID)
+      }
+      catch(e){
+        console.log(e);
+      }
       //  There is a valid user associated with this login
       return true
     } catch (ex) {
       //  There is no PubNub user data associated with the login.
+      console.log(ex);
       sessionStorage.clear()
       return false
     }

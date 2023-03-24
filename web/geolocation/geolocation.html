@@ -3,7 +3,7 @@
         <TITLE>PubNub Showcase Demo</TITLE>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#161C2D">
-        <meta name="apple-mobile-web-app-status-bar-style" content="#161C2D">    
+        <meta name="apple-mobile-web-app-status-bar-style" content="#161C2D">
 
         <!--  Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800" rel="stylesheet">
@@ -53,8 +53,11 @@
                     <div class="location-button-layout" id="enter-button">
                         <img class="location-icon location-icon-style"/>
                         <a class="location-button text-body-2">Use current location</a>
+                        <div class="loader loader-layout" id="spinner" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
-                    <div id="share-button" class="share-location-layout pn-btn">
+                    <div id="share-button" class="share-location-layout pn-btn disabled">
                             <img class="share-location-icon share-location-icon-style"/>
                             <p>Share location in chat</p>
                     </div>

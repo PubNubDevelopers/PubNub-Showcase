@@ -106,10 +106,6 @@ body {
     box-shadow: none !important;
     border: 1px solid #216F7B;
     outline-width: 0;
-    transition: All 0.5s ease-in;
-    -webkit-transition: All 0.5s ease-in;
-    -moz-transition: All 0.5s ease-in;
-    -o-transition: All 0.5s ease-in;
 }
 
 /* Use Location Button */
@@ -209,5 +205,30 @@ body {
 
 .travel-history-heading-layout{
     margin-bottom: 20px;
+}
+
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-icon-text-secondary);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    display: none;
+}
+
+.loader-layout{
+    margin-left: 8px;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 

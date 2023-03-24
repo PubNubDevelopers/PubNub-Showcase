@@ -43,6 +43,7 @@ function initalizeMapSearch(){
 
 // Display
 function displayPosition(payload){
+  document.getElementById('spinner').style.display = 'none';
   try{
     loc = new google.maps.LatLng(payload.message.lat, payload.message.lng);
     var img = channelMembers[payload.message.uuid].profileUrl;

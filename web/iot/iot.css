@@ -15,7 +15,7 @@ body {
 .quick_activity_wrap{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 24px;
 }
 
 .top_grid_layout{
@@ -54,6 +54,21 @@ body {
   padding-bottom: 32px;
   padding-right: 24px;
   padding-left: 24px;
+}
+
+.card-layout-large{
+  height: 636px;
+}
+
+.text-heading-layout{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding-right: 8px;
+}
+
+.text-heading-wrapper-layout{
+  height: 36px;
+  width: 100%;
 }
 
 /* Status Icons */
@@ -305,6 +320,8 @@ input:checked + .slider:before {
   animation: slide 5s forwards;
 }
 
+/* Key Frames for slide animation */
+
 @-webkit-keyframes slide {
   20% { right: 36px; }
   40% { right: 36px; }
@@ -319,6 +336,42 @@ input:checked + .slider:before {
   60% { right: 36px; }
   80% {right: 36px; }
   100% {right: -384px; }
+}
+
+@media screen and (max-width: 390px){
+  @-webkit-keyframes slide {
+    20% { right: 3px; }
+    40% { right: 3px; }
+    60% { right: 3px; }
+    80% {right: 3px; }
+    100% {right: -384px; }
+  }
+
+  @keyframes slide {
+    20% { right: 3px; }
+    40% { right: 3px; }
+    60% { right: 3px; }
+    80% {right: 3px; }
+    100% {right: -384px; }
+  }
+}
+
+@media screen and (max-width: 500px){
+  @-webkit-keyframes slide {
+    20% { right: 16px; }
+    40% { right: 16px; }
+    60% { right: 16px; }
+    80% {right: 16px; }
+    100% {right: -384px; }
+  }
+
+  @keyframes slide {
+    20% { right: 16px; }
+    40% { right: 16px; }
+    60% { right: 16px; }
+    80% {right: 16px; }
+    100% {right: -384px; }
+  }
 }
 
 .status-message-warning-message{
@@ -366,4 +419,45 @@ input:checked + .slider:before {
 
 .status-message-body-layout{
   margin-top: 5px;
+}
+
+/* Loading Card */
+
+.card__content{
+  background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+  border-radius: 12px;
+  background-size: 200% 100%;
+  animation: 1s shine linear infinite;
+}
+
+.card__content__heading{
+  margin-top: 2px;
+  height: 20px;
+  width: 70%;
+  margin-bottom: 8px;
+}
+
+.card__content__sliding__heading{
+  height: 10px;
+  width: 25%;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+.card__heading__height{
+  height: 36px;
+}
+
+.save-button-layout-loading{
+  margin-top: 4px;
+}
+
+/* .card__content__sliding__heading__1{
+  margin-bottom: 10px;
+} */
+
+@keyframes shine {
+  to {
+    background-position-x: -200%;
+  }
 }

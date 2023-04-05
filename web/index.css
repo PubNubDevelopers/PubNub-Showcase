@@ -39,6 +39,17 @@ body {
     max-height: 64px;
 }
 
+.code-link {
+    display: flex;
+    align-self: end;
+    padding: 20px;
+    position:absolute;
+}
+
+.github-logo {
+    max-width: 30px;
+}
+
 .login-modal {
     display: flex;
     background-color: var(--color-background-default);
@@ -161,7 +172,7 @@ body {
     border: 1px solid var(--color-background-text-secondary);
     border-radius: 8px;
     background: var(--color-background);
-
+    position:relative;
 }
 
 .customer-logos-bottom {

@@ -72,6 +72,12 @@ To run this project yourself you will need a PubNub account and (optionally) you
 ## Contributing
 Please fork the repository if you'd like to contribute. Pull requests are always welcome. 
 
+## Customization to change colors and video content
+
+- To modify the application theme, modify the colors located at the top of `/shared/style.css`.  Named colors are used throughout this application so changing them here will update the entire app.
+
+- To modify the video displayed in the Virtual Events app, update the file `/virtual-events/virtual-events.html`, search for the `iframe` tag and modify the YouTube video ID.  This application has not been tested with any video service other than YouTube.
+
 ## Customization with customer logos on home screen
 
 You can customize the home screen with customer logos which will appear when the user hovers over any configured use-case tile.

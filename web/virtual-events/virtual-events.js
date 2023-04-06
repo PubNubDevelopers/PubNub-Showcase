@@ -55,7 +55,7 @@ async function loadVirtualEvents () {
       //  Received a signal.  The virtual events app only uses signals for live reactions.
       //  Signals are ideally suited for live reactions (i.e. displaying an emoji on top
       //  of the virtual event) since they have a very small data payload
-      developerMessage("Live (emoji) reactions are sent over PubNub efficiently using the Signal API")
+      developerMessage("Live (emoji) Message Reactions are sent over PubNub efficiently using the Signal API")
       receiveReaction(signalEvent.message.r)
     }
   })
@@ -95,7 +95,7 @@ async function messageInputSend () {
         Compare the code below with the Chat demo.  The avatar and name are sent along with the message.
         Whilst this makes it harder to design a UI to update old messages when a user changes their name or avatar URL
         this is an uncommon use case for virtual events with a *very high* quantity of messages.  The avatar and name is sent
-        along with the message, to make it easier to retrieve this data at the other end. 
+        along with the message, to make it easier to retrieve this data at the other end.
         */
         developerMessage("PubNub will be able to cope with whatever speed you can publish messages to the network, but you should consider how fast your users will be able to read or interact with your messages")
       await pubnub.publish({

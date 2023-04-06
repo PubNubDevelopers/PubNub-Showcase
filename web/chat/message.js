@@ -28,13 +28,13 @@ async function messageReceived (messageObj) {
               result.data.profileUrl
             )
           }
-        
+
       } catch (e) {
         //  Lookup of unknown uuid failed - they probably logged out and cleared App Context
         addUserToCurrentChannel(
           messageObj.publisher,
           "Unknown",
-          DEFAULT_AVATAR  
+          DEFAULT_AVATAR
         )
       }
     }
@@ -74,7 +74,7 @@ async function messageReceived (messageObj) {
       if (messageObj.actions == null || messageObj.actions.read == null) {
         //  We did not find a read message reaction for our message, add one
         developerMessage(
-          'PubNub message reactions are ideal for send / delivered / read receipts'
+          'PubNub Message Reactions are ideal for send / delivered / read receipts'
         )
         pubnub.addMessageAction({
           channel: channel,
@@ -187,10 +187,10 @@ function createMessageReceived (messageObj) {
   <div class='temp-message temp-mesage-you'>
   <div class='temp-message-meta-container temp-message-meta-container-you'>
       <div class='text-caption temp-message-meta-name'>
-          ${name} 
+          ${name}
       </div>
       <div class='text-caption temp-message-meta-time'>
-      ${convertTimetokenToDate(messageObj.timetoken)} 
+      ${convertTimetokenToDate(messageObj.timetoken)}
       </div>
   </div>
   <div class='temp-message-bubble temp-message-bubble-you'>
@@ -214,7 +214,7 @@ function createMessageReceived (messageObj) {
           }' class='${extraReceiptStyle}' src='../img/icons/read.png' height='10px'>
       </div>
   </div>
-</div>  
+</div>
   `
 
   return newMsg

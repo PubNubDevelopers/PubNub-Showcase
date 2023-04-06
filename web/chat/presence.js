@@ -24,7 +24,7 @@ async function updatePresenceInfoFirstLoad () {
   }
 }
 
-//  Handler for a presence event, either 'join', 'leave', or 'interval'
+//  Handler for a Presence event, either 'join', 'leave', or 'interval'
 function handlePresenceEvent (action, presenceEvent) {
   developerMessage("Presence events are returned when users join or leave a channel.  Be aware of the ANNOUNCE_MAX setting, to enable an efficient implementation")
   var userId = presenceEvent.uuid
@@ -63,8 +63,8 @@ function handlePresenceEvent (action, presenceEvent) {
   }
 }
 
-//  The specified user has joined the chat.  For clarity, this demo app is considering the user 'present' if they 
-//  are viewing ANY group, though you could also choose to have the user present only if they are viewing 
+//  The specified user has joined the chat.  For clarity, this demo app is considering the user 'present' if they
+//  are viewing ANY group, though you could also choose to have the user present only if they are viewing
 //  (or subscribed to) a specific group (channel)
 function memberJoined (userId) {
   var directChatAvatar = document.getElementById('user-pres-' + userId)

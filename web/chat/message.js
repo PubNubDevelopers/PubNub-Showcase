@@ -17,7 +17,7 @@ async function messageReceived (messageObj) {
       return
     }
 
-    //  If we don't have the information about the message sender cached, retrieve that from objects and update our cache
+    //  If we don't have the information about the message sender cached, retrieve that from App Context and update our cache
     if (channelMembers[messageObj.publisher] == null) {
       try {
         var result = await getUUIDMetaData(messageObj.publisher)
@@ -30,7 +30,7 @@ async function messageReceived (messageObj) {
           }
         
       } catch (e) {
-        //  Lookup of unknown uuid failed - they probably logged out and cleared objects
+        //  Lookup of unknown uuid failed - they probably logged out and cleared App Context
         addUserToCurrentChannel(
           messageObj.publisher,
           "Unknown",
@@ -50,7 +50,7 @@ async function messageReceived (messageObj) {
 
     var messageDiv = ''
     if (messageObj.publisher == pubnub.getUserId()) {
-      //  If the read receipt was added as a message action before we could draw the message, do that now
+      //  If the read receipt was added as a message reaction before we could draw the message, do that now
       var messageIsRead = false
       if (
         inflightReadReceipt[messageObj.timetoken] != null &&
@@ -68,13 +68,13 @@ async function messageReceived (messageObj) {
       //  Add click and long press handler to the message.
       addContextHandler(messageDiv, onContextHandler)
 
-      //  Add a message action that we have read the message, if one does not already exist.
+      //  Add a message reaction that we have read the message, if one does not already exist.
       //  This is very simplistic, once ANY user in the recipient group has read the message, the message is marked as read
       //  In production, you will want to have separate read receipts for each individual in the group
       if (messageObj.actions == null || messageObj.actions.read == null) {
-        //  We did not find a read message action for our message, add one
+        //  We did not find a read message reaction for our message, add one
         developerMessage(
-          'PubNub message actions are ideal for send / delivered / read receipts'
+          'PubNub message reactions are ideal for send / delivered / read receipts'
         )
         pubnub.addMessageAction({
           channel: channel,
@@ -107,7 +107,7 @@ async function messageReceived (messageObj) {
 }
 
 //////////////////////
-//  Generate the HTML for message objects
+//  Generate the HTML for messages
 
 //  HTML for messages we have sent ourselves
 function createMessageSent (messageObj, messageIsRead) {

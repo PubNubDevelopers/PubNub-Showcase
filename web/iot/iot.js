@@ -53,11 +53,11 @@ async function initialize () {
 
   // Debug Messages
   developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a real-time IoT application.");
-  developerMessage("This demo uses a combination of publish / subscribe / signal messages to update and send IoT status updates that can be handled on the client-side.");
+  developerMessage("This demo uses a combination of Pub/Sub / signal messages to update and send IoT status updates that can be handled on the client-side.");
   developerMessage("IoT Devices can also listen to setting updates using a PubNub message or signal listener.");
 }
 
-// Listen to PubNub events (message events, object events)
+// Listen to PubNub events (message events, app context events)
 function activatePubNubListener(){
   developerMessage('IoT Devices will either send back signals for a status update, or messages when there is an alert with the IoT Device which can be listened to using PubNubs message and signal listener.');
   pnListener = pubnub.addListener({

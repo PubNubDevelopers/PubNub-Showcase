@@ -24,7 +24,7 @@ async function updatePresenceInfoFirstLoad () {
   }
 }
 
-//  Handler for a PubNub presence event, either 'join', 'leave', or 'interval'
+//  Handler for a presence event, either 'join', 'leave', or 'interval'
 function handlePresenceEvent (action, presenceEvent) {
   developerMessage("Presence events are returned when users join or leave a channel.  Be aware of the ANNOUNCE_MAX setting, to enable an efficient implementation")
   var userId = presenceEvent.uuid

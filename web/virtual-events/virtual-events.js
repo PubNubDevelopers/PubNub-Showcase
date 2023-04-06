@@ -11,7 +11,7 @@
  * There are a number of ways of limiting message rate, including organizing participants into cohorts,
  * or sharding your rooms.
  * You will also need to ensure you have a degree of spam prevention for your chat, you can easily implement
- * that using the flexible PubNub Functions.  Whilst this demo has moderation for bad language, there is no spam
+ * that using the flexible Functions.  Whilst this demo has moderation for bad language, there is no spam
  * moderation since all messages have a limited lifetime.
  * PubNub is very flexible and we have a wide variety of virtual events customers, with a proven track
  * record of supporting live events of any scale, please contact our support team to discuss your individual needs
@@ -72,7 +72,7 @@ async function loadVirtualEvents () {
   loadHistoricPollVotes()
 }
 
-//  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache for this data
+//  Wrapper around PubNub App Context getUUIDMetadata and set up our internal cache for this data
 async function getUserMetadataSelf () {
   try {
     const result = await pubnub.objects.getUUIDMetadata({
@@ -80,7 +80,7 @@ async function getUserMetadataSelf () {
     })
     me = result.data
   } catch (e) {
-    //  Some error retrieving our own meta data - probably the objects were deleted, therefore log off (possible duplicate tab)
+    //  Some error retrieving our own meta data - probably the App Context was deleted, therefore log off (possible duplicate tab)
     location.href = '../index.html'
   }
 }
@@ -128,7 +128,7 @@ function messageReceived (messageObj) {
 }
 
 //////////////////////
-//  Generate the HTML for message objects
+//  Generate the HTML for messages
 
 function createMessage (messageObj, fromSelf) {
   var youClass = ''

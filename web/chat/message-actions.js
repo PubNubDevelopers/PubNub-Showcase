@@ -1,5 +1,5 @@
 /**
- * This file contains logic related to Message actions, which provide the functionality
+ * This file contains logic related to Message reactions, which provide the functionality
  * for read receipts and 'emoji' reactions in this demo.  For notes about transitioning
  * between this demo and a production app, see chat.js.
  */
@@ -8,7 +8,7 @@
 var inflightReadReceipt = {}
 var messageReactions = {}
 
-//  Called by the message action handler - an action has been added to the message
+//  Called by the message reaction handler - an action has been added to the message
 //  indicating the message has been read
 function maReadReceipt (messageActionEvent) {
   var messageCheckElement = document.getElementById(
@@ -27,7 +27,7 @@ function maReadReceipt (messageActionEvent) {
   }
 }
 
-//  Called by the message action handler - an action has been added to the message
+//  Called by the message reaction handler - an action has been added to the message
 //  indicating the message needs an emoji
 //  This demo is very simple, you can just add a smiley to a message but in a production
 //  chat app this would be a lot more functional!  This is a design decision of the demo
@@ -96,7 +96,7 @@ async function maAddEmojiReaction (messageId) {
   if (messageElement.classList.contains('temp-message-reacted')) {
     //  We have already reacted to this message, remove the reaction
     try {
-      developerMessage("Message Actions can be added or removed, based on a unique timetoken.  One message can have multiple actions, visible to anyone with access to the channel")
+      developerMessage("Message Reactions can be added or removed, based on a unique timetoken.  One message can have multiple reactions, visible to anyone with access to the channel")
       const result = await pubnub.removeMessageAction({
         channel: channel,
         messageTimetoken: messageId,
@@ -120,7 +120,7 @@ async function maAddEmojiReaction (messageId) {
       messageElement.classList.add('temp-message-reacted')
     } catch (e) {
       console.log(
-        'Failed to add message action - do you have persistence applied on your keyset?'
+        'Failed to add message reaction - do you have message persistence applied on your keyset?'
       )
     }
   }

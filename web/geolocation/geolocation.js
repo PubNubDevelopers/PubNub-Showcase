@@ -72,7 +72,7 @@ async function initialize () {
 
     // Debug Messages
     developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a real-time geolocation application.")
-    developerMessage("This demo uses a combination of publish / subscribe messages to update and send users locations in real-time")
+    developerMessage("This demo uses a combination of Pub/Sub messages to update and send users locations in real-time")
 }
 
 // Add login user MetaData to the channelMembers map
@@ -83,7 +83,7 @@ function initPubNubUserToChannelMembers(){
     }
 }
 
-//  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
+//  Wrapper around PubNub App Context getUUIDMetadata and set up our internal cache
 async function getUserMetadataSelf () {
     try {
         const result = await pubnub.objects.getUUIDMetadata({
@@ -91,7 +91,7 @@ async function getUserMetadataSelf () {
     })
         me = result.data;
     } catch (e) {
-        //  Some error retrieving our own meta data - probably the objects were deleted, therefore log off (possible duplicate tab)
+        //  Some error retrieving our own meta data - probably the App Context was deleted, therefore log off (possible duplicate tab)
         location.href = '../index.html'
     }
 }
@@ -191,9 +191,9 @@ function showNewPosition(position) {
     }});
 }
 
-// Listen to PubNub events (message events, object events)
+// Listen to PubNub events (message events, app context events)
 async function activatePubNubListener(){
-    developerMessage("This demo listens to PubNub's Object API to retrieve user information when they join the Geolocation Demo");
+    developerMessage("This demo listens to PubNub's App Context API to retrieve user information when they join the Geolocation Demo");
     pnListener = pubnub.addListener({
         message: (payload) => {
             messageReceived(payload);
@@ -204,7 +204,7 @@ async function activatePubNubListener(){
                 objectEvent.message.event == 'delete' &&
                 objectEvent.message.data.id == pubnub.getUUID()
             ) {
-                //  The Object associated with OUR UUID was deleted.
+                //  The App Context associated with OUR UUID was deleted.
                 //  log out.  This could have been caused e.g. by a duplicate tab logging out
                 location.href = '../index.html'
             }
@@ -318,12 +318,12 @@ function addUserToCurrentChannel (userId, name, profileUrl) {
             profileUrl: profileUrl
         }
     } catch (e) {
-        //  Could not look up object
+        //  Could not look up App Context
         console.log(e);
     }
 }
 
-// If the login user is new to the channel set the users meta data using PubNub Objects so it can be later received
+// If the login user is new to the channel set the users meta data using PubNub App Context so it can be later received
 async function setChannelMember(){
     await pubnub.objects.setChannelMembers({
         channel: GEO_CHANNEL,

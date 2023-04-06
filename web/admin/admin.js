@@ -6,7 +6,7 @@ function loadAdmin () {
   getUserIdentifier()
   getUserMetadata()
   getUserGroups()
-  developerMessage("If you log out, the event will be detected by the Objects API, meaning other users can detect the logout and update themselves accordingly")
+  developerMessage("If you log out, the event will be detected by the App Context API, meaning other users can detect the logout and update themselves accordingly")
 }
 
 function getUserIdentifier () {
@@ -30,7 +30,7 @@ async function getUserMetadata () {
 }
 
 async function getUserGroups () {
-  developerMessage("The PubNub Objects API can return who the members of each channel are")
+  developerMessage("PubNub App Context can return who the members of each channel are")
   const publicChannels = await pubnub.objects.getMemberships({
     uuid: pubnub.getUserId(),
     filter: "channel.id LIKE 'Public.*'"

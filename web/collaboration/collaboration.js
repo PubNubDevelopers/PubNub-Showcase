@@ -51,7 +51,7 @@
 
 //  The following variables configure the collaboration application to work within the showcase app
 const IDLE_TIMEOUT = false //  Do not timeout
-const USE_OBJECTS_METADATA = true //  Pull the user's name and avatar from Object storage
+const USE_OBJECTS_METADATA = true //  Pull the user's name and avatar from App Context
 const ALWAYS_DRAW_RECEIVED_POINTS = true //  If the user duplicates the tab, still have the drawing show up and don't duplicate anything
 const DRAW_WIDTH = 6 //  Pen width
 const PENCIL_IMAGE = 'images/pencil2.png' //  Pencil icon
@@ -87,7 +87,7 @@ async function loadCollaboration () {
     window.location.href = '../index.html';
   }
   developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a collaborative drawing application.")
-  developerMessage("This demo uses a combination of publish / subscribe messages as well as the setState presence API to exchange drawing data and mouse positions respectively")
+  developerMessage("This demo uses a combination of Pub/Sub messages as well as the setState presence API to exchange drawing data and mouse positions respectively")
   developerMessage("You might see some visual quirks if collaborating between a desktop and mobile user but this is NOT a limitation of PubNub, only a limitation of this demo")
 }
 

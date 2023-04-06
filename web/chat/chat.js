@@ -22,23 +22,23 @@
  * - Subscription: This demo uses wildcard subscription in conjunction with the channel naming topology
  *   to listen for new messages.  This will be sufficient for most production use cases but if you need
  *   an even greater number of channels then please see our Channel Groups feature.
- * - Presence: This demo uses PubNub presence APIs to detect who is online.  Presence is based subscription
+ * - Presence: This demo uses PubNub's Presence APIs to detect who is online.  Presence is based subscription
  *   which, in the case of this demo, is to 'channel.*', so a user will be shown as online even if they are
  *   not viewing the same conversation as you.  Presence is configurable at both the client and server level,
  *   for example you can choose to unsubscribe / resubscribe to channels as you switch conversations and additional
  *   options are available on the admin portal (for example, unsubscribing when a TCP ACK is received).
  * - Read receipts and message reactions: Both of these are implemented in this demo using PubNub's message
- *   actions feature.  Message actions allow you to add meta data to a specific message, which can subsequently
- *   be read by recipients and stored in history.  You can also use message actions to edit message data (still
+ *   reactions feature.  Message reactions allow you to add meta data to a specific message, which can subsequently
+ *   be read by recipients and stored in history.  You can also use message reactions to edit message data (still
  *   retaining the original message content) and 'delete' existing messages.  The logic around read receipts
  *   can get particularly complex with groups (messages are sent, delivered, read by a subset of the group, then
  *   finally are read by the entire group).  To keep things simple, this demo implements a simplified mechanism
  *   for read receipts (they are sent, then marked as read when only one person has read them) BUT this is not
  *   a limitation of PubNub, it is just a simple demo to show the principle.
- * - Objects: If you are building a chat app based on the PubNub SDK you will have a number of requirements in
+ * - App Context: If you are building a chat app based on the PubNub SDK you will have a number of requirements in
  *   common with other chat implementations, i.e. you will need to store metadata associated with a user (name,
- *   avatar URL, mood), channel and which users are members of which channel.  This demo uses PubNub objects
- *   extensively to track user information including which channels they are members of.  Objects are particularly
+ *   avatar URL, mood), channel and which users are members of which channel.  This demo uses PubNub App Context
+ *   extensively to track user information including which channels they are members of.  App Context is particularly
  *   useful if you do not have an existing backend or you want to isolate your chat functionality so it is
  *   entirely within the PubNub domain.
  * - Typing indicator: We recommend you use PubNub signals, as this demo does.  This demo's logic for the typing
@@ -53,13 +53,13 @@
  *   in your own chat solution.  This demo will delete any image that does not pass moderation before it is
  *   delivered to the recipient, though in production you will want a more complex logic around 'banning' users
  *   who do not follow your chat rules.
- * - Persistence: The data in this demo (messages, files) only persist for 1 day.  That is a deliberate choice since
+ * - Message Persistence: The data in this demo (messages, files) only persist for 1 day.  That is a deliberate choice since
  *   this is only a demo but in production, this is something you can configure from your PubNub admin dashboard, so
- *   data can be persisted as long as you need.  The history (AKA persistence) API can retrieve messages (along with
- *   their accompanying actions) as far back as you need but for readibility, this demo only goes back to the past
+ *   data can be persisted as long as you need.  The Message Persistence API (you may also see this referred to as the history API) can retrieve messages (along with
+ *   their accompanying reaction) as far back as you need but for readibility, this demo only goes back to the past
  *   50 messages.
- * - Paging: Related to persistence, in production you will need to page through the results from a number of API
- *   calls that return a lot of data (message history including message actions, object data, etc.).  This is
+ * - Paging: Related to message persistence, in production you will need to page through the results from a number of API
+ *   calls that return a lot of data (message persistence including message reactions, app context data, etc.).  This is
  *   standard for Network APIs but to keep things simple, this demo has been designed to avoid having to page any
  *   data.  Be sure to add paging logic to any API call you make that returns a 'next' page.
  * - Functions: Functions provide server logic that can be exeuted after an event occurs, such as a message is published
@@ -133,7 +133,7 @@ async function loadChat () {
   })
 
   developerMessage(
-    'A PubNub event listener will receive data from PubNub, including status, messages, signals, presence and object updates'
+    'A PubNub event listener will receive data from PubNub, including status, messages, signals, presence and app context updates'
   )
 
   //  Add an event listener for the channel
@@ -159,27 +159,27 @@ async function loadChat () {
     presence: presenceEvent => {
       //  Presence is used to determine whether users are online or offline
       developerMessage(
-        "User online and offline status is provided by PubNub's presence feature, giving a channel's occupants"
+        "User online and offline status is provided by PubNub's Presence feature, giving a channel's occupants"
       )
       handlePresenceEvent(presenceEvent.action, presenceEvent)
     },
     messageAction: messageActionEvent => {
-      //  Message actions are used to handle read receipts and message reactions (add emoji to messages)
+      //  Message reactions are used to handle read receipts and message reactions (add emoji to messages)
       developerMessage(
-        "PubNub's Message Actions are used to augment existing messages with extra data, such as read receipts or reactions"
+        "PubNub's Message Reactions are used to augment existing messages with extra data, such as read receipts or reactions"
       )
       maReadReceipt(messageActionEvent)
       maEmojiReaction(messageActionEvent)
     },
     objects: async objectEvent => {
-      //  Objects are used to maintain the state of users in the system, as well as which channels
+      //  App Context is used to maintain the state of users in the system, as well as which channels
       //  they are members of
       if (
         objectEvent.message.type == 'uuid' &&
         objectEvent.message.event == 'delete' &&
         objectEvent.message.data.id == pubnub.getUserId()
       ) {
-        //  The Object associated with OUR UUID was deleted.
+        //  The App Context associated with OUR UUID was deleted.
         //  log out.  This could have been caused e.g. by a duplicate tab logging out
         location.href = '../index.html'
       } else if (
@@ -188,7 +188,7 @@ async function loadChat () {
         objectEvent.message.data.id != pubnub.getUserId()
       ) {
         var userId = objectEvent.message.data.id
-        //  The Object associated with some other UUID was deleted.
+        //  The App Context associated with some other UUID was deleted.
         if (userData[userId] != null) {
           removeUser(userId)
         }
@@ -315,7 +315,7 @@ async function populateChatWindow (channelName) {
   //  is loaded, that user's data will be loaded dynamically as needed
   try {
     developerMessage(
-      'PubNub Objects are used to store data about users, channels and who is a member of each channel'
+      'PubNub App Context is used to store data about users, channels and who is a member of each channel'
     )
 
     pubnub.objects
@@ -368,7 +368,7 @@ async function populateChatWindow (channelName) {
 
                 await messageReceived(historicalMsg)
 
-                //  Update the historically loaded messages based on message actions
+                //  Update the historically loaded messages based on message reactions
                 if (
                   historicalMsg.actions != null &&
                   historicalMsg.actions.read != null
@@ -380,7 +380,7 @@ async function populateChatWindow (channelName) {
 
                   originalMessage.src = '../img/icons/read.png'
                 }
-                //  Read in emoji reactions for historical messages (message actions)
+                //  Read in emoji reactions for historical messages (message reactions)
                 if (
                   historicalMsg.actions != null &&
                   historicalMsg.actions.react != null &&
@@ -415,7 +415,7 @@ async function populateChatWindow (channelName) {
     setChannelLastReadTimetoken(channelName)
   } catch (status) {
     console.log(
-      'error (check you have history & objects enabled in the admin portal): ' +
+      'error (check you have message persistence & App Context enabled in the admin portal): ' +
         status
     )
   }
@@ -424,7 +424,7 @@ async function populateChatWindow (channelName) {
 function setChannelLastReadTimetoken (channel) {
   var timeTokenNow = Date.now() * 10000
   developerMessage(
-    "PubNub Objects also allows you to specify meta data for a channel, in this case when the channel's messages were last read"
+    "PubNub App Context also allows you to specify meta data for a channel, in this case when the channel's messages were last read"
   )
   pubnub.objects.setMemberships({
     channels: [{ id: channel, custom: { lastReadTimetoken: timeTokenNow } }],
@@ -432,7 +432,7 @@ function setChannelLastReadTimetoken (channel) {
   })
 }
 
-//  Wrapper around pubnub objects getUUIDMetadata and set up our internal cache
+//  Wrapper around PubNub App Context getUUIDMetadata and set up our internal cache
 async function getUserMetadataSelf () {
   try {
     const result = await pubnub.objects.getUUIDMetadata({
@@ -444,12 +444,12 @@ async function getUserMetadataSelf () {
     document.getElementById('avatar').src = me.profileUrl
     document.getElementById('avatar-side').src = me.profileUrl
   } catch (e) {
-    //  Some error retrieving our own meta data - probably the objects were deleted, therefore log off (possible duplicate tab)
+    //  Some error retrieving our own meta data - probably the App Context was deleted, therefore log off (possible duplicate tab)
     location.href = '../index.html'
   }
 }
 
-//  Wrapper around pubnub objects getAllUUIDMetadata and set up our internal cache
+//  Wrapper around PubNub App Context getAllUUIDMetadata and set up our internal cache
 async function getUserMetaDataOthers () {
   //  Subscribing to all possible channels we will want to know about.  Need to know about all channels so we can track the unread message counter
   //  Using the recommended naming convention:
@@ -469,7 +469,7 @@ async function getUserMetaDataOthers () {
   try {
     return new Promise((res, rej) => {
       developerMessage(
-        "This demo retrieves all user's information from PubNub's Object API (you may choose to do this from your server in production for security)"
+        "This demo retrieves all user's information from PubNub's App Context API (you may choose to do this from your server in production for security)"
       )
       //  IN PRODUCTION: You may not wish every user to have access to every other user's information, in which case PubNub's Access Manager can restrict who has access to what data.
       pubnub.objects
@@ -544,7 +544,7 @@ async function addNewUser (userId, name, profileUrl) {
   //  In production this would probably be done from a central server with access control but for
   //  simplicity, we'll do this on every client
   developerMessage(
-    "PubNub's Object API enables you to specify which channel(s) a user is a member of, then you will receive events as that channel's data changes."
+    "PubNub's App Context enables you to specify which channel(s) a user is a member of, then you will receive events as that channel's data changes."
   )
   return new Promise((res, rej) => {
     pubnub.objects
@@ -589,7 +589,7 @@ async function addUserToCurrentChannel (userId, name, profileUrl) {
       profileUrl: profileUrl
     }
   } catch (e) {
-    //  Could not look up object
+    //  Could not look up app context
   }
 }
 
@@ -667,7 +667,7 @@ async function getGroupList () {
  *  A group will map to a channel.  Although you can choose any naming convention for your channel,
  *  recommendations exist in the documentation.  For private groups, the recommendation is to use Private.<channel name>
  *  for the channel name
- *  You can still use PubNub Objects to organize which channels your users are members of.
+ *  You can still use PubNub App Context to organize which channels your users are members of.
  */
 async function getPrivateGroupList () {
   return new Promise((res, rej) => {
@@ -1033,7 +1033,7 @@ async function messageInputSend () {
         name: uploadedFile.name
       })
       //  Images in this demo are moderated.  Moderation will delete images deemed inappropriate and is implemented
-      //  using PubNub functions.  In production, you might want to save the image for record keeping purposes rather than
+      //  using Functions.  In production, you might want to save the image for record keeping purposes rather than
       //  just deleting it.
       if (!(await imageExists(fileUrl))) {
         errorMessage('Image moderation failed and has been deleted')

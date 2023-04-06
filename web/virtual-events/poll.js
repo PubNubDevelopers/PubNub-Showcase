@@ -104,7 +104,7 @@ function initPolls () {
 //  is a server configuration and a design decision for this app, not a limitation of
 //  PubNub.  Answers are anonymous
 //  In production, your logic will be completely different with responses being collated
-//  and handled on your server (see comments at the top of this file) 
+//  and handled on your server (see comments at the top of this file)
 async function loadHistoricPollVotes () {
   try {
     developerMessage("Polls are a very common use case for PubNub implementations.  Most commonly the business logic will reside on the server but for transparency, this demo shows the process client side.  See the code comments for more detail.")
@@ -122,7 +122,7 @@ async function loadHistoricPollVotes () {
   }
 }
 
-//  Either the user has selected a poll answer or an answer has been read from the message history.
+//  Either the user has selected a poll answer or an answer has been read from the Message Persistence.
 //  Poll results are always received as messages, so this is called by the PubNub message listener
 //  (defined in virtual-events.js)
 function pollVoteReceived (payload) {

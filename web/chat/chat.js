@@ -49,7 +49,7 @@
  *   cases around sharing files, previewing them and opening them externally.  The PubNub file API provides
  *   serverside storage for ANY file type, though this demo restricts itself to images only.  The file API also
  *   supports files up to 5MB (increasible if you contact support), though this demo restricts images to 1MB.
- *   Images in this demo are moderated using PubNub functions and it is strongly recommended you moderate any images
+ *   Images in this demo are moderated using Functions and it is strongly recommended you moderate any images
  *   in your own chat solution.  This demo will delete any image that does not pass moderation before it is
  *   delivered to the recipient, though in production you will want a more complex logic around 'banning' users
  *   who do not follow your chat rules.
@@ -89,7 +89,7 @@ const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1 //  bytes
 const DEFAULT_AVATAR = HOST_URL + 'img/avatar/placeholder.png'
 
-//  To make presence indications more accurate if the webpage is being refreshed, notify PubNub that the client is leaving .
+//  To make Presence indications more accurate if the webpage is being refreshed, notify PubNub that the client is leaving .
 //  PubNub will eventually catch up, but this makes it quicker
 window.addEventListener('beforeunload', function () {
   pubnub.unsubscribeAll()
@@ -380,7 +380,7 @@ async function populateChatWindow (channelName) {
 
                   originalMessage.src = '../img/icons/read.png'
                 }
-                //  Read in emoji reactions for historical messages (message reactions)
+                //  Read in message reactions for historical messages (message reactions)
                 if (
                   historicalMsg.actions != null &&
                   historicalMsg.actions.react != null &&

@@ -36,9 +36,9 @@
  * demo itself still makes heavy use of pubnub.setState() to maintain the position of the user's cursor.
  * https://www.pubnub.com/docs/sdks/javascript/api-reference/presence#user-state
  * (this is also used for convenience in this showcase demo to duplicate the user's nickname and avatar URL)
- * For this reason, you will need to have presence enabled on your keyset to use this app.
+ * For this reason, you will need to have Presence enabled on your keyset to use this app.
  * In summary:
- * Cursor position and user name are tracked using setState(), part of PubNub presence
+ * Cursor position and user name are tracked using setState(), part of Presence
  * The canvas drawing is exchanged between all users using PubNub Messages (see earlier notes about Signals)
  * NOTES ON MOBILE:
  * This collaboration application will work on mobile but there are some quirks:
@@ -87,7 +87,7 @@ async function loadCollaboration () {
     window.location.href = '../index.html';
   }
   developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a collaborative drawing application.")
-  developerMessage("This demo uses a combination of Pub/Sub messages as well as the setState presence API to exchange drawing data and mouse positions respectively")
+  developerMessage("This demo uses a combination of Pub/Sub messages as well as the setState Presence API to exchange drawing data and mouse positions respectively")
   developerMessage("You might see some visual quirks if collaborating between a desktop and mobile user but this is NOT a limitation of PubNub, only a limitation of this demo")
 }
 

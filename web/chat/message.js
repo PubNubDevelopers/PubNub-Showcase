@@ -85,6 +85,9 @@ async function messageReceived (messageObj) {
           }
         })
       }
+
+      //  Update the last read time for the channel on which the message was received
+      setChannelLastReadTimetoken(channel)
     }
 
     //  Limit the number of messages shown in the chat window

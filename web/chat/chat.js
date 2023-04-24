@@ -512,6 +512,14 @@ function clearMessageList () {
 
 //  Add a new REMOTE user to the system, not including ourselves
 async function addNewUser (userId, name, profileUrl) {
+  if (userData[userId] != null && Object.keys(userData[userId]).length != 0)
+  {
+    //  Do not add the same user more than once
+    console.log('did not add user, already exists: ' + userId)
+    console.log(userData[userId])
+    return;
+  }
+  console.log('adding new user: ' + name)
   //  A new user is present in the chat system.
   //  Add this user's details to our local cache of user details
   userData[userId] = { name: name, profileUrl: profileUrl }

@@ -27,7 +27,11 @@ Firefox will not allow you to share storage between pages.  This is a [feature a
 
 ## Installing / Getting started
 
-To run this project yourself you will need a PubNub account and (optionally) your own Google key to render the Google map used for Geolocation.
+To run this project yourself you will need a PubNub account. Generate a Google API key by following [these instructions](https://developers.google.com/maps/documentation/javascript/get-api-key). When you restrict your [key](https://console.cloud.google.com/apis/credentials/key/), make sure the following APIs are enabled under the API restrictions section:
+- [Geocoding API](https://developers.google.com/maps/documentation/geocoding/overview)
+- [Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/overview)
+- [Places API](https://developers.google.com/maps/documentation/places/web-service/overview)
+- [Maps Static API](https://developers.google.com/maps/documentation/maps-static/overview)
 
 
 ### Requirements

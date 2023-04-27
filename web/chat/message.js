@@ -4,7 +4,7 @@
  */
 
 //  Handler for the PubNub message event
-async function messageReceived (messageObj) {
+async function messageReceived (messageObj, isFromHistory) {
   try {
     if (messageObj.channel != channel) {
       //  The message has been recevied on a channel we are not currently viewing, update the unread message indicators
@@ -21,14 +21,14 @@ async function messageReceived (messageObj) {
     if (channelMembers[messageObj.publisher] == null) {
       try {
         var result = await getUUIDMetaData(messageObj.publisher)
-          if (result != null) {
-            addUserToCurrentChannel(
-              messageObj.publisher,
-              result.data.name,
-              result.data.profileUrl
-            )
-          }
-
+        if (result != null) {
+          addUserToCurrentChannel(
+            messageObj.publisher,
+            result.data.name,
+            result.data.profileUrl
+          )
+        }
+        
       } catch (e) {
         //  Lookup of unknown uuid failed - they probably logged out and cleared App Context
         addUserToCurrentChannel(
@@ -85,9 +85,11 @@ async function messageReceived (messageObj) {
           }
         })
       }
+    }
 
-      //  Update the last read time for the channel on which the message was received
-      setChannelLastReadTimetoken(channel)
+    //  Update the last read time for the channel on which the message was received
+    if (!isFromHistory) {
+      setChannelLastReadTimetoken(channel, messageObj.timetoken)
     }
 
     //  Limit the number of messages shown in the chat window

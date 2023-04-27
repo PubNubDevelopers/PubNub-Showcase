@@ -147,7 +147,7 @@ async function loadChat () {
       developerMessage(
         'Messages can contain any serializable data and, when published to a channel, will be received by all subscribers of that channel'
       )
-      messageReceived(payload)
+      messageReceived(payload, false)
     },
     signal: signalEvent => {
       //  Signals are used for the typing indicator
@@ -366,7 +366,7 @@ async function populateChatWindow (channelName) {
                 )
                 historicalMsg.publisher = historicalMsg.uuid
 
-                await messageReceived(historicalMsg)
+                await messageReceived(historicalMsg, true)
 
                 //  Update the historically loaded messages based on message reactions
                 if (
@@ -412,7 +412,7 @@ async function populateChatWindow (channelName) {
           })
       })
 
-    setChannelLastReadTimetoken(channelName)
+    setChannelLastReadTimetoken(channelName, (Date.now() * 10000))
   } catch (status) {
     console.log(
       'error (check you have message persistence & App Context enabled in the admin portal): ' +
@@ -421,13 +421,12 @@ async function populateChatWindow (channelName) {
   }
 }
 
-function setChannelLastReadTimetoken (channel) {
-  var timeTokenNow = Date.now() * 10000
+function setChannelLastReadTimetoken (channel, timetoken) {
   developerMessage(
     "PubNub App Context also allows you to specify meta data for a channel, in this case when the channel's messages were last read"
   )
   pubnub.objects.setMemberships({
-    channels: [{ id: channel, custom: { lastReadTimetoken: timeTokenNow } }],
+    channels: [{ id: channel, custom: { lastReadTimetoken: timetoken } }],
     uuid: pubnub.getUserId()
   })
 }

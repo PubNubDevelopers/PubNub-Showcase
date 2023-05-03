@@ -11,11 +11,11 @@ A hosted version of this demo can be found at **[https://showcase.pub-nub.com/](
 | Demo | Description | PubNub APIs used |
 | ---- | --- | ---------------- |
 | Chat | Uses the PubNub SDK to show how a chat application could be implemented, with features such as group In-App Messaging, typing indicators, message reactions, unread message counts and presence indicators. |  [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe), [Presence](https://www.pubnub.com/docs/sdks/javascript/api-reference/presence), [Message Persistence](https://www.pubnub.com/docs/sdks/javascript/api-reference/storage-and-playback) (for Message Persistence & unread message counts), [App Context](https://www.pubnub.com/docs/sdks/javascript/api-reference/objects), [Files](https://www.pubnub.com/docs/sdks/javascript/api-reference/files), [Message Reactions](https://www.pubnub.com/docs/sdks/javascript/api-reference/message-actions)  (message reactions & read indicators), [Functions](https://www.pubnub.com/docs/general/serverless/functions/overview) (for Text and Image moderation)  |
-| Virtual Events | Shows how PubNub can make a high-occupancy virtual event interactive, with polls and live chat | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe)  (for polls and chat) |
+| Live Events | Shows how PubNub can make a high-occupancy live event interactive, with polls and live chat | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe)  (for polls and chat) |
 | Geolocation | Share your location or the location of any asset securely over PubNub | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe), [App Context](https://www.pubnub.com/docs/sdks/javascript/api-reference/objects) |
 | Collaboration | Real-time collaboration is demonstrated with a whiteboard app based the existing [standalone collaboration demo](https://www.pubnub.com/demos/codoodler-collaboration-demo/) | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe)  (for drawing), [User State](https://www.pubnub.com/docs/sdks/javascript/api-reference/presence#user-state) (for cursor position) |
-| IoT | Control IoT devices and infrastructure as well as see your device state using PubNub | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe) |
-| Real-Time Streaming | Generate, process and deliver streaming data to any number of subscribers.  Based on the [standalone real-time data streaming demo](https://www.pubnub.com/demos/real-time-data-streaming/) | [Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe) |
+| IoT Device Control | Control IoT devices and infrastructure as well as see your device state using PubNub | [Publish & Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe) |
+| Data Streaming | Generate, process and deliver streaming data to any number of subscribers.  Based on the [standalone real-time data streaming demo](https://www.pubnub.com/demos/real-time-data-streaming/) | [Subscribe](https://www.pubnub.com/docs/sdks/javascript/api-reference/publish-and-subscribe) |
 
 
 ## Usage Notes
@@ -80,11 +80,11 @@ Please fork the repository if you'd like to contribute. Pull requests are always
 
 - To modify the application theme, modify the colors located at the top of `/shared/style.css`.  Named colors are used throughout this application so changing them here will update the entire app.
 
-- To modify the video displayed in the Virtual Events app, update the file `/virtual-events/virtual-events.html`, search for the `iframe` tag and modify the YouTube video ID.  This application has not been tested with any video service other than YouTube.
+- To modify the video displayed in the Live Events app, update the file `/live-events/live-events.html`, search for the `iframe` tag and modify the YouTube video ID.  This application has not been tested with any video service other than YouTube.
 
 - To modify the groups shown in the Chat app, update the file `/chat/chat-constants.js`.  Only the public groups should be modified, not the private group.
 
-- The poll questions given in the Virtual Events app can be modified by changing the file `/virtual-events/poll-questions.js`.
+- The poll questions given in the Live Events app can be modified by changing the file `/live-events/poll-questions.js`.
 
 ## Customization with customer logos on home screen
 

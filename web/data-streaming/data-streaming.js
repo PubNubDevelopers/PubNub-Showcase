@@ -25,9 +25,9 @@ async function loadRealTime () {
   
   messageListDiv = document.getElementById('messageListContents')
   messageListContainer = document.getElementById('messageList')
-  //  Unlike the other demos in this showcase application, the Real-time demo uses existing PubNub
+  //  Unlike the other demos in this showcase application, the data streaming demo uses existing PubNub
   //  data, which is "housed" on different subscribe keys.
-  //  Create a new PubNub object for each endpoint that hosts one of our real-time streams (Twitter,
+  //  Create a new PubNub object for each endpoint that hosts one of our data streams (Twitter,
   //  Wikipedia, simulated streams)
   Object.entries(streams).forEach(([key, value]) => {
     streams[key].pubnub = new PubNub({

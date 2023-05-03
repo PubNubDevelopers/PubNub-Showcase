@@ -4,7 +4,7 @@
  */
 
 //  Using the pubnub.hereNow() function, determine who is present in the Public groups.
-//  Private groups are not necessary for this app since they only handle IOT updates, though
+//  Private groups are not necessary for this app since they only handle IoT updates, though
 //  in a production app, with private groups, will also want to update the presence for those.
 //  Since all users of this app will be present in at least one public group, we do not need
 //  to consider the direct 1:1 groups, though your production app implementation may vary.

@@ -1,7 +1,7 @@
 /**
- * These streams have been setup specifically to demo PubNub's real-time streaming capabilities.
+ * These streams have been setup specifically to demo PubNub's data streaming capabilities.
  * They are not designed for production use.
- * Please refer to real-time.js for more information
+ * Please refer to data-streaming.js for more information
  * The PubNub streams used in this app are the same streams which power https://www.pubnub.com/demos/real-time-data-streaming/ 
  */
 var streams = {

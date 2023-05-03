@@ -15,13 +15,13 @@
         crossorigin="anonymous"></script>
 
     <link rel="icon" href="../favicon.ico" />
-    <link rel="stylesheet" href="./virtual-events.css" />
+    <link rel="stylesheet" href="./live-events.css" />
     <link rel="stylesheet" href="../shared/style.css" />
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <script src="../shared/shared.js"></script>
     <script src="../shared/keys.js"></script>
     <script src="../shared/pubnub_setup.js"></script>
-    <script src="./virtual-events.js"></script>
+    <script src="./live-events.js"></script>
     <script src="./poll.js"></script>
     <script src="./poll-questions.js"></script>
 
@@ -34,11 +34,11 @@
       </script>
 </HEAD>
 
-<BODY onload="loadVirtualEvents()">
+<BODY onload="loadLiveEvents()">
 
     <div id="header" class="">
         <div class="blue-ellipse-bkd"></div>
-        <H2 id='heading' class="demo-header heading-2">Virtual Events</H2>
+        <H2 id='heading' class="demo-header heading-2">Live Events</H2>
         <div class="red-ellipse-bkd"></div>
     </div>
 
@@ -46,7 +46,7 @@
     <div class="main-container">
         <div id="liveStream" class="live-stream">
             <iframe src="https://www.youtube.com/embed/0KeHUtMR6yQ?&autoplay=1&mute=1&start=1"
-                title="Virtual Events Stream Example" frameborder="0"
+                title="Live Events Stream Example" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"></iframe>
         </div>
 
@@ -108,13 +108,13 @@
                     <img src="../img/icons/icon-chat.png" class="carousel-image">
                     <div class="emphasised-body carousel-name">Chat</div>
                 </a>
-                <a href="../virtual-events/virtual-events.html" class="carousel-tile">
-                    <img src="../img/icons/icon-virtual-events.png" class="carousel-image">
-                    <div class="emphasised-body carousel-name">Virtual Events</div>
+                <a href="../live-events/live-events.html" class="carousel-tile">
+                    <img src="../img/icons/icon-live-events.png" class="carousel-image">
+                    <div class="emphasised-body carousel-name">Live Events</div>
                 </a>
-                <a href="../real-time/real-time.html" class="carousel-tile">
+                <a href="../data-streaming/data-streaming.html" class="carousel-tile">
                     <img src="../img/icons/icon-realtime-streaming.png" class="carousel-image">
-                    <div class="emphasised-body carousel-name">Real-Time Streaming</div>
+                    <div class="emphasised-body carousel-name">Data Streaming</div>
                 </a>
                 <a href="../geolocation/geolocation.html" class="carousel-tile">
                     <img src="../img/icons/icon-geolocation.png" class="carousel-image">
@@ -122,11 +122,11 @@
                 </a>
                 <a href="../collaboration/collaboration.html" class="carousel-tile">
                     <img src="../img/icons/icon-collaboration.png" class="carousel-image">
-                    <div class="emphasised-body carousel-name">Collaboration</div>
+                    <div class="emphasised-body carousel-name">Multi-User Collaboration</div>
                 </a>
                 <a href="../iot/iot.html" class="carousel-tile">
                     <img src="../img/icons/icon-iot.png" class="carousel-image">
-                    <div class="emphasised-body carousel-name">IoT</div>
+                    <div class="emphasised-body carousel-name">IoT Device Control</div>
                 </a>
             </div>
         </div>

@@ -1,6 +1,6 @@
 /**
- * Polls are a great way to add interactivity to a live or virtual event and PubNub can provide
- * the underlying communication infrastructure to power your real-time poll, both questions and
+ * Polls are a great way to add interactivity to a live or live event and PubNub can provide
+ * the underlying communication infrastructure to power your live poll, both questions and
  * responses.
  * IN PRODUCTION:
  * To keep things private and fair, you will want to use a combination of access manager and
@@ -124,7 +124,7 @@ async function loadHistoricPollVotes () {
 
 //  Either the user has selected a poll answer or an answer has been read from the Message Persistence.
 //  Poll results are always received as messages, so this is called by the PubNub message listener
-//  (defined in virtual-events.js)
+//  (defined in live-events.js)
 function pollVoteReceived (payload) {
   const choice = parseInt(payload.message.choice)
   results[payload.message.question][choice]++

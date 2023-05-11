@@ -73,6 +73,20 @@ function worker_node(){
           uuid: id,
           listenToBrowserNetworkEvents: false //  Allows us to call the PubNub SDK from a web worker
         })
+        //  Request a token from Access Manager
+        var accessManagerToken = await requestAccessManagerToken(id);
+        if (accessManagerToken == null)
+        {
+          console.log('Error retrieving access manager token')
+        }
+        else
+        {
+          localPubNub.setToken(accessManagerToken)
+          //  The server that provides the token for this app is configured to grant a time to live (TTL)
+          //  of 21600 minutes (i.e. 15 days).  IN PRODUCTION, for security reasons, you should set a value 
+          //  between 10 and 60 minutes and refresh the token before it expires.
+          //  For simplicity, this app does not refresh the token, so will only run continuously for 15 days.
+        }
 
         // Set MetaData and Channel Members for each sim
         await setMetaData(url);
@@ -396,6 +410,29 @@ function worker_node(){
     catch(e){
       console.log("Failed to set sim metadata");
       console.log(e);
+    }
+  }
+
+  async function requestAccessManagerToken(userId)
+  {
+    try{
+      //const TOKEN_SERVER = 'https://devrel-demos-access-manager.netlify.app/.netlify/functions/api/showcase'
+      //  TODO - DELETE THIS
+      const TOKEN_SERVER = 'http://localhost:60348/.netlify/functions/api/showcase'
+      const response = await fetch(`${TOKEN_SERVER}/grant`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ "UUID": userId })
+      });
+  
+      const token = (await response.json()).body.token;
+      return token;
+    }
+    catch(e){
+      console.log(e)
+      return null;
     }
   }
 }

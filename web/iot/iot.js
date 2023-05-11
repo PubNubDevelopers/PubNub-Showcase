@@ -39,7 +39,7 @@ async function initialize () {
   valueSettings = {}
 
   //  PubNub object - connection with the PubNub infrastructure
-  pubnub = createPubNubObject();
+  pubnub = await createPubNubObject();
 
   activatePubNubListener(); // Listen to channels device.* for any updates
 
@@ -49,7 +49,7 @@ async function initialize () {
   //  Public.<name> for public groups
   //  Private.<name> for private groups
   //  DM.A&B for direct messages between two users
-  pubnub.subscribe({channels: ["device.*", `Private.${pubnub.getUUID()}-iot`], withPresence: true}); // Subscribe
+  pubnub.subscribe({channels: ["device.*", `Private.${pubnub.getUUID()}-iot`]}); // Subscribe
 
   // Debug Messages
   developerMessage("PubNub is designed to exchange messages at large scale in real-time, so you can even implement a real-time IoT application.");

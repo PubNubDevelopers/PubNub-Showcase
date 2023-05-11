@@ -16,7 +16,7 @@ async function load () {
   developerMessage('Your username and avatar URL are stored in PubNub App Context');
 }
 
-function showLogin () {
+async function showLogin () {
   if (!testPubNubKeys()) {
     showLoginMsg(
       'Cannot find PubNub keys. Please specify your PubNub keys in keys.js.',
@@ -25,7 +25,7 @@ function showLogin () {
     )
   } else {
     try {
-      pubnub = createPubNubObject()
+      pubnub = await createPubNubObject()
     } catch (e) {
       console.log(e)
     }

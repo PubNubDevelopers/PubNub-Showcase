@@ -35,7 +35,7 @@ async function loadLiveEvents () {
       }
     })
 
-  pubnub = createPubNubObject()
+  pubnub = await createPubNubObject()
   await getUserMetadataSelf()
   initPolls()
 
@@ -63,8 +63,7 @@ async function loadLiveEvents () {
   //  Subscribe to messages both for the live events chat (single channel since this is a single live feed)
   //  Also subscribe to any message related to the polls (votes.*) - see polls.js for more information.
   pubnub.subscribe({
-    channels: [LIVE_EVENT_CHANNEL, 'votes.*'],
-    withPresence: true
+    channels: [LIVE_EVENT_CHANNEL, 'votes.*']
   })
 
   //  Polls data is stored in history to make the demo more interactive.  Live event chat messages are not stored

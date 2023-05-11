@@ -47,7 +47,7 @@ async function initialize () {
     initMap();
 
     //  PubNub object - connection with the PubNub infrastructure
-    pubnub = createPubNubObject();
+    pubnub = await createPubNubObject();
 
     //  Subscribing to all possible channels we will want to know about.
     //  Need to know about GEO_CHANNEL and DM.* channels so we can update positions on the map, well displaying direct messages on the map when received

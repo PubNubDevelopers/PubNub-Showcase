@@ -64,9 +64,17 @@ const PENCIL_SPRITE_X_ADJUST = 2 //  Pencil icon
 const PENCIL_SPRITE_Y_ADJUST = 80 //  Pencil icon
 
 // PubNub Connection Object, this is provided by the common showcase functionality
-pubnub = createPubNubObject()
+var pubnub = null;
 
 async function loadCollaboration () {
+  pubnub = await createPubNubObject()
+  //  This is a workaround because the common collaboration implementation assumes a PubNub object exists on the page but 
+  //  we do not want to launch this script until we have successfully created and configured the PubNub object with an
+  //  Access Manager token
+  let scriptElement = document.createElement("script");
+  scriptElement.setAttribute("src", "https://pubnubdevelopers.github.io/collaboration-demo/js/app.js");
+  document.body.appendChild(scriptElement);
+
   if (window.innerWidth > 576)
   {
     //  Running on desktop, make the canvas smaller so easier to manage when interacting with mobile

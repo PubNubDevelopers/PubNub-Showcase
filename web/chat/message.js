@@ -364,7 +364,7 @@ function convertTimetokenToDate (timetoken) {
   return (
     months[timestamp.getMonth()] +
     ' ' +
-    (timestamp.getDay() + '').padStart(2, '0') +
+    (timestamp.getDate() + '').padStart(2, '0') +
     ' - ' +
     (hours + '').padStart(2, '0') +
     ':' +

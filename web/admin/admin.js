@@ -1,8 +1,8 @@
 var pubnub = null
 
-function loadAdmin () {
+async function loadAdmin () {
   //  PubNub object
-  pubnub = createPubNubObject()
+  pubnub = await createPubNubObject()
   getUserIdentifier()
   getUserMetadata()
   getUserGroups()

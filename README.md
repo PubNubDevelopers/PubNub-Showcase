@@ -82,7 +82,7 @@ Please fork the repository if you'd like to contribute. Pull requests are always
 
 - To modify the video displayed in the Live Events app, update the file `/live-events/live-events.html`, search for the `iframe` tag and modify the YouTube video ID.  This application has not been tested with any video service other than YouTube.
 
-- To modify the groups shown in the Chat app, update the file `/chat/chat-constants.js`.  Only the public groups should be modified, not the private group.
+- To modify the groups shown in the Chat app, update the file `/chat/chat-constants.js`.  Only the public groups should be modified, not the private group.  Group names can contain any character A to Z, a to z, 0 to 9 or '-'.
 
 - The poll questions given in the Live Events app can be modified by changing the file `/live-events/poll-questions.js`.
 

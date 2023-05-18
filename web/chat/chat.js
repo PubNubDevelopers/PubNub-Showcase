@@ -116,7 +116,7 @@ async function loadChat () {
     })
 
   //  PubNub object - connection with the PubNub infrastructure
-  pubnub = createPubNubObject()
+  pubnub = await createPubNubObject()
   await getUserMetadataSelf() //  Populate own data for left hand pane
   const directChatsLoaded = getUserMetaDataOthers() //  Populate list of direct chats for left hand pane
   const privateGroupsLoaded = getPrivateGroupList() //  Populate list of private group chats for left hand pane

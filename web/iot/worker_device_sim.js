@@ -416,9 +416,7 @@ function worker_node(){
   async function requestAccessManagerToken(userId)
   {
     try{
-      //const TOKEN_SERVER = 'https://devrel-demos-access-manager.netlify.app/.netlify/functions/api/showcase'
-      //  TODO - DELETE THIS
-      const TOKEN_SERVER = 'http://localhost:60348/.netlify/functions/api/showcase'
+      const TOKEN_SERVER = 'https://devrel-demos-access-manager.netlify.app/.netlify/functions/api/showcase'
       const response = await fetch(`${TOKEN_SERVER}/grant`, {
         method: 'POST',
         headers: {

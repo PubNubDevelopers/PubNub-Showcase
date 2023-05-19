@@ -195,24 +195,17 @@ async function uploadCustomAvatar () {
         id: uploadedFile.id,
         name: uploadedFile.name
       })
-      if (await imageExists(fileUrl)) {
-        //  Upload was successful, replace the first avatar with our custom avatar
-        var avatar = document.getElementById('avatar-5')
-        avatar.classList.remove('hidden')
-        avatar.src = fileUrl
-        selectedAvatar(5, avatar.src)
-        setEnableButtonState()
-        showLoginMsg("Image upload completed", false, true)
-      } else {
-        //  The Image moderation function (PubNub function) will delete any image which does not pass moderation
-        showLoginMsg(
-          'Image Moderation Failed.  Please select a different image', true, true
-        )
-      }
+      //  Upload was successful, replace the first avatar with our custom avatar
+      var avatar = document.getElementById('avatar-5')
+      avatar.classList.remove('hidden')
+      avatar.src = fileUrl
+      selectedAvatar(5, avatar.src)
+      setEnableButtonState()
+      showLoginMsg("Image upload completed", false, true)
       uploadInProgress(false)
     } catch (err) {
-      showLoginMsg('Error uploading custom avatar', true, true)
-      console.log('Error uploading custom avatar: ' + err)
+      showLoginMsg('Error uploading custom avatar.  Try another image', true, true)
+      console.log('Error uploading custom avatar, possibly the image moderation failed')
       uploadInProgress(false)
     }
 }

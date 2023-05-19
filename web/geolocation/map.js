@@ -45,35 +45,35 @@ function initalizeMapSearch(){
 function displayPosition(payload){
   document.getElementById('spinner').style.display = 'none';
   try{
-    loc = new google.maps.LatLng(payload.message.lat, payload.message.lng);
-    var img = channelMembers[payload.message.uuid].profileUrl;
+    loc = new google.maps.LatLng(payload.message.content.lat, payload.message.content.lng);
+    var img = channelMembers[payload.message.content.uuid].profileUrl;
     const image = {
         url: img,
         scaledSize: new google.maps.Size(30, 30),
     };
 
-    if (mark[payload.message.uuid] && mark[payload.message.uuid].setMap) {
-        mark[payload.message.uuid].setMap(null);
+    if (mark[payload.message.content.uuid] && mark[payload.message.content.uuid].setMap) {
+        mark[payload.message.content.uuid].setMap(null);
     }
-    mark[payload.message.uuid] = new google.maps.Marker({
+    mark[payload.message.content.uuid] = new google.maps.Marker({
         position: loc,
         map: map,
         icon: image,
         animation: google.maps.Animation.DROP,
         optimized: true,
         label: {
-            text: payload.message.name,
+            text: payload.message.sender,
             color: "#000000",
         }
     });
 
     var lastseen = new Date(payload.timetoken / 10000000);
 
-    var content = "Name: " + payload.message.name + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + payload.message.lat +  '<br>' + "Long: " + payload.message.lng;
+    var content = "Name: " + payload.message.sender + '<br>' + "Last Seen: " + lastseen + '<br>' + "Lat: " + payload.message.content.lat +  '<br>' + "Long: " + payload.message.content.lng;
 
     var infowindow = new google.maps.InfoWindow();
 
-    google.maps.event.addListener(mark[payload.message.uuid], 'click', (function(content,infowindow){
+    google.maps.event.addListener(mark[payload.message.content.uuid], 'click', (function(content,infowindow){
         return function() {
             // toggleBounce(mark[payload.uuid]);
             infowindow.setContent(content);
@@ -85,7 +85,7 @@ function displayPosition(payload){
     })(content, infowindow));
 
 
-    mark[payload.message.uuid].setMap(map);
+    mark[payload.message.content.uuid].setMap(map);
   }
   catch(e){
     console.log(e);

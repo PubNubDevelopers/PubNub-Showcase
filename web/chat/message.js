@@ -11,7 +11,7 @@ async function messageReceived (messageObj, isFromHistory) {
       incrementChannelUnreadCounter(messageObj.channel)
       return
     }
-    if (messageObj.message.message == null) {
+    if (messageObj.message.content == null) {
       //  The message does not have any text associated with it (for example, it is a file
       //  which has trigged this function as a result of pubnub.sendFile())
       return
@@ -44,8 +44,8 @@ async function messageReceived (messageObj, isFromHistory) {
       //  The 'users' array is still the master list of users we have in the system but for expediency
       //  & to ensure things don't get out of sync, redact the message contents based on the channelMembers
       //  array.
-      messageObj.message.attachment = null
-      messageObj.message.message = 'User has logged out'
+      messageObj.message.content.attachments[0].image.source = null
+      messageObj.message.content.text = 'User has logged out'
     }
 
     var messageDiv = ''
@@ -227,14 +227,14 @@ function createMessageReceived (messageObj) {
 
 //  Wrapper function to cater for whether the message had an associated image
 function messageContents (messageData) {
-  if (messageData.attachment != null) {
+  if (messageData.content.attachments && messageData.content.attachments[0].image.source != null) {
     //  There was an image attachment with the message
     var imageRender =
-      `<img class='temp-message-img temp-message-img-you' src='${messageData.attachment}'>` +
-      `${messageData.message}`
+      `<img class='temp-message-img temp-message-img-you' src='${messageData.content.attachments[0].image.source}'>` +
+      `${messageData.content.text}`
     return imageRender
   } else {
-    return messageData.message
+    return messageData.content.text
   }
 }
 

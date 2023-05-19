@@ -82,8 +82,11 @@ function pollOptionSelected (ev) {
     channel: channelName,
     storeInHistory: true,
     message: {
-      choice: ev.dataset.opt,
-      question: currentQuestion
+      content: {
+        type: "poll",
+        choice: ev.dataset.opt,
+        question: currentQuestion
+      }
     }
   })
 }
@@ -126,8 +129,8 @@ async function loadHistoricPollVotes () {
 //  Poll results are always received as messages, so this is called by the PubNub message listener
 //  (defined in live-events.js)
 function pollVoteReceived (payload) {
-  const choice = parseInt(payload.message.choice)
-  results[payload.message.question][choice]++
+  const choice = parseInt(payload.message.content.choice)
+  results[payload.message.content.question][choice]++
   populatePercentages()
 }
 

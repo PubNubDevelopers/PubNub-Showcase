@@ -56,7 +56,7 @@ async function loadLiveEvents () {
       //  Signals are ideally suited for live reactions (i.e. displaying an emoji on top
       //  of the live event) since they have a very small data payload
       developerMessage("Live (emoji) Message Reactions are sent over PubNub efficiently using the Signal API")
-      receiveReaction(signalEvent.message.r)
+      receiveReaction(signalEvent.message.content.emoji)
     }
   })
 
@@ -101,9 +101,12 @@ async function messageInputSend () {
         channel: LIVE_EVENT_CHANNEL,
         storeInHistory: false,  //  In this app, we don't persist live events chat messages
         message: {
-          message: messageText,
+          content: {
+            type: "text",
+            text: messageText
+          },
           avatar: me.profileUrl,
-          name: me.name
+          sender: me.name
         }
       })
     } catch (err) {
@@ -145,10 +148,10 @@ function createMessage (messageObj, fromSelf) {
     "'><div class='ve-nickname" +
     youClass +
     "'>" +
-    messageObj.message.name +
+    messageObj.message.sender +
     youText +
     "</div><div class='ve-message'>" +
-    messageObj.message.message +
+    messageObj.message.content.text +
     '</div>'
   return newMsg
 }
@@ -169,7 +172,12 @@ function imgPollHover(isHover)
 function addReaction()
 {
   pubnub.signal({
-    message: { r: String.fromCodePoint(0x1F60D) },
+    message: { 
+      content: {
+        type: "liveReaction",
+        emoji: String.fromCodePoint(0x1F60D) 
+      }
+    },
     channel: LIVE_EVENT_CHANNEL
   })
 }

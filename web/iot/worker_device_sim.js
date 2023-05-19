@@ -100,14 +100,14 @@ function worker_node(){
             })
           },
           message: (payload) => {
-            if(payload.message.hasOwnProperty("deviceState")){
-              deviceSimulator.updateState(payload.message.deviceState);
+            if(payload.message.content.hasOwnProperty("deviceState")){
+              deviceSimulator.updateState(payload.message.content.deviceState);
             }
             else{
-              if(payload.message.hasOwnProperty("alarmSettings")){
-                deviceSimulator.updateSettings(payload.message.alarmSettings);
+              if(payload.message.content.hasOwnProperty("alarmSettings")){
+                deviceSimulator.updateSettings(payload.message.content.alarmSettings);
               }
-              deviceSimulator.updateValue(payload.message.value);
+              deviceSimulator.updateValue(payload.message.content.value);
             }
           }
         });
@@ -342,8 +342,11 @@ function worker_node(){
             channel: `Private.${UUID}-iot`,
             storeInHistory: true,
             message: {
-              status: this.sensorStatus,
-              message: this.parseMessage(typeof this.settings === 'undefined'),
+              content: {
+                type: "sensorData",
+                status: this.sensorStatus,
+                text: this.parseMessage(typeof this.settings === 'undefined', sensorValue),
+              }
             }
           });
         }
@@ -354,7 +357,7 @@ function worker_node(){
       }
     }
 
-    parseMessage(discrete){
+    parseMessage(discrete, sensorValue){
       if(!discrete){
         if(this.sensorStatus == Status.Alert && typeof sensorValue !== 'undefined'){
           return `The ${defaultDeviceName} ${sensorValue > this.settings.maxValue ? 'is to warm' : 'is to cold'}`;

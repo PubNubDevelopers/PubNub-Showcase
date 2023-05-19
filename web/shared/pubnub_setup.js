@@ -28,6 +28,7 @@ async function createPubNubObject () {
     userId: UUID
   })
   PubNub.prototype.getUserId = function(){return this.getUUID()}
+  //  IN PRODUCTION you should use your own backend to deliver a token based on your own ruleset for Access Manager
   var accessManagerToken = await requestAccessManagerToken(UUID);
   if (accessManagerToken == null)
   {

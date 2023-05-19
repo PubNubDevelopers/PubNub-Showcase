@@ -10,8 +10,11 @@ const TYPING_INDICATOR_TIMEOUT_IN_MSECS = 5000 //  ms
 
 function sendTypingIndicator () {
   developerMessage("You can send signals on every keystroke without worrying about data usage or network issues")
+  //  Note signal size limit of 64 bytes, therefore being economical with data structure
     pubnub.signal({
-      message: { id: pubnub.getUserId(), t: 't' },
+      message: { 
+        id: pubnub.getUserId(), t: 't' 
+      },
       channel: channel
     })
   }

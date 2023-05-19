@@ -364,48 +364,53 @@ async function populateChatWindow (channelName) {
                 developerMessage(
                   'PubNub can persist previous messages which can then be loaded into the conversation at launch'
                 )
-                historicalMsg.publisher = historicalMsg.uuid
-
-                await messageReceived(historicalMsg, true)
-
-                //  Update the historically loaded messages based on message reactions
-                if (
-                  historicalMsg.actions != null &&
-                  historicalMsg.actions.read != null
-                ) {
-                  //  Mark the sent message as read
-                  var originalMessage = document.getElementById(
-                    'message-check-' + historicalMsg.timetoken
-                  )
-
-                  originalMessage.src = '../img/icons/read.png'
-                }
-                //  Read in message reactions for historical messages (message reactions)
-                if (
-                  historicalMsg.actions != null &&
-                  historicalMsg.actions.react != null &&
-                  historicalMsg.actions.react.smile != null
-                ) {
-                  //  Handle the message reactions
-                  var messageEmojiElement = document.getElementById(
-                    'emoji-reactions-' + historicalMsg.timetoken
-                  )
-                  var reaction = ''
-                  for (const action of historicalMsg.actions.react.smile) {
-                    var reactionPayload = {
-                      event: 'added',
-                      data: {
-                        type: 'react',
-                        messageTimetoken: historicalMsg.timetoken
+                try {
+                  historicalMsg.publisher = historicalMsg.uuid
+  
+                  await messageReceived(historicalMsg, true)
+  
+                  //  Update the historically loaded messages based on message reactions
+                  if (
+                    historicalMsg.actions != null &&
+                    historicalMsg.actions.read != null
+                  ) {
+                    //  Mark the sent message as read
+                    var originalMessage = document.getElementById(
+                      'message-check-' + historicalMsg.timetoken
+                    )
+  
+                    originalMessage.src = '../img/icons/read.png'
+                  }
+                  //  Read in message reactions for historical messages (message reactions)
+                  if (
+                    historicalMsg.actions != null &&
+                    historicalMsg.actions.react != null &&
+                    historicalMsg.actions.react.smile != null
+                  ) {
+                    //  Handle the message reactions
+                    var messageEmojiElement = document.getElementById(
+                      'emoji-reactions-' + historicalMsg.timetoken
+                    )
+                    var reaction = ''
+                    for (const action of historicalMsg.actions.react.smile) {
+                      var reactionPayload = {
+                        event: 'added',
+                        data: {
+                          type: 'react',
+                          messageTimetoken: historicalMsg.timetoken
+                        }
+                      }
+                      maEmojiReaction(reactionPayload)
+                      if (action.uuid == pubnub.getUserId()) {
+                        messageEmojiElement.classList.add('temp-message-reacted')
+                        messageEmojiElement.dataset.actionid =
+                          action.actionTimetoken
                       }
                     }
-                    maEmojiReaction(reactionPayload)
-                    if (action.uuid == pubnub.getUserId()) {
-                      messageEmojiElement.classList.add('temp-message-reacted')
-                      messageEmojiElement.dataset.actionid =
-                        action.actionTimetoken
-                    }
-                  }
+                  }                    
+                }
+                catch (e) {
+                  //  Malformed message in history
                 }
               }
             }
@@ -1037,16 +1042,10 @@ async function messageInputSend () {
         id: uploadedFile.id,
         name: uploadedFile.name
       })
-      //  Images in this demo are moderated.  Moderation will delete images deemed inappropriate and is implemented
-      //  using Functions.  In production, you might want to save the image for record keeping purposes rather than
-      //  just deleting it.
-      if (!(await imageExists(fileUrl))) {
-        errorMessage('Image moderation failed and has been deleted')
-        fileUrl = null
-      }
     } catch (err) {
-      errorMessage('Error uploading attachment.')
-      console.log('Error uploading attachment: ' + err)
+      errorMessage('Image moderation failed and has been removed.')
+      fileUrl = null
+      console.log('Error uploading attachment, most likely because the image moderation failed')
     }
   }
   if (messageText !== '' || fileUrl !== null) {
@@ -1056,8 +1055,18 @@ async function messageInputSend () {
         channel: channel,
         storeInHistory: true,
         message: {
-          message: messageText,
-          attachment: fileUrl
+          content: {
+            type: "text",
+            text: messageText,
+            attachments: [
+              {
+                type: "image",
+                image: {
+                  source: fileUrl
+                }
+              }
+            ]
+          }
         }
       })
     } catch (err) {

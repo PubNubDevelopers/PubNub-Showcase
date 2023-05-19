@@ -162,11 +162,14 @@ async function showPosition(position) {
     pubnub.publish({
         channel: GEO_CHANNEL,
         message: {
-            uuid:pubnub.getUUID(),
-            name: me.name,
-            address: formatted_address,
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
+            content: {
+                type: "locationUpdate",
+                uuid:pubnub.getUUID(),
+                address: formatted_address,
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            },
+            sender: me.name
         }
     });
 }
@@ -183,12 +186,15 @@ function showNewPosition(position) {
     pubnub.publish({
         channel: GEO_CHANNEL,
         message: {
-        uuid: pubnub.getUUID(),
-        name: me.name,
-        address: position.formatted_address,
-        lat: position.geometry.location.lat(),
-        lng: position.geometry.location.lng()
-    }});
+            content: {
+                uuid: pubnub.getUUID(),
+                address: position.formatted_address,
+                lat: position.geometry.location.lat(),
+                lng: position.geometry.location.lng()        
+            },
+            sender: me.name
+        }
+    });
 }
 
 // Listen to PubNub events (message events, app context events)
@@ -381,7 +387,7 @@ async function loadLastLocations() {
         for(var i = history.channels[GEO_CHANNEL].length - 1; i >= 0; i--) {
             historicalMsg = history.channels[GEO_CHANNEL][i];
             historicalMsg.publisher = historicalMsg.uuid;
-            if(historicalMsg.message && historicalMsg.message.address && historicalMsg.message.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(historicalMsg.timetoken)){
+            if(historicalMsg.message && historicalMsg.message.content && historicalMsg.message.content.address && historicalMsg.message.content.uuid == pubnub.getUUID() && !travelHistory.hasOwnProperty(historicalMsg.timetoken)){
                 if(lastLocation == null){
                     lastLocation = "Last Location";
                     // Display the users position on the map
@@ -389,12 +395,12 @@ async function loadLastLocations() {
                 }
 
                 // Add location to history list
-                travelHistory[historicalMsg.timetoken] = historicalMsg.message.address;
-                displayMessage(historicalMsg.message.address);
+                travelHistory[historicalMsg.timetoken] = historicalMsg.message.content.address;
+                displayMessage(historicalMsg.message.content.address);
             }
             if (channelMembers[historicalMsg.uuid] != null && !(displayedMembers.hasOwnProperty(historicalMsg.uuid))) {
                 addToDisplayedUsers(historicalMsg.uuid);
-                if (historicalMsg.message && historicalMsg.message.uuid != pubnub.getUUID()) {
+                if (historicalMsg.message && historicalMsg.message.content && historicalMsg.message.content.uuid != pubnub.getUUID()) {
                     // Display other users last position on the map
                     displayPosition(historicalMsg);
                 }
@@ -420,8 +426,18 @@ function initiateShare(){
                     channel: 'Public.location-chat',
                     storeInHistory: true,
                     message: {
-                        message: `Hello, my location is ${lastLocation}`,
-                        attachment: url
+                        content: {
+                            type: "text",
+                            text: `Hello, my location is ${lastLocation}`,
+                            attachments: [
+                                {
+                                    type: "image",
+                                    image: {
+                                        source: url
+                                    }
+                                }
+                            ] 
+                        }
                     }
                 });
 

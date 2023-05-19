@@ -104,22 +104,22 @@ function SignalReceivedHandler(payload){
 }
 
 // Alerts/Status updates are sent through messages from the IoT Devices
-function handleMessageHandler(payload){;
+function handleMessageHandler(payload){
   try{
     var statusBadge = document.getElementById(`deviceStatus${payload.publisher}`);
-    if(payload.message.status == Status.Good){
+    if(payload.message.content.status == Status.Good){
       statusBadge?.setAttribute('class', 'deviceStatusGood');
     }
-    else if (payload.message.status == Status.Warning){
+    else if (payload.message.content.status == Status.Warning){
       statusBadge?.setAttribute('class', 'deviceStatusWarning');
     }
-    else if(payload.message.status == Status.Alert){
+    else if(payload.message.content.status == Status.Alert){
       statusBadge?.setAttribute('class', 'deviceStatusError');
     }
     else {
       statusBadge?.setAttribute('class', 'deviceStatusNone');
     }
-    handleStatusMessage(payload.message.message, payload.message.status);
+    handleStatusMessage(payload.message.content.text, payload.message.content.status);
   }
   catch(e){
     console.log(e);
@@ -234,8 +234,11 @@ function saveSettings(deviceId){
     pubnub.publish({
       channel: 'device.' + deviceId,
       message: {
-        alarmSettings: alarmSettings[deviceId],
-        value: valueSettings[deviceId]
+        content: {
+          type: "iotUpdate",
+          alarmSettings: alarmSettings[deviceId],
+          value: valueSettings[deviceId]
+        }
       }
     });
   }
@@ -252,7 +255,10 @@ function changeDeviceState(on, deviceId){
     pubnub.publish({
       channel: 'device.' + deviceId,
       message: {
-        deviceState: on
+        content: {
+          type: "iotControl",
+          deviceState: on
+        }
       }
     });
   }

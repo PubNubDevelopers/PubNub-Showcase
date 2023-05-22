@@ -195,7 +195,25 @@ async function uploadCustomAvatar () {
         id: uploadedFile.id,
         name: uploadedFile.name
       })
-      //  Upload was successful, replace the first avatar with our custom avatar
+      //  Upload was successful, test whether we should moderate the image
+      //  IN PRODUCTION: You will want to have a PubNub function with event type 'Before Publish File'
+      //  Then you can analyse and re-route files which have been moderated to follow up later, or
+      //  for archive / record-keeping purposes
+      var response = await fetch("https://ps.pndsn.com/v1/blocks/sub-key/" + subscribe_key + "/moderate?" + new URLSearchParams({
+          url: fileUrl
+        }), {
+        method: 'GET'
+      })
+      if (response.ok)
+      {
+        //  If response was not ok, the app was probably run against a custom keyset, in which case ignore moderation
+        response = await response.text()
+        if (response != "okay")
+        {
+          throw new Error ('Moderation failed')
+        }
+      }
+      
       var avatar = document.getElementById('avatar-5')
       avatar.classList.remove('hidden')
       avatar.src = fileUrl
@@ -204,8 +222,8 @@ async function uploadCustomAvatar () {
       showLoginMsg("Image upload completed", false, true)
       uploadInProgress(false)
     } catch (err) {
-      showLoginMsg('Error uploading custom avatar.  Try another image', true, true)
-      console.log('Error uploading custom avatar, possibly the image moderation failed')
+      showLoginMsg('Error uploading custom avatar for moderation.  Try another image', true, true)
+      console.log('Error uploading custom avatar: ' + err)
       uploadInProgress(false)
     }
 }

@@ -105,6 +105,14 @@ To add customer logos to the home screen (`index.html`), add a `div` of class `c
 
 ![Custom Logos](https://raw.githubusercontent.com/PubNubDevelopers/PubNub-Showcase/main/media/custom-logos.png)
 
+## Logging in with the same user in two or more tabs
+
+The showcase application is designed primarily to be used by two different users in separate tabs (so one user can talk with the other).  If you want to have the same user running in multiple tabs, for example to demonstrate IoT messages in one tab being received in the private chat channel in another tab, then do the following:
+
+- Log in as a user as normal
+- `Duplicate` the tab
+
+You can now experience the showcase as the same user in both the original and duplicated tabs.
 
 ## Further Information / Licenses
 

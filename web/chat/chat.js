@@ -1042,10 +1042,28 @@ async function messageInputSend () {
         id: uploadedFile.id,
         name: uploadedFile.name
       })
+      //  Upload was successful, test whether we should moderate the image
+      //  IN PRODUCTION: You will want to have a PubNub function with event type 'Before Publish File'
+      //  Then you can analyse and re-route files which have been moderated to follow up later, or
+      //  for archive / record-keeping purposes
+      var response = await fetch("https://ps.pndsn.com/v1/blocks/sub-key/" + subscribe_key + "/moderate?" + new URLSearchParams({
+          url: fileUrl
+        }), {
+        method: 'GET'
+      })
+      if (response.ok)
+      {
+        //  If response was not ok, the app was probably run against a custom keyset, in which case ignore moderation
+        response = await response.text()
+        if (response != "okay")
+        {
+          throw new Error ('Moderation failed')
+        }
+      }
     } catch (err) {
-      errorMessage('Image moderation failed and has been removed.')
+      errorMessage('Image moderation failed.')
       fileUrl = null
-      console.log('Error uploading attachment, most likely because the image moderation failed')
+      console.log('Error uploading attachment, most likely because the image moderation failed ' + err)
     }
   }
   if (messageText !== '' || fileUrl !== null) {

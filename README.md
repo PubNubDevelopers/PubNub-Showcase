@@ -112,7 +112,7 @@ The showcase application is designed primarily to be used by two different users
 - Log in as a user as normal
 - `Duplicate` the tab
 
-You can now experience the showcase as the same user in both the original and duplicated tabs.
+You can now experience the showcase as the same user in both the original and duplicated tabs.  Be aware that if you log out of one tab, the application will not automatically log you out of the duplicated tab.
 
 ## Further Information / Licenses
 

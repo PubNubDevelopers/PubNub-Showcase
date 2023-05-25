@@ -75,6 +75,10 @@ function memberJoined (userId) {
       if (directChatAvatar != null) {
         directChatAvatar.classList.remove('presence-dot-gray')
         directChatAvatar.classList.add('presence-dot-online')
+        //  And the sidebar variant
+        var directChatAvatarS = document.getElementById('user-pres-s' + userId)
+        directChatAvatarS.classList.remove('presence-dot-gray')
+        directChatAvatarS.classList.add('presence-dot-online')
       }
       if (memberListAvatar != null) {
         memberListAvatar.classList.remove('presence-dot-gray')
@@ -94,6 +98,10 @@ function memberLeft (userId) {
       if (directChatAvatar != null) {
         directChatAvatar.classList.remove('presence-dot-online')
         directChatAvatar.classList.add('presence-dot-gray')
+        //  And the sidebar variant
+        var directChatAvatarS = document.getElementById('user-pres-s' + userId)
+        directChatAvatarS.classList.remove('presence-dot-online')
+        directChatAvatarS.classList.add('presence-dot-gray')
       }
       if (memberListAvatar != null) {
         memberListAvatar.classList.remove('presence-dot-online')

@@ -37,13 +37,13 @@ To run this project yourself you will need a PubNub account. Generate a Google A
 ### Requirements
 - [PubNub Account](#pubnub-account) (*Free*)
 
-<a href="https://dashboard.pubnub.com/signup">
+<a href="https://admin.pubnub.com/signup">
 	<img alt="PubNub Signup" src="https://i.imgur.com/og5DDjf.png" width=260 height=97/>
 </a>
 
 ### Get Your PubNub Keys
 
-1. You’ll first need to sign up for a [PubNub account](https://dashboard.pubnub.com/signup/). Once you sign up, you can get your unique PubNub keys from the [PubNub Developer Portal](https://admin.pubnub.com/).
+1. You’ll first need to sign up for a [PubNub account](https://admin.pubnub.com/signup/). Once you sign up, you can get your unique PubNub keys from the [PubNub Developer Portal](https://admin.pubnub.com/).
 
 1. Sign in to your [PubNub Dashboard](https://admin.pubnub.com/).
 

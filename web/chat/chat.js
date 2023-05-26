@@ -127,7 +127,7 @@ async function loadChat () {
     privateGroupsLoaded,
     publicGroupsLoaded
   ]).then(() => {
-      //  Call PubNub's hereNow() API to see who else is here
+    //  Call PubNub's hereNow() API to see who else is here
     updatePresenceInfoFirstLoad()
     updateMessageCountFirstLoad()
   })
@@ -366,9 +366,9 @@ async function populateChatWindow (channelName) {
                 )
                 try {
                   historicalMsg.publisher = historicalMsg.uuid
-  
+
                   await messageReceived(historicalMsg, true)
-  
+
                   //  Update the historically loaded messages based on message reactions
                   if (
                     historicalMsg.actions != null &&
@@ -378,7 +378,7 @@ async function populateChatWindow (channelName) {
                     var originalMessage = document.getElementById(
                       'message-check-' + historicalMsg.timetoken
                     )
-  
+
                     originalMessage.src = '../img/icons/read.png'
                   }
                   //  Read in message reactions for historical messages (message reactions)
@@ -402,14 +402,15 @@ async function populateChatWindow (channelName) {
                       }
                       maEmojiReaction(reactionPayload)
                       if (action.uuid == pubnub.getUserId()) {
-                        messageEmojiElement.classList.add('temp-message-reacted')
+                        messageEmojiElement.classList.add(
+                          'temp-message-reacted'
+                        )
                         messageEmojiElement.dataset.actionid =
                           action.actionTimetoken
                       }
                     }
-                  }                    
-                }
-                catch (e) {
+                  }
+                } catch (e) {
                   //  Malformed message in history
                 }
               }
@@ -417,7 +418,7 @@ async function populateChatWindow (channelName) {
           })
       })
 
-    setChannelLastReadTimetoken(channelName, (Date.now() * 10000))
+    setChannelLastReadTimetoken(channelName, Date.now() * 10000)
   } catch (status) {
     console.log(
       'error (check you have message persistence & App Context enabled in the admin portal): ' +
@@ -516,36 +517,23 @@ function clearMessageList () {
 
 //  Add a new REMOTE user to the system, not including ourselves
 async function addNewUser (userId, name, profileUrl) {
-  if (userData[userId] != null && Object.keys(userData[userId]).length != 0)
-  {
+  if (userData[userId] != null && Object.keys(userData[userId]).length != 0) {
     //  Do not add the same user more than once
     console.log('did not add user, already exists: ' + userId)
-    return;
+    return
   }
   //  A new user is present in the chat system.
   //  Add this user's details to our local cache of user details
   userData[userId] = { name: name, profileUrl: profileUrl }
 
   //  Add this user to the left hand pane of direct chats.  Not amazing practice to include styling within the JS code, sorry :)
-  var oneOneUser =
-    " <div id='user-" +
-    userId +
-    "' class='user-with-presence group-row' onclick='launchDirectChat(\"" +
-    userId +
-    "\")'><img src='" +
-    profileUrl +
-    "' class='chat-list-avatar'><span id='user-pres-" +
-    userId +
-    "' class='presence-dot-gray'></span><div id='unread-" +
-    userId +
-    "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div><span class='chat-list-name'>" +
-    name +
-    '</span></div>'
-
+  var oneOneUser = generateOneOneUser(userId, profileUrl, name, false)
+  var oneOneUserSide = generateOneOneUser(userId, profileUrl, name, true)
+  
   document.getElementById('oneOneUserList').innerHTML =
     oneOneUser + document.getElementById('oneOneUserList').innerHTML
   document.getElementById('oneOneUserList-side').innerHTML =
-    oneOneUser + document.getElementById('oneOneUserList-side').innerHTML
+    oneOneUserSide + document.getElementById('oneOneUserList-side').innerHTML
 
   var tempChannel = createDirectChannelName(pubnub.getUserId(), userId)
   subscribedChannels.push(tempChannel)
@@ -566,6 +554,30 @@ async function addNewUser (userId, name, profileUrl) {
         res()
       })
   })
+}
+
+//  Generate the HTML for the list of direct chats in the left hand pane.  Note that there are two
+//  copies of each user, one shown on mobile and one shown on the desktop
+function generateOneOneUser (userId, profileUrl, name, isSide) {
+  var idDelta = ''
+  if (isSide) idDelta = 's'
+  var user =
+    " <div id='user-" +
+    userId +
+    "' class='user-with-presence group-row' onclick='launchDirectChat(\"" +
+    userId +
+    "\")'><img src='" +
+    profileUrl +
+    "' class='chat-list-avatar'><span id='user-pres-" +
+    idDelta +
+    userId +
+    "' class='presence-dot-gray'></span><div id='unread-" +
+    idDelta +
+    userId +
+    "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div><span class='chat-list-name'>" +
+    name +
+    '</span></div>'
+  return user
 }
 
 //  Remove a user from the system, this can happen if the user logs out.
@@ -625,28 +637,13 @@ function createDirectChannelName (userId1, userId2) {
 async function getGroupList () {
   return new Promise((res, rej) => {
     var groupList = ''
+    var groupListSide = ''
     var channels = []
     for (const group of predefined_groups.groups) {
-      var groupHtml =
-        "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
-        group.channel +
-        "\")'><img src='../img/group/" +
-        group.profileIcon +
-        "' class='chat-list-avatar'><div id='unread-" +
-        group.channel +
-        "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div>"
-
-      if (typeof group.info === 'undefined') {
-        groupHtml += "<div class='group-name'>" + group.name + '</div></div>'
-      } else {
-        groupHtml +=
-          "<div class='group-name group-name-flex'><div>" +
-          group.name +
-          "</div><div class='text-caption'>" +
-          group.info +
-          '</div></div></div>'
-      }
+      var groupHtml = generatePredefinedGroupHTML(group, false)
+      var groupHtmlSide = generatePredefinedGroupHTML(group, true)
       groupList += groupHtml
+      groupListSide += groupHtmlSide
       channels.push(group.channel)
       subscribedChannels.push(group.channel)
     }
@@ -661,10 +658,37 @@ async function getGroupList () {
       })
       .then(() => {
         document.getElementById('groupList').innerHTML = groupList
-        document.getElementById('groupList-side').innerHTML = groupList
+        document.getElementById('groupList-side').innerHTML = groupListSide
         res()
       })
   })
+}
+
+//  There are two copies of each group, one shown on mobile and one shown on the desktop
+function generatePredefinedGroupHTML (group, isSide) {
+  var idDelta = ''
+  if (isSide) idDelta = 's'
+  var groupHtml =
+    "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
+    group.channel +
+    "\")'><img src='../img/group/" +
+    group.profileIcon +
+    "' class='chat-list-avatar'><div id='unread-" +
+    idDelta +
+    group.channel +
+    "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div>"
+
+  if (typeof group.info === 'undefined') {
+    groupHtml += "<div class='group-name'>" + group.name + '</div></div>'
+  } else {
+    groupHtml +=
+      "<div class='group-name group-name-flex'><div>" +
+      group.name +
+      "</div><div class='text-caption'>" +
+      group.info +
+      '</div></div></div>'
+  }
+  return groupHtml
 }
 
 /**
@@ -682,23 +706,16 @@ async function getGroupList () {
 async function getPrivateGroupList () {
   return new Promise((res, rej) => {
     var privateGroupList = ''
+    var privateGroupListSide = ''
 
     var channels = []
     for (const group of predefined_groups.private_groups) {
       var actualChannel = group.channel.replace('uuid', pubnub.getUserId())
-      var privateGroupHtml =
-        "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
-        actualChannel +
-        "\")'><img src='../img/group/" +
-        group.profileIcon +
-        "' class='chat-list-avatar'><div id='unread-" +
-        actualChannel +
-        "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div> <div class='group-name group-name-flex'><div>" +
-        group.name +
-        "</div><div class='text-caption'>" +
-        group.info +
-        '</div></div></div>'
+      var privateGroupHtml = generatePrivateGroupHTML(group, actualChannel, false)
+      var privateGroupHtmlSide = generatePrivateGroupHTML(group, actualChannel, true)
+
       privateGroupList += privateGroupHtml
+      privateGroupListSide += privateGroupHtmlSide
 
       channels.push(actualChannel)
     }
@@ -712,10 +729,30 @@ async function getPrivateGroupList () {
         subscribedChannels.push(actualChannel)
         document.getElementById('groupListPrivate').innerHTML = privateGroupList
         document.getElementById('groupListPrivate-side').innerHTML =
-          privateGroupList
+          privateGroupListSide
         res()
       })
   })
+}
+
+//  There are two copies of each group, one shown on mobile and one shown on the desktop
+function generatePrivateGroupHTML (group, actualChannel, isSide) {
+  var idDelta = ''
+  if (isSide) idDelta = 's'
+  var privateGroupHtml =
+  "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
+  actualChannel +
+  "\")'><img src='../img/group/" +
+  group.profileIcon +
+  "' class='chat-list-avatar'><div id='unread-" + idDelta +
+  actualChannel +
+  "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div> <div class='group-name group-name-flex'><div>" +
+  group.name +
+  "</div><div class='text-caption'>" +
+  group.info +
+  '</div></div></div>'
+
+  return privateGroupHtml
 }
 
 //  Handler for when a user is selected in the 1:1 chat window.  Display the chat with that user
@@ -1046,24 +1083,31 @@ async function messageInputSend () {
       //  IN PRODUCTION: You will want to have a PubNub function with event type 'Before Publish File'
       //  Then you can analyse and re-route files which have been moderated to follow up later, or
       //  for archive / record-keeping purposes
-      var response = await fetch("https://ps.pndsn.com/v1/blocks/sub-key/" + subscribe_key + "/moderate?" + new URLSearchParams({
-          url: fileUrl
-        }), {
-        method: 'GET'
-      })
-      if (response.ok)
-      {
+      var response = await fetch(
+        'https://ps.pndsn.com/v1/blocks/sub-key/' +
+          subscribe_key +
+          '/moderate?' +
+          new URLSearchParams({
+            url: fileUrl
+          }),
+        {
+          method: 'GET'
+        }
+      )
+      if (response.ok) {
         //  If response was not ok, the app was probably run against a custom keyset, in which case ignore moderation
         response = await response.text()
-        if (response != "okay")
-        {
-          throw new Error ('Moderation failed')
+        if (response != 'okay') {
+          throw new Error('Moderation failed')
         }
       }
     } catch (err) {
       errorMessage('Image moderation failed.')
       fileUrl = null
-      console.log('Error uploading attachment, most likely because the image moderation failed ' + err)
+      console.log(
+        'Error uploading attachment, most likely because the image moderation failed ' +
+          err
+      )
     }
   }
   if (messageText !== '' || fileUrl !== null) {
@@ -1074,11 +1118,11 @@ async function messageInputSend () {
         storeInHistory: true,
         message: {
           content: {
-            type: "text",
+            type: 'text',
             text: messageText,
             attachments: [
               {
-                type: "image",
+                type: 'image',
                 image: {
                   source: fileUrl
                 }

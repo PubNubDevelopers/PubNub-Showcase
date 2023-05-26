@@ -318,6 +318,7 @@ function setChannelUnreadCounter (channel, count) {
       channel = channel.replace('&', '')
     }
     var unreadMessage = document.getElementById('unread-' + channel)
+    var unreadMessageSide = document.getElementById('unread-s' + channel)
     if (unreadMessage == null) {
       return
     }
@@ -335,6 +336,8 @@ function setChannelUnreadCounter (channel, count) {
     } else {
       unreadMessage.style.visibility = 'visible'
     }
+    unreadMessageSide.innerText = unreadMessage.innerText
+    unreadMessageSide.style.visibility = unreadMessage.style.visibility
   } catch (e) {
     console.log(e)
   }

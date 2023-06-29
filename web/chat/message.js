@@ -17,6 +17,27 @@ async function messageReceived (messageObj, isFromHistory) {
       return
     }
 
+    var chatGptConversation = false
+    if (messageObj.channel.startsWith("Private.chatgpt"))
+    {
+      //  Handle messages from ChatGPT as a special case
+      chatGptConversation = true
+      if (messageObj.message.sender == "ChatGPT")
+      {
+        showMessageSendingInProgressSpinner(false)
+        messageObj.publisher = "ChatGPT";
+        if (channelMembers["ChatGPT"] == null)
+        {
+          developerMessage('PubNub can integrate with ChatGPT using Pub/Sub messaging and Serverless Functions')
+          addUserToCurrentChannel("ChatGPT", "ChatGPT", "../img/group/group-chatbot.png") 
+        }
+      }
+      else
+      {
+        showMessageSendingInProgressSpinner(true)
+      }
+    }
+
     //  If we don't have the information about the message sender cached, retrieve that from App Context and update our cache
     if (channelMembers[messageObj.publisher] == null) {
       try {
@@ -53,8 +74,8 @@ async function messageReceived (messageObj, isFromHistory) {
       //  If the read receipt was added as a message reaction before we could draw the message, do that now
       var messageIsRead = false
       if (
-        inflightReadReceipt[messageObj.timetoken] != null &&
-        inflightReadReceipt[messageObj.timetoken] == true
+        (inflightReadReceipt[messageObj.timetoken] != null &&
+        inflightReadReceipt[messageObj.timetoken] == true) || chatGptConversation
       ) {
         messageIsRead = true
       }

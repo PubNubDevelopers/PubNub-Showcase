@@ -293,6 +293,7 @@ async function loadChat () {
 async function populateChatWindow (channelName) {
   sessionStorage.setItem('activeChatChannel', channelName)
   hideEmojiWindow()
+  showMessageSendingInProgressSpinner(false)
 
   //  Update the heading
   if (channelName.startsWith('Public')) {
@@ -718,6 +719,7 @@ async function getPrivateGroupList () {
       privateGroupListSide += privateGroupHtmlSide
 
       channels.push(actualChannel)
+      subscribedChannels.push(actualChannel)
     }
 
     pubnub.objects
@@ -726,7 +728,6 @@ async function getPrivateGroupList () {
         uuid: pubnub.getUserId()
       })
       .then(() => {
-        subscribedChannels.push(actualChannel)
         document.getElementById('groupListPrivate').innerHTML = privateGroupList
         document.getElementById('groupListPrivate-side').innerHTML =
           privateGroupListSide
@@ -868,7 +869,7 @@ function lookupGroupName (channelName) {
     if (group.channel == channelName) return group.name
   }
   for (const group of predefined_groups.private_groups) {
-    var groupName = group.channel.replace(pubnub.getUserId(), 'uuid')
+    var groupName = channelName.replace(pubnub.getUserId(), 'uuid')
     if (group.channel == groupName) return group.name
   }
 }
@@ -880,7 +881,7 @@ function lookupGroupDescription (channelName) {
     if (group.channel == channelName) return group.description
   }
   for (const group of predefined_groups.private_groups) {
-    var groupName = group.channel.replace(pubnub.getUserId(), 'uuid')
+    var groupName = channelName.replace(pubnub.getUserId(), 'uuid')
     if (group.channel == groupName) return group.description
   }
 }
@@ -1041,11 +1042,19 @@ async function compressImage (src, newX, newY) {
 function messageSendingInProgress (inProgress) {
   if (inProgress) {
     isMessageSendingInProgress = true
-    document.getElementById('spinner').style.display = 'block'
+    showMessageSendingInProgressSpinner(inProgress)
   } else {
     isMessageSendingInProgress = false
-    document.getElementById('spinner').style.display = 'none'
+    showMessageSendingInProgressSpinner(inProgress)
   }
+}
+
+function showMessageSendingInProgressSpinner(inProgress)
+{
+  if (inProgress)
+    document.getElementById('spinner').style.display = 'block'
+  else
+    document.getElementById('spinner').style.display = 'none'
 }
 
 //  User has pressed the send button or pressed return in the input field.

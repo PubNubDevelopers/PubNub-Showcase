@@ -43,11 +43,11 @@ var predefined_groups = {
     },
     {
       channel: 'Private.chatgpt.uuid',
-      name: 'Chatbot (Chat GPT)',
+      name: 'Chatbot (ChatGPT)',
       profileIcon: 'group-chatbot.png',
       description:
-        'Interact with a Chatbot powered by Chat GPT.  To build your own chatbot based on ChatGPT with PubNub see our <a href=\'https://www.pubnub.com/blog/building-a-chatbot-with-openai-gpt3-and-pubnub/\'>blog</a>',
-      info: "Powered by ChatGPT"
+        'Interact with a Chatbot powered by OpenAI.  To build your own chatbot based on OpenAI with PubNub see our <a href=\'https://www.pubnub.com/blog/building-a-chatbot-with-openai-gpt3-and-pubnub/\'>blog</a>',
+      info: "Powered by OpenAI"
     }
   ]
 }

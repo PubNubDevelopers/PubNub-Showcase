@@ -29,7 +29,7 @@ async function messageReceived (messageObj, isFromHistory) {
         if (channelMembers["ChatGPT"] == null)
         {
           developerMessage('PubNub can integrate with ChatGPT using Pub/Sub messaging and Serverless Functions')
-          addUserToCurrentChannel("ChatGPT", "ChatGPT", "../img/group/group-chatbot.png") 
+          addUserToCurrentChannel("ChatGPT", "OpenAI", "../img/group/group-chatbot.png") 
         }
       }
       else

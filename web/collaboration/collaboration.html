@@ -66,6 +66,26 @@
             </section>
         </section>
     </div>
+    <div id='backgroundOpts' class="backgroundOptions text-body-1" style="display:none">
+        <nobr>
+            <span>My Background:&nbsp;&nbsp;&nbsp;</span>
+            <input class="collab-chk pn-radio form-check-input" type="radio" name="bkdChoice" id="none"
+                onchange="applyBackground(this, '')" checked>
+            <span class="" for="none">
+                None&nbsp;&nbsp;&nbsp;
+            </span>
+            <input class="collab-chk pn-radio form-check-input" type="radio" name="bkdChoice" id="code"
+                onchange="applyBackground(this, './bkd/code.png');">
+            <span class="" for="code">
+                Code&nbsp;&nbsp;&nbsp;
+            </span>
+            <input class="collab-chk pn-radio form-check-input" type="radio" name="bkdChoice" id="mac"
+                onchange="applyBackground(this, './bkd/win95.png');">
+            <span class="" for="mac">
+                Desktop&nbsp;&nbsp;&nbsp;
+            </span>
+        </nobr>
+    </div>
     <div id="clearAllCanvas">
         <button id="clearAllCanvasButton" class="clearAllCanvasButton">&#128465</button>
         <label for="clearAllCanvasButton" class="clearAllLabel">Clear All</label>

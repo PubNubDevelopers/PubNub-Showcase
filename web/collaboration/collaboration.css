@@ -45,6 +45,29 @@ body {
     z-index: 1;
 }
 
+.backgroundOptions {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    z-index: 1;
+    background-color: #E5E5E5;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 10px;
+    vertical-align: text-top;
+}
+
+.collab-chk {
+    cursor: pointer !important;
+    display: inline-block !important; 
+    width: 20 !important;   
+    margin: auto !important;
+    border-radius: 8px !important;
+    vertical-align: baseline !important;
+}
+
 #clearAllCanvas {
     display: none;
     left: 20px;

@@ -132,6 +132,10 @@ iframe {
         min-height: -moz-available;
     }
 
+    #header {
+        display:none;
+    }
+
     .main-container {
         flex-flow: column;
     }
@@ -147,6 +151,24 @@ iframe {
 
     .red-ellipse-bkd {
         display: none;
+    }
+
+    .message-list-contents {
+        padding-left: 8px;
+    }
+
+    .ve-avatar {
+        display: none;
+    }
+
+    .ve-nickname {
+        display: block !important;
+        white-space: nowrap;
+        font-size: 0.875em;
+        min-width:30px;
+        max-width:70px;
+        overflow:hidden;
+        text-overflow:ellipsis;
     }
 }
 

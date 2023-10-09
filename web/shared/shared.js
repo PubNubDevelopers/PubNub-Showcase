@@ -1,4 +1,4 @@
-const HOST_URL = "https://showcase.pub-nub.com/"
+const HOST_URL = "https://showcase.pubnub.com/"
 
 /////////////////////////
 //  Emoji logic

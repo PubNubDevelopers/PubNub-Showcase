@@ -2,7 +2,7 @@
 
 ## Demo
 
-A hosted version of this demo can be found at **[https://showcase.pub-nub.com/](https://showcase.pub-nub.com/)**
+A hosted version of this demo can be found at **[https://showcase.pubnub.com/](https://showcase.pubnub.com/)**
 
 ![Screenshot](https://raw.githubusercontent.com/PubNubDevelopers/PubNub-Showcase/main/media/landing.png)
 

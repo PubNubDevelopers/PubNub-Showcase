@@ -40,7 +40,8 @@
  *   avatar URL, mood), channel and which users are members of which channel.  This demo uses PubNub App Context
  *   extensively to track user information including which channels they are members of.  App Context is particularly
  *   useful if you do not have an existing backend or you want to isolate your chat functionality so it is
- *   entirely within the PubNub domain.
+ *   entirely within the PubNub domain.  Public groups are also tracked using Channel context, and you can
+ *   modify this data yourself, on your own keyset, using the App Context Toolkit
  * - Typing indicator: We recommend you use PubNub signals, as this demo does.  This demo's logic for the typing
  *   indicator with groups, where multiple people are typing, is quite simple (especially the use of setTimeout).
  *   In production, you would have more robust logic but, again, the demo was written with readibility in mind.
@@ -126,10 +127,34 @@ async function loadChat () {
     directChatsLoaded,
     privateGroupsLoaded,
     publicGroupsLoaded
-  ]).then(() => {
+  ]).then(async () => {
     //  Call PubNub's hereNow() API to see who else is here
     updatePresenceInfoFirstLoad()
     updateMessageCountFirstLoad()
+
+    //  When the chat app first loads, read the current active channel from session storage
+    try {
+      channel = sessionStorage.getItem('activeChatChannel')
+      if (channel == null) {
+        //  There is no active chat channel, load the default channel (global group)
+        channel = cached_groups.public_groups[0].channel
+        if (!channel) 
+        {
+          console.log("No public channels.  Please log out and back in again to regenerate");
+        }
+        else{
+          await populateChatWindow(channel)
+        }
+      } else {
+        await populateChatWindow(channel)
+      }
+    } catch (err) {
+      console.log(
+        'Error retrieving session storage.  This is needed to run the demo' + err
+      )
+      alert('Demo will not run without session storage')
+    }
+
   })
 
   developerMessage(
@@ -172,6 +197,7 @@ async function loadChat () {
       maEmojiReaction(messageActionEvent)
     },
     objects: async objectEvent => {
+      //console.log(objectEvent)
       //  App Context is used to maintain the state of users in the system, as well as which channels
       //  they are members of
       if (
@@ -203,7 +229,7 @@ async function loadChat () {
         } else if (channel.startsWith('DM')) {
           //  Secondly, if the active group is a 1:1 conversation, if it is with the deleted user, quit the chat
           if (createDirectChannelName(userId, pubnub.getUserId()) == channel) {
-            channel = predefined_groups.groups[0].channel
+            channel = cached_groups.public_groups[0].channel
             await populateChatWindow(channel)
           }
         }
@@ -258,26 +284,29 @@ async function loadChat () {
         //  Somebody else has removed themselves from a channel
         //  In this application, this can only happen if the user has logged out (which clears their data), a scenario caught by the [uuid][delete] handler
         //  No action required
-      }
+      } else if (
+        objectEvent.message.type == 'channel' &&
+        objectEvent.message.event == 'set')
+        {
+          //  The Channel information has been updated, probably through App Context Toolkit
+          channelMetaDataHasUpdated(objectEvent)
+        }
+        else if (
+          objectEvent.message.type == 'channel' &&
+          objectEvent.message.event == 'delete')
+        {
+          //  A Channel has been deleted, probably through App Context Toolkit
+          channelDeleted(objectEvent)
+        }
+        else if (
+          objectEvent.message.type === "uuid" &&
+          objectEvent.message.event === "set")
+        {
+          //  User ID information has been changed
+          userMetaDataHasUpdated(objectEvent.message.data)
+        }
     }
   })
-
-  //  When the chat app first loads, read the current active channel from session storage
-  try {
-    channel = sessionStorage.getItem('activeChatChannel')
-    if (channel == null) {
-      //  There is no active chat channel, load the default channel (global group)
-      channel = predefined_groups.groups[0].channel
-      await populateChatWindow(channel)
-    } else {
-      await populateChatWindow(channel)
-    }
-  } catch (err) {
-    console.log(
-      'Error retrieving session storage.  This is needed to run the demo' + err
-    )
-    alert('Demo will not run without session storage')
-  }
 
   var infoPane = document.getElementById('chatRightSide')
   chatRightSide.addEventListener('hidden.bs.offcanvas', function () {
@@ -445,8 +474,8 @@ async function getUserMetadataSelf () {
       uuid: pubnub.getUserId()
     })
     me = result.data
-    document.getElementById('currentUser').innerText = me.name + ' (You)'
-    document.getElementById('currentUser-side').innerText = me.name + ' (You)'
+    document.getElementById('currentUser').innerText = (me.name === null ? "" : me.name) + ' (You)'
+    document.getElementById('currentUser-side').innerText = (me.name === null ? "" : me.name) + ' (You)'
     document.getElementById('avatar').src = me.profileUrl
     document.getElementById('avatar-side').src = me.profileUrl
   } catch (e) {
@@ -567,7 +596,7 @@ function generateOneOneUser (userId, profileUrl, name, isSide) {
     userId +
     "' class='user-with-presence group-row' onclick='launchDirectChat(\"" +
     userId +
-    "\")'><img src='" +
+    "\")'><img id='" + userId + idDelta + "-remoteProfileUrl' src='" +
     profileUrl +
     "' class='chat-list-avatar'><span id='user-pres-" +
     idDelta +
@@ -575,7 +604,7 @@ function generateOneOneUser (userId, profileUrl, name, isSide) {
     "' class='presence-dot-gray'></span><div id='unread-" +
     idDelta +
     userId +
-    "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div><span class='chat-list-name'>" +
+    "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div><span class='chat-list-name' id='" + userId + idDelta + "-channelName'>" +
     name +
     '</span></div>'
   return user
@@ -640,55 +669,84 @@ async function getGroupList () {
     var groupList = ''
     var groupListSide = ''
     var channels = []
-    for (const group of predefined_groups.groups) {
-      var groupHtml = generatePredefinedGroupHTML(group, false)
-      var groupHtmlSide = generatePredefinedGroupHTML(group, true)
-      groupList += groupHtml
-      groupListSide += groupHtmlSide
-      channels.push(group.channel)
-      subscribedChannels.push(group.channel)
-    }
-    developerMessage(
-      'This demo has 3 hardcoded public groups and 1 hardcoded private group.  The demo automatically enrols you in all these groups.  See code comments for details of channel naming conventions for groups.'
-    )
-    //  Add ourself as a member of every (public) group
-    pubnub.objects
-      .setMemberships({
-        channels: channels,
-        uuid: pubnub.getUserId()
-      })
-      .then(() => {
-        document.getElementById('groupList').innerHTML = groupList
-        document.getElementById('groupList-side').innerHTML = groupListSide
-        res()
-      })
+    //  Read the public groups from the channel metadata and cache it
+    pubnub.objects.getAllChannelMetadata({
+      include: { customFields: true },
+      limit: 50,
+    }).then((channelMeta) => {
+      for (var i = 0; i < channelMeta.data.length; i++)
+      {
+        cacheChannel(channelMeta.data[i])
+      }
+
+      for (const group of cached_groups.public_groups) {
+        var groupHtml = generatePredefinedGroupHTML(group, false)
+        var groupHtmlSide = generatePredefinedGroupHTML(group, true)
+        groupList += groupHtml
+        groupListSide += groupHtmlSide
+        channels.push(group.channel)
+        subscribedChannels.push(group.channel)
+      }
+      developerMessage(
+        'This demo has 3 public groups (by default) and 1 hardcoded private group.  The demo automatically enrols you in all these groups.  See code comments for details of channel naming conventions for groups.'
+      )
+      //  Add ourself as a member of every (public) group
+      pubnub.objects
+        .setMemberships({
+          channels: channels,
+          uuid: pubnub.getUserId()
+        })
+        .then(() => {
+          document.getElementById('groupList').innerHTML = groupList
+          document.getElementById('groupList-side').innerHTML = groupListSide
+          res()
+        })
+    })
   })
+}
+
+function cacheChannel(channelInfo)
+{
+  var newChannel = {}
+  newChannel.channel = channelInfo.id;
+  newChannel.name = channelInfo.name;
+  if (newChannel.name === null) { newChannel.name = "" }
+  newChannel.description = channelInfo.description;
+  if (newChannel.description === null) { newChannel.description = ""}
+  if (channelInfo.custom && channelInfo.custom.profileIcon) {newChannel.profileIcon = channelInfo.custom.profileIcon;}
+  if (channelInfo.custom && channelInfo.custom.info) {newChannel.info = channelInfo.custom.info}
+  cached_groups.public_groups.push(newChannel)
 }
 
 //  There are two copies of each group, one shown on mobile and one shown on the desktop
 function generatePredefinedGroupHTML (group, isSide) {
   var idDelta = ''
   if (isSide) idDelta = 's'
+  if (!group.profileIcon.startsWith('http')) {group.profileIcon = '../img/group/' + group.profileIcon}
   var groupHtml =
-    "<div class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
+    "<div id='group-" + idDelta + group.channel + "' class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
     group.channel +
-    "\")'><img src='../img/group/" +
+    "\")'><img id='channelProfileIcon-" + idDelta + group.channel + "' src='" +
     group.profileIcon +
     "' class='chat-list-avatar'><div id='unread-" +
     idDelta +
     group.channel +
     "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div>"
 
-  if (typeof group.info === 'undefined') {
-    groupHtml += "<div class='group-name'>" + group.name + '</div></div>'
-  } else {
+    var groupInfo = ""
+    var groupInfoDisplay = "none"
+    if (typeof group.info !== 'undefined')
+    {
+      groupInfo = group.info
+      groupInfoDisplay = "flex"
+    }
     groupHtml +=
-      "<div class='group-name group-name-flex'><div>" +
+      "<div class='group-name group-name-flex'><div id='channelName-" + idDelta + group.channel + "'>" +
       group.name +
-      "</div><div class='text-caption'>" +
-      group.info +
+      "</div><div class='text-caption' style='display:" + groupInfoDisplay + "' id='channelInfo-" + idDelta + group.channel + "'>" +
+      groupInfo +
       '</div></div></div>'
-  }
+
   return groupHtml
 }
 
@@ -747,9 +805,9 @@ function generatePrivateGroupHTML (group, actualChannel, isSide) {
   group.profileIcon +
   "' class='chat-list-avatar'><div id='unread-" + idDelta +
   actualChannel +
-  "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div> <div class='group-name group-name-flex'><div>" +
+  "' class='text-caption presence-dot-online-num' style='visibility: hidden'>0</div> <div class='group-name group-name-flex'><div id='" + actualChannel + "-channelName'>" +
   group.name +
-  "</div><div class='text-caption'>" +
+  "</div><div class='text-caption' id='" + actualChannel + "-channelInfo'>" +
   group.info +
   '</div></div></div>'
 
@@ -813,7 +871,7 @@ function updateInfoPane () {
   //  We are always present in any chat we are viewing information for
   var memberListHtml = generateHtmlChatMember(
     pubnub.getUserId(),
-    me.name + ' (You)',
+    (me.name === null ? "" : me.name) + ' (You)',
     me.profileUrl,
     true
   )
@@ -830,8 +888,6 @@ function updateInfoPane () {
   document.getElementById('memberList').innerHTML = memberListHtml
 
   //  The information associated with the chat
-  //  In production, this should be stored as channel meta data but for simplicity
-  //  this app only uses hardcoded chats, therefore we can look up the information locally
   var chatInfo = 'Direct chat between two members'
   if (!channel.startsWith('DM')) {
     chatInfo = lookupGroupDescription(channel)
@@ -862,10 +918,10 @@ function generateHtmlChatMember (userId, name, profileUrl, online) {
   )
 }
 
-//  Given a channel, return the corresponding group name (from chat-constants.js)
+//  Given a channel, return the corresponding group name
 function lookupGroupName (channelName) {
-  //  Look in the predefined groups
-  for (const group of predefined_groups.groups) {
+  //  Look in the predefined groups & cached groups
+  for (const group of cached_groups.public_groups) {
     if (group.channel == channelName) return group.name
   }
   for (const group of predefined_groups.private_groups) {
@@ -874,10 +930,10 @@ function lookupGroupName (channelName) {
   }
 }
 
-//  Given a channel, return the corresponding group description (from chat-constants.js)
+//  Given a channel, return the corresponding group description
 function lookupGroupDescription (channelName) {
-  //  Only consider the predefined groups
-  for (const group of predefined_groups.groups) {
+  //  Only consider the predefined & cached groups
+  for (const group of cached_groups.public_groups) {
     if (group.channel == channelName) return group.description
   }
   for (const group of predefined_groups.private_groups) {

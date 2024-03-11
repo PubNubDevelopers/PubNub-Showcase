@@ -58,6 +58,35 @@ async function showLogin () {
       setEnableButtonState();
     })
   setTimeout(setEnableButtonState, 1)
+
+  //  This is the first time the user has logged in, test to see if there is channel metadata
+  //  This is so, on first launch in a new keyset, the keyset can be populated with some default channels
+  pubnub.objects.getAllChannelMetadata({
+    include: {customFields: true},
+    limit: 50,
+  }).then (async (channels) => {
+    console.log(channels)
+    if (channels.data.length === 0) {
+      //  There ARE NO channels in the keyset, create some public channels
+      for (var i = 0; i < default_channels.public_channels.length; i++)
+      {
+        await pubnub.objects.setChannelMetadata({
+          channel: default_channels.public_channels[i].channel,
+          data: {
+            name: default_channels.public_channels[i].name,
+            description: default_channels.public_channels[i].description,
+            custom: {
+              profileIcon: default_channels.public_channels[i].profileIcon,
+              info: default_channels.public_channels[i].info
+            }
+          }
+        })
+      }
+    }
+    else{
+      //  There WERE channels in the keyset, do not create default channels
+    }
+  })
 }
 
 function hideLogin()

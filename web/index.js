@@ -34,6 +34,7 @@ async function showLogin () {
   document.getElementById('bottomNav').classList.add('blurred')
   document.getElementById('title').classList.add('blurred')
   document.getElementById('showcaseGrid').classList.add('blurred')
+  if (typeof GUIDED_DEMO !== 'undefined' && GUIDED_DEMO === true) { document.getElementById('guided-demo-info').style.display = 'block' }
 
   loginModal = new bootstrap.Modal(document.getElementById('loginModal'), {
     keyboard: false,
@@ -65,7 +66,7 @@ async function showLogin () {
     include: {customFields: true},
     limit: 50,
   }).then (async (channels) => {
-    console.log(channels)
+    //console.log(channels)
     if (channels.data.length === 0) {
       //  There ARE NO channels in the keyset, create some public channels
       for (var i = 0; i < default_channels.public_channels.length; i++)

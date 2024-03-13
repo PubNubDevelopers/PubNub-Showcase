@@ -65,6 +65,13 @@ body {
     text-align: center;
 }
 
+.guided-demo-heading {
+    background: var(--color-input-border);
+    border-radius: 6px;
+    padding: 6px;
+    display: none;
+}
+
 #txtNickname {
     margin-top: 5px;
 }

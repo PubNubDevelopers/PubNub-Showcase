@@ -102,11 +102,11 @@ Using PubNub App Context, you can update the following properties of the public 
 | info | (optional) Will be displayed below the channel name in the left-hand view |
 | *Others* | Other properties will have no effect on the Channel display |
 
-Using PubNub App Context, you can update the following properties for the user:
-
 **Adding a Channel**: When creating a new channel, choose an ID in the form `Public.id`, e.g. `Public.funnies` or `Public.tech`.  If you do not follow this convention, you will not be able to receive any messages on the channel.  Specify a `Name` and `Description` for the channel.  Create 2 custom fields: `profileIcon` which takes either a fully qualified URL, or one of the group-* strings mentioned above; and `info`, of type 'String'.  You will need to perform a browser refresh for the showcase app to recognize the new channel (this is a limitation of the app, not a limitation of PubNub).  
 
 **Deleting a Channel**: Deleting a channel will remove it from the list of public channels.  If the user was currently viewing the channel, another public channel will be loaded in its place.  As a reminder,  **if you want to reset the Channel App Context in the keyset back to a default state, log out and log back into the showcase application.**
+
+Using PubNub App Context, you can update the following properties for the user:
 
 | User Property | Effect |
 |----- | -----|

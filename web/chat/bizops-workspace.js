@@ -5,6 +5,8 @@
  * More specifically, these functions support the App Context Toolkit
  */
 
+var lastUpdate = null
+
 function channelMetaDataHasUpdated(channelData)
 {
   //  Update the cached data
@@ -135,21 +137,30 @@ async function channelDeleted(channelData)
     }
 }
 
-function userMetaDataHasUpdated(userInfo)
+async function userMetaDataHasUpdated(userInfo)
 {
     //  The only two attributes we store in app context are the user's name and profile URL (icon URL)
     if (userInfo.id.includes('sim_')) return
+
+    if (!lastUpdate || lastUpdate < userInfo.updated)
+    {
+      lastUpdate = userInfo.updated
+    }
+    else
+    {
+      //  Ignoring update - out of order
+      return
+    }
     
     //  User Name
     var newUsername = userInfo.name
     var newProfileUrl = userInfo.profileUrl
     if (newUsername === null) { newUsername = "" }
-    if (newProfileUrl === null) { newProfileUrl = "" }
+    if (newProfileUrl === null) { newProfileUrl = BLANK_AVATAR }
     //  Is this our User ID?
     if (pubnub.getUserId() === userInfo.id)
     {
         getUserMetadataSelf()
-        populateChatWindow(channel)
     }
     else 
     {
@@ -179,12 +190,21 @@ function userMetaDataHasUpdated(userInfo)
             if (remoteProfileUrlSide) {remoteProfileUrlSide.src = newProfileUrl}
         }
 
-        //  Test if we are currently talking with this user
-        var tempChannel = createDirectChannelName(pubnub.getUserId(), userInfo.id)
-        if (tempChannel == sessionStorage.getItem('activeChatChannel'))
+        var activeChatChannel = sessionStorage.getItem('activeChatChannel')
+        if (activeChatChannel.toLowerCase().includes('public.'))
         {
-            populateChatWindow(channel)
-        }            
+          //  Update any public channel, just in case the user whose info changed was an active participant
+          await populateChatWindow(channel)
+        }
+        else
+        {
+          //  Test if we are currently talking with this user
+          var tempChannel = createDirectChannelName(pubnub.getUserId(), userInfo.id)
+          if (tempChannel == activeChatChannel)
+          {
+            await populateChatWindow(channel)
+          }            
+      }
     }
     
 }

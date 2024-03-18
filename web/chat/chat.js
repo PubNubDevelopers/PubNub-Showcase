@@ -89,6 +89,7 @@ const MAX_MESSAGES_SHOWN_PER_CHAT = 50
 const IGNORE_USER_AFTER_THIS_DURATION = 24 //  Hours
 const MAX_ATTACHMENT_FILE_SIZE = 1024 * 1024 * 1 //  bytes
 const DEFAULT_AVATAR = HOST_URL + 'img/avatar/placeholder.png'
+const BLANK_AVATAR = HOST_URL + 'img/avatar/placeholder_blank.png'
 
 //  To make Presence indications more accurate if the webpage is being refreshed, notify PubNub that the client is leaving .
 //  PubNub will eventually catch up, but this makes it quicker
@@ -303,7 +304,7 @@ async function loadChat () {
           objectEvent.message.event === "set")
         {
           //  User ID information has been changed
-          userMetaDataHasUpdated(objectEvent.message.data)
+          await userMetaDataHasUpdated(objectEvent.message.data)
         }
     }
   })
@@ -474,6 +475,7 @@ async function getUserMetadataSelf () {
       uuid: pubnub.getUserId()
     })
     me = result.data
+    if (!me.profileUrl) { me.profileUrl = BLANK_AVATAR }
     document.getElementById('currentUser').innerText = (me.name === null ? "" : me.name) + ' (You)'
     document.getElementById('currentUser-side').innerText = (me.name === null ? "" : me.name) + ' (You)'
     document.getElementById('avatar').src = me.profileUrl
@@ -547,11 +549,17 @@ function clearMessageList () {
 
 //  Add a new REMOTE user to the system, not including ourselves
 async function addNewUser (userId, name, profileUrl) {
+  if (userId === 'PUBNUB_INTERNAL_MODERATOR')
+  {
+    //  We do not support the internal moderator in this app (added if you select Chat Toolkit in the keyset)
+    return;
+  }
   if (userData[userId] != null && Object.keys(userData[userId]).length != 0) {
     //  Do not add the same user more than once
     console.log('did not add user, already exists: ' + userId)
     return
   }
+  if (!profileUrl) { profileUrl = BLANK_AVATAR }
   //  A new user is present in the chat system.
   //  Add this user's details to our local cache of user details
   userData[userId] = { name: name, profileUrl: profileUrl }
@@ -632,6 +640,7 @@ function removeUserFromCurrentChannel (userId) {
 //  Update our cache of which users are in the current channel
 async function addUserToCurrentChannel (userId, name, profileUrl) {
   try {
+    if (profileUrl == null) { profileUrl = BLANK_AVATAR }
     if (name == null || profileUrl == null) {
       name = userInfo.data.name
       profileUrl = userInfo.data.profileUrl
@@ -722,7 +731,8 @@ function cacheChannel(channelInfo)
 function generatePredefinedGroupHTML (group, isSide) {
   var idDelta = ''
   if (isSide) idDelta = 's'
-  if (!group.profileIcon.startsWith('http')) {group.profileIcon = '../img/group/' + group.profileIcon}
+  if (!group.profileIcon) { group.profileIcon = DEFAULT_AVATAR }
+  if (group.profileIcon && !group.profileIcon.startsWith('http') && !group.profileIcon.startsWith('..')) {group.profileIcon = '../img/group/' + group.profileIcon}
   var groupHtml =
     "<div id='group-" + idDelta + group.channel + "' class='user-with-presence group-row group-row-flex' onclick='launchGroupChat(\"" +
     group.channel +

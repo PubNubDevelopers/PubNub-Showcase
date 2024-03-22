@@ -114,7 +114,9 @@ Using PubNub App Context, you can update the following properties for the user:
 | Profile URL | If editing your own profile image, you will see the update reflected in the top-left.  If editing the avatar of another user with whom you are in a direct 1:1 chat, the avatar will be updated int he 'Direct 1:1 chats' pane.  If you are actively chatting with the user whose avatar was just changed, the active chat pane will be refreshed.  You will need to reload the page to update the 'Chat Information' page for group channels |
 | *Others* | Other properties will have no effect on the User display |
 
-**Adding a User**: When adding a new user, assign a `Name` and `Profile URL` for the user and create memberships for that user in all Public channels.  You will need to perform a browser refresh for the showcase app to recognize the new user (this is a limitation of the app, not a limitation of PubNub).  The user ID does not matter, though obviously do not create a duplicate ID.
+**Adding a User**: When adding a new user, assign a `Name` and `Profile URL` for the user and create memberships for that user in all Public channels.  The user ID you enter does not matter, though obviously do not create a duplicate ID.  Limitations of adding a new user (_these are limitations of the app, not limitations of PubNub_):
+-  **You will need to perform a browser refresh for the showcase app to recognize the new user**
+- You will NOT be able to log in as this user
 
 **Deleting a User**: If you delete yourself, the PubNub showcase will log you out automatically and you will need to log in again.  If you delete another user, that user will disappear from the list of available 1:1 chats.
 

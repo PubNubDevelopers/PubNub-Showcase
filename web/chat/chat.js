@@ -41,7 +41,7 @@
  *   extensively to track user information including which channels they are members of.  App Context is particularly
  *   useful if you do not have an existing backend or you want to isolate your chat functionality so it is
  *   entirely within the PubNub domain.  Public groups are also tracked using Channel context, and you can
- *   modify this data yourself, on your own keyset, using the App Context Toolkit
+ *   modify this data yourself, on your own keyset, using the Channel Management feature of BizOps Workspace
  * - Typing indicator: We recommend you use PubNub signals, as this demo does.  This demo's logic for the typing
  *   indicator with groups, where multiple people are typing, is quite simple (especially the use of setTimeout).
  *   In production, you would have more robust logic but, again, the demo was written with readibility in mind.
@@ -289,14 +289,14 @@ async function loadChat () {
         objectEvent.message.type == 'channel' &&
         objectEvent.message.event == 'set')
         {
-          //  The Channel information has been updated, probably through App Context Toolkit
+          //  The Channel information has been updated, probably through the Channel Management feature of BizOps Workspace
           channelMetaDataHasUpdated(objectEvent)
         }
         else if (
           objectEvent.message.type == 'channel' &&
           objectEvent.message.event == 'delete')
         {
-          //  A Channel has been deleted, probably through App Context Toolkit
+          //  A Channel has been deleted, probably through the Channel Management feature of BizOps Workspace
           channelDeleted(objectEvent)
         }
         else if (
@@ -551,7 +551,7 @@ function clearMessageList () {
 async function addNewUser (userId, name, profileUrl) {
   if (userId === 'PUBNUB_INTERNAL_MODERATOR')
   {
-    //  We do not support the internal moderator in this app (added if you select Chat Toolkit in the keyset)
+    //  We do not support the internal moderator in this app (added if you select Channel Monitor in the keyset)
     return;
   }
   if (userData[userId] != null && Object.keys(userData[userId]).length != 0) {

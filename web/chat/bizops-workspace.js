@@ -2,7 +2,8 @@
  * This file contains handlers for functions related to BizOps Workspace
  * Specifically, the ability to change Channel and user information
  * from within the PubNub Admin Dashboard.
- * More specifically, these functions support the App Context Toolkit
+ * More specifically, these functions support the User Management and Channel Management 
+ * capabilities of BizOps Workspace
  */
 
 var lastUpdate = null

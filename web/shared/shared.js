@@ -1,6 +1,35 @@
 const HOST_URL = "https://showcase.pubnub.com/"
 
 /////////////////////////
+//  Default Channels
+
+var default_channels = {
+  public_channels: [
+    {
+      channel: 'Public.global',
+      name: 'Global (All Users)',
+      profileIcon: 'group-global.png',
+      description: 'Group containing all users in the chat system'
+    },
+    {
+      channel: 'Public.location-chat',
+      name: 'Location Updates',
+      profileIcon: 'group-location.png',
+      description:
+        'Used by the Geolocation demo.  Share your location with the world.  Remember, you can log out to stop your data being publicly visible',
+      info: "Populated by the <a href='../geolocation/geolocation.html'>Geo</a> demo"
+    },
+    {
+      channel: 'Public.healthcare',
+      name: 'Healthcare',
+      profileIcon: 'group-healthcare.png',
+      description: 'Build HIPAA-compliant telemedicine apps with PubNub as well as GDPR and SOC2 compliant apps',
+      info: "HIPAA & GDPR compliance"
+    }
+  ]
+}
+
+/////////////////////////
 //  Emoji logic
 
 function messageInputEmoji () {

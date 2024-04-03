@@ -5,6 +5,8 @@
 
 // This channel receives updates (lat, lng) on user posiitions
 var GEO_CHANNEL = "GeoChannel";
+//  This channel is used by the Chat app to display the user's location
+var LOCATION_CHAT_CHANNEL = "Public.location-chat";
 
 // If the updated position is older then 24 hours old ignore the update
 const IGNORE_USER_AFTER_THIS_DURATION = 24
@@ -31,13 +33,15 @@ var geocoder = null;
 var currentLocation = null;
 // Location that was previously shared
 var sharedLocation = null;
+//  If the location channel cannot be found, do not allow location to be shared
+var locationShareDisabled = false;
 
 window.addEventListener('beforeunload', function () {
     pubnub.unsubscribeAll()
 })
 
 // Called on page load
-async function initialize () {
+async function initializeGeo () {
     // Declarations
     channelMembers = {};
     displayedMembers = {};
@@ -131,7 +135,10 @@ function findLocation(){
 // Positions when published are in the form lat, and lng
 async function showPosition(position) {
     // Remove disabled state from share button
-    document.getElementById('share-button').classList.remove('disabled');
+    if (!locationShareDisabled)
+    {
+        document.getElementById('share-button').classList.remove('disabled');
+    }
     // Get coordinates from position object
     currentLocation = {
         lat: position.coords.latitude,
@@ -178,7 +185,10 @@ async function showPosition(position) {
 // Positions when published are in the form lat, and lng
 function showNewPosition(position) {
     // Removed disabled state from share button
-    document.getElementById('share-button').classList.remove('disabled');
+    if (!locationShareDisabled)
+    {
+        document.getElementById('share-button').classList.remove('disabled');
+    }
     currentLocation = {
         lat: position.geometry.location.lat(),
         lng: position.geometry.location.lng(),
@@ -414,6 +424,7 @@ async function loadLastLocations() {
 function initiateShare(){
     var shareButton = document.getElementById("share-button");
     shareButton.addEventListener('click', async () => {
+        if (locationShareDisabled) return;
         if(currentLocation != null && currentLocation.lng != null && currentLocation.lat != null){
             if(sharedLocation != currentLocation){
                 sharedLocation = currentLocation;
@@ -423,7 +434,7 @@ function initiateShare(){
 
                 // Publish static google maps link to the location updates chat
                 await pubnub.publish({
-                    channel: 'Public.location-chat',
+                    channel: LOCATION_CHAT_CHANNEL,
                     storeInHistory: true,
                     message: {
                         content: {
@@ -441,12 +452,23 @@ function initiateShare(){
                     }
                 });
 
-                sessionStorage.setItem('activeChatChannel', 'Public.location-chat');
+                sessionStorage.setItem('activeChatChannel', LOCATION_CHAT_CHANNEL);
                 // Navigate to chat
                 window.location.href = '../chat/chat.html';
             }
         }
     })
+    pubnub.objects.getChannelMetadata({
+        channel: LOCATION_CHAT_CHANNEL,
+    }).then(channel => {
+        locationShareDisabled = false;
+        document.getElementById('share-button-text').innerHTML = "Share location in chat"
+    }).catch(err => {
+        //  Metadata for the location channel does not exist
+        locationShareDisabled = true;
+        document.getElementById('share-button-text').innerHTML = "Sharing unavailable"
+    })
+
 }
 
 

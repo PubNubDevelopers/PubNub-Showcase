@@ -30,7 +30,7 @@
 
         <script src="https://www.pubnub.com/scripts/amplitude.js" defer></script>
     </HEAD>
-    <body onload="initialize()" id="body">
+    <body onload="initializeGeo()" id="body">
         <div id="header" class="">
             <div class="blue-ellipse-bkd"></div>
             <H2 id='heading' class="demo-header heading-2">Geolocation</H2>
@@ -60,7 +60,7 @@
                     </div>
                     <div id="share-button" class="share-location-layout pn-btn disabled">
                             <img class="share-location-icon share-location-icon-style"/>
-                            <p>Share location in chat</p>
+                            <div id="share-button-text">Share location in chat</div>
                     </div>
                     <div class="share-location-info-layout">
                         <img class="info-icon info-icon-style">
@@ -126,7 +126,7 @@
         <script>
              //  Map
             var jsElem = window.document.createElement('script');
-            jsElem.src = `https://maps.googleapis.com/maps/api/js?key=${geo_key}&callback=initialize&libraries=places&v=weekly`;
+            jsElem.src = `https://maps.googleapis.com/maps/api/js?key=${geo_key}&libraries=places&v=weekly`;
             jsElem.type = 'text/javascript';
             document.getElementById('body').append(jsElem);
         </script>

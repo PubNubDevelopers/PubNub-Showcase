@@ -1,33 +1,11 @@
 /**
  * This file contains various constants associated with the chat portion of the demo.
- * Groups (both public and private) are hardcoded in the client, which is clearly not
+ * Private Groups are hardcoded in the client, which is clearly not
  * good practice in a production app where they would be stored on the server.
  * For more notes about transitioning between this demo and a production app, see chat.js.
+ * Public groups are stored in Channel App Context
  */
 var predefined_groups = {
-  groups: [
-    {
-      channel: 'Public.global',
-      name: 'Global (All Users)',
-      profileIcon: 'group-global.png',
-      description: 'Group containing all users in the chat system'
-    },
-    {
-      channel: 'Public.location-chat',
-      name: 'Location Updates',
-      profileIcon: 'group-location.png',
-      description:
-        'Used by the Geolocation demo.  Share your location with the world.  Remember, you can log out to stop your data being publicly visible',
-      info: "Populated by the <a href='../geolocation/geolocation.html'>Geo</a> demo"
-    },
-    {
-      channel: 'Public.healthcare',
-      name: 'Healthcare',
-      profileIcon: 'group-healthcare.png',
-      description: 'Build HIPAA-compliant telemedicine apps with PubNub as well as GDPR and SOC2 compliant apps',
-      info: "HIPAA & GDPR compiance"
-    }
-  ],
   private_groups: [
     //  Private groups are named 'Private.<name>' in this demo.  PubNub does not impose restrictions on names (beyond length & allowed characters) but
     //  it is a good idea to choose a sensible naming convention.
@@ -50,4 +28,9 @@ var predefined_groups = {
       info: "Powered by OpenAI"
     }
   ]
+}
+
+//  Public groups are held in app context and will be cached
+var cached_groups = {
+  public_groups: []
 }

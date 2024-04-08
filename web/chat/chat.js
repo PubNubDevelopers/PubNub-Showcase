@@ -196,6 +196,7 @@ async function loadChat () {
       )
       maReadReceipt(messageActionEvent)
       maEmojiReaction(messageActionEvent)
+      maDeleteRestoreEditMessage(messageActionEvent)
     },
     objects: async objectEvent => {
       //console.log(objectEvent)

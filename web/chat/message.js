@@ -3,6 +3,9 @@
  * For notes about transitioning between this demo and a production app, see chat.js.
  */
 
+const MESSAGE_DELETED_TEXT = "<span class='msg-deleted'>Message has been Deleted by Moderator</span>"
+const EDITED_TEXT_ADDENDUM = "<span class='msg-edited'>(Edited by Moderator)</span>"
+
 //  Handler for the PubNub message event
 async function messageReceived (messageObj, isFromHistory) {
   try {
@@ -159,8 +162,8 @@ function createMessageSent (messageObj, messageIsRead) {
                 ${convertTimetokenToDate(messageObj.timetoken)}
             </div>
         </div>
-        <div class="temp-message-bubble temp-message-bubble-me">
-            ${messageContents(messageObj.message)}
+        <div class="temp-message-bubble temp-message-bubble-me" id='msg-text-${messageObj.timetoken}'  data-unmaskedText='${messageContents(messageObj, true, true)}'>
+            ${messageContents(messageObj)}
             <div class="temp-read-indicator">
 
                 <div class="temp-message-reaction-rel-container">
@@ -219,8 +222,8 @@ function createMessageReceived (messageObj) {
       ${convertTimetokenToDate(messageObj.timetoken)}
       </div>
   </div>
-  <div class='temp-message-bubble temp-message-bubble-you'>
-      ${messageContents(messageObj.message)}
+  <div class='temp-message-bubble temp-message-bubble-you' id='msg-text-${messageObj.timetoken}'  data-unmaskedText='${messageContents(messageObj, true, true)}'>
+      ${messageContents(messageObj)}
       <div class='temp-read-indicator'>
           <div class='temp-message-reaction-rel-container'>
               <div class='temp-message-reaction-abs-container'>
@@ -246,16 +249,54 @@ function createMessageReceived (messageObj) {
   return newMsg
 }
 
+function messageContents(messageData)
+{
+  return messageContents(messageData, false, false)
+}
+
 //  Wrapper function to cater for whether the message had an associated image
-function messageContents (messageData) {
-  if (messageData.content.attachments && messageData.content.attachments[0].image.source != null) {
+//  This method also handles edits, deletes, and restores as created by the 'Channel Monitor' (part of BizOps workspace)
+//  Ensure the 'Channel Monitor Configuration' is enabled and configured as defined in this project's ReadMe.
+function messageContents (messageData, unmasked, withoutEditAddendum) {
+  if (!unmasked && messageData.data && messageData.data.deleted && messageData.data.deleted.deleted.length > 0)
+  {
+    //  This message has been deleted
+    return MESSAGE_DELETED_TEXT
+  }
+  else if (messageData.data && messageData.data.edited)
+  {
+    //  Edited messages are defined in the 'messageData.data.edited' field with the key being the message text
+    //  and the value associated with that key being a JSON object which contains the timetoken that edit was
+    //  made.  The keys are ordered alphabetically, so we need to find the most recently edited message by 
+    //  looking at the actionTimetoken
+    var edits = Object.keys(messageData.data.edited)
+    if (edits.length > 0)
+    {
+      //  Find the edit with the latest actionTimetoken
+      var mostRecentEdit = edits[0]
+      var mostRecentEditTimetoken = 0
+      for (var i = 0; i < edits.length; i++)
+      {
+        if (messageData.data.edited[edits[i]][0].actionTimetoken > mostRecentEditTimetoken)
+        {
+          mostRecentEditTimetoken = messageData.data.edited[edits[i]][0].actionTimetoken
+          mostRecentEdit = edits[i]
+        }
+      }
+      if (withoutEditAddendum)
+        return mostRecentEdit
+      else
+        return mostRecentEdit + EDITED_TEXT_ADDENDUM
+    }
+  }
+  else if (messageData.message.content.attachments && messageData.message.content.attachments[0].image.source != null) {
     //  There was an image attachment with the message
     var imageRender =
-      `<img class='temp-message-img temp-message-img-you' src='${messageData.content.attachments[0].image.source}'>` +
-      `${messageData.content.text}`
+      `<img class='temp-message-img temp-message-img-you' src='${messageData.message.content.attachments[0].image.source}'>` +
+      `${messageData.message.content.text}`
     return imageRender
   } else {
-    return messageData.content.text
+    return messageData.message.content.text
   }
 }
 

@@ -20,6 +20,21 @@ A hosted version of this demo can be found at **[https://showcase.pubnub.com/](h
 
 ## Usage Notes
 
+### Channel Monitor
+
+**Note that the Channel Monitor only works with the Chat portion of the application**
+
+Note: The Channel Monitor is not compatible with messages containing image attachments.
+
+To use the PubNub showcase with the BizOps Channel monitor feature, you should specify the Channel Monitor configuration as follows:
+
+- Message Content Path: `$.message.content.text`
+- Edit Action Name: `edited`
+- Soft Delete Action Name: `deleted`
+
+These settings can be specified as part of your keyset configuration.
+
+
 ### Firefox Users
 
 Firefox will not allow you to share storage between pages.  This is a [feature and not a bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1730419).  Please load the demo from a local server to use with Firefox, e.g. `python3 -m http.server 8001`.  Be sure to use `localhost` rather than the IP address when doing this, for full compatibility with the IoT demo.  *These are only issues running locally, you will not experience issues running a hosted version of this app*

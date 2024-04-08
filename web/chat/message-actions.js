@@ -87,6 +87,48 @@ function maEmojiReaction (messageActionEvent) {
     }
 }
 
+//  The Channel Monitor (part of BizOps workspace) may choose to edit, delete or
+//  restore a message and all of those are handled by this function.
+//  Note that the 'edited' and 'deleted' properties are defined as part
+//  of the 'Channel Monitor Configuration'.  
+//  The 'Message Content Path' should be set to $.message.content.text
+function maDeleteRestoreEditMessage (messageActionEvent)
+{
+  var messageTextContainer = document.getElementById(
+    'msg-text-' + messageActionEvent.data.messageTimetoken
+  )
+  if (messageTextContainer == null)
+  {
+    //  Reaction is against a message not present in this chat
+    return;
+  }
+
+  if (
+    messageActionEvent.event == 'added' &&
+    messageActionEvent.data.type == 'deleted'
+  ) {
+    //  Administrator has requested message be deleted
+    messageTextContainer.setAttribute('data-unmaskedText', messageTextContainer.innerHTML)
+    messageTextContainer.innerHTML = MESSAGE_DELETED_TEXT
+  }
+  else if (
+    messageActionEvent.event == 'removed' &&
+    messageActionEvent.data.type == 'deleted'
+  ) {
+    //  Administrator has requested message be restored
+    messageTextContainer.innerHTML = messageTextContainer.getAttribute('data-unmaskedText')
+  }
+  else if (
+    messageActionEvent.event == 'added' &&
+    messageActionEvent.data.type == 'edited'
+  ) {
+    //  Administrator has edited the message
+    var newText = messageActionEvent.data.value
+    messageTextContainer.innerHTML = newText + EDITED_TEXT_ADDENDUM
+    messageTextContainer.setAttribute('data-unmaskedText', messageTextContainer.innerHTML)
+  }
+}
+
 //  User has right clicked on a message (or long pressed on mobile), hard code reacting to this with a smiley emoji
 async function maAddEmojiReaction (messageId) {
   var messageElement = document.getElementById('emoji-reactions-' + messageId)

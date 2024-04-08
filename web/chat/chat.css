@@ -324,6 +324,17 @@ body {
     gap: 4px;
 }
 
+.msg-deleted {
+    color: var(--color-input-placeholder-text);
+    font-size: 0.8rem;
+}
+
+.msg-edited {
+    color: var(--color-input-placeholder-text);
+    font-size: 0.8rem;
+    align-self: flex-end;
+}
+
 .lds-ellipsis {
     display: inline-block;
     position: relative;

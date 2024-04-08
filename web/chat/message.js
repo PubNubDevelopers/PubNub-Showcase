@@ -3,7 +3,7 @@
  * For notes about transitioning between this demo and a production app, see chat.js.
  */
 
-const MESSAGE_DELETED_TEXT = "<span class='msg-deleted'>Message has been Deleted by Moderator</span>"
+const MESSAGE_DELETED_TEXT = "<span class='msg-deleted'>[Message has been Deleted by Moderator]</span>"
 const EDITED_TEXT_ADDENDUM = "<span class='msg-edited'>(Edited by Moderator)</span>"
 
 //  Handler for the PubNub message event

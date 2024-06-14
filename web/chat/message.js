@@ -289,7 +289,7 @@ function messageContents (messageData, unmasked, withoutEditAddendum) {
         return mostRecentEdit + EDITED_TEXT_ADDENDUM
     }
   }
-  else if (messageData.message.content.attachments && messageData.message.content.attachments[0].image.source != null) {
+  else if (!unmasked && messageData.message.content.attachments && messageData.message.content.attachments[0].image.source != null) {
     //  There was an image attachment with the message
     var imageRender =
       `<img class='temp-message-img temp-message-img-you' src='${messageData.message.content.attachments[0].image.source}'>` +

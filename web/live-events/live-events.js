@@ -142,7 +142,7 @@ function createMessage (messageObj, fromSelf) {
   var newMsg = document.createElement('div')
   newMsg.id = messageObj.timetoken
   newMsg.className = 've-message-container'
-  newMsg.innerHTML =
+  newMsg.innerHTML = 
     "<img class='ve-avatar' src='" +
     messageObj.message.avatar +
     "'><div class='ve-nickname" +
@@ -151,7 +151,7 @@ function createMessage (messageObj, fromSelf) {
     messageObj.message.sender +
     youText +
     "</div><div class='ve-message'>" +
-    messageObj.message.content.text +
+    escapeHTML(messageObj.message.content.text) +
     '</div>'
   return newMsg
 }

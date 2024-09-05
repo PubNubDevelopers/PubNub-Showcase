@@ -124,7 +124,7 @@ function maDeleteRestoreEditMessage (messageActionEvent)
   ) {
     //  Administrator has edited the message
     var newText = messageActionEvent.data.value
-    messageTextContainer.innerHTML = newText + EDITED_TEXT_ADDENDUM
+    messageTextContainer.innerHTML = escapeHTML(newText) + EDITED_TEXT_ADDENDUM
     messageTextContainer.setAttribute('data-unmaskedText', messageTextContainer.innerHTML)
   }
 }

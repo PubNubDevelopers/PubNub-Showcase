@@ -284,19 +284,19 @@ function messageContents (messageData, unmasked, withoutEditAddendum) {
         }
       }
       if (withoutEditAddendum)
-        return mostRecentEdit
+        return escapeHTML(mostRecentEdit)
       else
-        return mostRecentEdit + EDITED_TEXT_ADDENDUM
+        return escapeHTML(mostRecentEdit) + EDITED_TEXT_ADDENDUM
     }
   }
   else if (!unmasked && messageData.message.content.attachments && messageData.message.content.attachments[0].image.source != null) {
     //  There was an image attachment with the message
     var imageRender =
       `<img class='temp-message-img temp-message-img-you' src='${messageData.message.content.attachments[0].image.source}'>` +
-      `${messageData.message.content.text}`
+      `${escapeHTML(messageData.message.content.text)}`
     return imageRender
   } else {
-    return messageData.message.content.text
+    return escapeHTML(messageData.message.content.text)
   }
 }
 

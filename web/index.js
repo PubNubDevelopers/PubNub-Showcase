@@ -272,6 +272,7 @@ function uploadInProgress (inProgress) {
 
 async function login () {
   var nickname = document.getElementById('txtNickname').value
+  nickname = escapeHTML(nickname)
   var avatarUrl = user_avatar
   sessionStorage.setItem('nickname', nickname)
   sessionStorage.setItem('avatarUrl', avatarUrl)
